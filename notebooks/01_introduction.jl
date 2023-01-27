@@ -7,38 +7,11 @@ using InteractiveUtils
 # ╔═╡ 005d8679-5e59-4259-8971-30e50a40c1d6
 using PlutoUI
 
-# ╔═╡ e74cd715-d1a6-4443-bb73-e2c0c955a7f9
-md"""
-## Prelude, about the author
-
-Hi! My name is Stefano Campanella, I work at [OGS](https://www.ogs.it/), I like Julia.
-
-> _He had a lot to say. He had a lot of nothing to say._ -- Eulogy, Ænima , Tool
-"""
-
-# ╔═╡ 1001b0ee-64d3-11ed-3493-031f8f562254
-md"""# A Tour of Julia
-
-Julia is a general programming language suited for scientific computing applications. It is a dynamic, high-level language: executing a program written in Julia does not require the user to compile it beforehand, as for C or Fortran, and its syntax is similar to MATLAB or Python. Nonetheless, its performance is close to that of statically compiled languages. This is possible thanks to Just In Time (JIT) compilation (as JavaScript/TypeScript in your browser or Python when using Numba).
-
-## Seminar outline
-
-The material covered in this seminar is hardly original. It is mostly a reworking of the [official Julia documentation](https://docs.julialang.org/en/v1/), which is extensive and well written, and which I will refer to on several occasions. 
-
-Here there are the core topics that I would like to touch in this short series of notebooks:
-
-0. Preliminary matters (installation, package management, editors and IDE support)
-1. The Julia type system
-2. Building abstractions with procedures
-3. Building abstractions with data
-4. How to organize, test and distribute Julia code
-5. HPC related topics (concurrency, noteworthy packages, etc.)
-
-Let's begin with a digression and answer the question _why should I learn programming in Julia?_
-"""
-
 # ╔═╡ d599dbeb-9552-45cd-913c-46c487ef6c07
-md"""## Motivation
+md"""
+# Introduction
+
+## Motivation
 
 The great pyramid of Giza resisted the forces of nature, the winds, the sun, and the movements of the Earth, serving its purpose for more than four thousands years. Its thick walls might even provide a good energy rating, but nobody would ever immagine to make new buildings using the same solutions adopted in the ancient Egypt. This analogy illustrate why, in the opinion of the author, you should **stop writing scientific code in Fortran _whenever possible_**. Which language one might use then? 
 
@@ -485,8 +458,6 @@ version = "17.4.0+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─e74cd715-d1a6-4443-bb73-e2c0c955a7f9
-# ╟─1001b0ee-64d3-11ed-3493-031f8f562254
 # ╟─d599dbeb-9552-45cd-913c-46c487ef6c07
 # ╟─62113025-371c-4dec-9501-709f9d29612a
 # ╟─59aae636-769a-42f4-9403-d0f0f784f503
