@@ -139,7 +139,7 @@ This vector has type `Vector{Float64}`, which is an alias for `Array{Float64, 1}
 # ╔═╡ 531c8655-7737-4f08-ba98-0e3f5e98d1f1
 md"""
 
-### Union type
+### Tuple and Union type
 
 In type systems that have both, subtyping and parametric types can interact in interesting ways. In Julia, parametric types are not covariant, which means that if `A <: B`, then `C{A} <: C{B}` does **not** hold. This is something to keep in mind when designing a type hierarchy.
 """
@@ -149,6 +149,16 @@ Int <: Number
 
 # ╔═╡ 7d7d1863-ccaa-42f2-b33e-1c546c56da9b
 Vector{Int} <: Vector{Number}
+
+# ╔═╡ 22f9ab06-f24d-4d2e-8353-e199149eb120
+md"""
+However, the parametric type `Tuple{A, B, ...}` makes an exception and it's covariant in its arguments; that is if `T <: S` and `Tuple{A1, A2, ..., An} <: Tuple{B1, B2, ..., Bn}` then `Tuple{A1, A2, ..., An, T} <: Tuple{B1, B2, ..., Bn, S}`.
+
+The reason is that this special type is used in _multiple dispatch_, something which will discuss in more detail later. The main idea is that it represents the type of the input of a function (a tuple of arguments). Quoting the Julia documentation, "_tuples are an abstraction of the arguments of a function – without the function itself_".  If we want to use subtyping in the selection of a function implementation based on its arguments, we need covariance.
+"""
+
+# ╔═╡ bdb4e1fd-64fd-477f-95df-045e5eb5d1ca
+Tuple{Int, Float64} <: Tuple{Integer, AbstractFloat}
 
 # ╔═╡ 1193273b-c159-47c9-ba87-42dfaf9acdbf
 md"""
@@ -166,6 +176,22 @@ IntOrString = Union{Int,AbstractString}
 
 # ╔═╡ f6ffb520-acc5-41ab-9724-3d21a5d8b9cf
 1.0 :: IntOrString
+
+# ╔═╡ 42883895-0add-4b7a-a425-959d6eb1b736
+md"""
+Finally, several intuitive (in a set-theoretic point of view) relations holds. `Tuples` distribute over `Unions`, `Union{A, B}` is associative, and `Union{}` (the bottom value) is the neutral element with respect to `Union{A, B}`.
+
+A more in detail description of the type system and of the reasons behind its design can be found in the [Abstraction in technical computing](https://dspace.mit.edu/handle/1721.1/99811) (2015), the PhD thesis of Jeff Bezanson, one of the creators Julia.
+"""
+
+# ╔═╡ 72c818f8-ee5b-4329-9deb-66e96c3d9353
+Tuple{Union{Int, Float64}, String} == Union{Tuple{Int, String}, Tuple{Float64, String}}
+
+# ╔═╡ dc0ac71b-f781-4af2-9786-3b7a5d720f25
+Int == Union{Int, Union{}}
+
+# ╔═╡ ae5ea55e-780c-4bac-84f1-6096739335ea
+Union{Union{Int, Float64}, String} == Union{Int, Float64, String}
 
 # ╔═╡ fa5e3286-da7a-4773-97d2-b4ade6b1d23a
 md"""
@@ -581,14 +607,20 @@ version = "17.4.0+0"
 # ╟─531c8655-7737-4f08-ba98-0e3f5e98d1f1
 # ╠═03318c4d-6367-4a6c-836e-8dc83a64c56c
 # ╠═7d7d1863-ccaa-42f2-b33e-1c546c56da9b
+# ╟─22f9ab06-f24d-4d2e-8353-e199149eb120
+# ╠═bdb4e1fd-64fd-477f-95df-045e5eb5d1ca
 # ╟─1193273b-c159-47c9-ba87-42dfaf9acdbf
 # ╠═6d7f0d0a-8d09-4b89-8abe-51786402d122
 # ╠═08174909-8658-48be-844b-df95f5b553b2
 # ╠═191d31c9-3d87-44a3-8d69-48573fabcd70
 # ╠═f6ffb520-acc5-41ab-9724-3d21a5d8b9cf
-# ╠═fa5e3286-da7a-4773-97d2-b4ade6b1d23a
+# ╟─42883895-0add-4b7a-a425-959d6eb1b736
+# ╠═72c818f8-ee5b-4329-9deb-66e96c3d9353
+# ╠═dc0ac71b-f781-4af2-9786-3b7a5d720f25
+# ╠═ae5ea55e-780c-4bac-84f1-6096739335ea
+# ╟─fa5e3286-da7a-4773-97d2-b4ade6b1d23a
 # ╠═90223ffd-75aa-40c9-935f-f7a847bcdf43
-# ╠═53441a57-0c64-4984-8700-fecdec03ffae
+# ╟─53441a57-0c64-4984-8700-fecdec03ffae
 # ╠═e6578476-5184-47bd-82da-d9aaac5eb397
 # ╟─25221458-20ab-4df7-808c-18f24be06bbe
 # ╟─1ba15d0b-fda6-4f0c-b6fd-8f23f242b94d

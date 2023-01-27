@@ -268,6 +268,32 @@ bar(; kwargs...) = kwargs
 # ╔═╡ cf8cdafd-4814-4a18-8b96-29db5a86872f
 bar(x=1, y=2)
 
+# ╔═╡ 84d5e04e-f828-42e6-a45e-cebdcd13cd1a
+md"""
+## Is Julia an OOP language?
+
+Some (if not most) concepts in computer science don't have rigorous definitions, at least when it comes to real systems, and in contrast with mathematics or physics. Object-Oriented Programming (OOP) is one of them. I'll quote verbatim the first few paragraph of "What Is Object-Oriented Programming?" from the chapter 18 of Types and Programming Languages, by Benjamin Pierce.
+
+> Most arguments about "What is the essence of...?" do more to reveal the prejudices of the partecipants than to uncover any objective truth about the topic of discussion. Attempts to define the term "object-oriented" precisely are no exception. Nonetheless, we can identify a few fundamental features that are found in most object-oriented languages and that, in concert, support a distinctive programming style with well-understood advantages and disadvantages.
+> 1. **Multiple representations.** Perhaps the most basic characteristic of the object-oriented style is that, when an operation is invoked on an object, the object itself determines what code gets executed. [...] These implementations are called the object's _methods_. Invoking an operation on a object--called _method invocation_ or, more colorfully, sending it a _message_--involves looking up the operation's name at run time in a method table associated with the object, a process called _dynamic dispatch_. [...]
+> 2. **Encapsulation.** The internal representation of an object is generally hidden from view outside of the object's definition: only the object's own methods can directly inspect or manipulate its fields. This means that changes to the internal representation of an object can affect only a small, easily identifiable region of the program; this constraint greatly improves the readability and mainteainability of large systems. [...]
+> 3. **Subtyping.** The type of an object--its _interface_--is just the set of names and types of its operations. The object's internal representation does _not_ appear in its type, since it does not affect the set of things that we can directly do with the object. Object interfaces fit naturally into the subtype relation. If an object satisfies an interface `I`, then it clearly also satisfies any interfae `J` that lists fewer operations than `I`, since any context that expects a `J`-object can invoke only `J`-operations on it and so providing an `I`-object should always be safe [_Liskov substitution principle_]. [...] The ability to ignore parts of an object's interface allows us to write a single piece of code that manipulates many different sorts of objects in a uniform way, demanding only a certain common set of operations [_generic programming_].
+> 4. **Inheritance.** Objects that share parts of their interface will also often share some behaviors, and we would like to implement these common behaviors just once. Most object-object oriented languages achieve this reuse of behaviors via structures called _classes_--templates from which objects can be instantiated--and a mechanism of _subclassing_ that allows new classes to be derived from old ones by adding implementations for new methods and, when necessary, selectively overriding impolementations of old methods. [...]
+> 5. **Open recursion.** Another handy feature offered by most languages with objects and classes is the ability for one method body to invoke another method of the same object via a special variable called `self` or, in some languages, `this`. The special behavior of `self` is that it is _late-bound_, allowing a method defined in one class to invoke another method that is defined later, in some subclass of the first.
+
+Let's check if Julia meets the requirements to be considered an OOP language one by one.
+
+1. **Multiple representations.** Julia has dynamic dispatch, indeed it has _multiple dispatch_[^1]. This means that if an operation involves multiple objects, the choice of the implementation that is selected is based on all of them, not just one. Methods are defined separately from objects and since a method does not belong to an object, methods names do not belong to the object namespace. Hence, there isn't the equivalent to the `object.method` syntax popular in many OOP languages.
+2. **Encapsulation.** Julia does not have private member variables (struct fields) nor member functions (methods).
+3. **Subtyping.** As we've seen while discussing types, the Julia type system has been designed expressly for using subtyping in method specialization.
+4. **Inheritance.** Julia does not have inheritance, only composition.
+5. **Open recursion.** Since methods are defined separately and are specialized on the actual type of objects, there is no need for `self` or `this`.
+
+Therefore, Julia shouldn't be considered an OOP language in the usual sense of the expression. 
+
+[^1]: Julia multiple dispatch is very similar to the one found in CLOS (_multi-methods_, as called by Pierce), another legacy of Lisp.
+"""
+
 # ╔═╡ 80768236-9675-11ed-3cfb-c31606f7223e
 md"""
 ## Methods
@@ -602,13 +628,14 @@ version = "17.4.0+0"
 # ╠═24b123f4-eb89-4a77-9e3a-d92184d3d1a6
 # ╠═ae284bf3-29e9-47e5-8442-b02b341b7bd5
 # ╠═d745d90f-7053-44d8-9ecd-34bdad9b85d5
-# ╠═e020eae5-e884-4b43-b559-d0966d426b4c
+# ╟─e020eae5-e884-4b43-b559-d0966d426b4c
 # ╠═90008619-b02d-4ce1-aef2-2583d7b854b6
 # ╠═3218fcf5-d951-4a9e-885b-f10f991f8ac1
 # ╠═32688bdc-a2f8-4702-9beb-e5f25a8e07a3
 # ╠═bc41ad7b-883f-45de-bf5b-9759471fe380
 # ╠═1c7c4966-428f-483c-acea-25b4e7c677fb
 # ╠═cf8cdafd-4814-4a18-8b96-29db5a86872f
+# ╟─84d5e04e-f828-42e6-a45e-cebdcd13cd1a
 # ╠═80768236-9675-11ed-3cfb-c31606f7223e
 # ╠═e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═74047318-2e47-4829-abff-1301e7fc0caa
