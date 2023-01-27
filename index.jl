@@ -2,15 +2,15 @@
 # v0.19.20
 
 #> [frontmatter]
-#> title = "A Tour of Julia"
+#> title = "A tour of Julia"
 #> date = "2023-02-07"
-#> description = "Seminar frontmatter"
+#> description = "Seminar outline"
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ 8d964530-9e3d-11ed-301f-43882004bcd5
-md"""# A Tour of Julia
+md"""# A tour of Julia
 
 Julia is a general programming language suited for scientific computing applications. It is a dynamic, high-level language: executing a program written in Julia does not require the user to compile it beforehand, as for C or Fortran, and its syntax is similar to MATLAB or Python. Nonetheless, its performance is close to that of statically compiled languages. This is possible thanks to Just In Time (JIT) compilation (as JavaScript/TypeScript in your browser or Python when using Numba).
 

@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.19.20
 
+#> [frontmatter]
+#> title = "Building abstractions with procedures"
+#> date = "2023-02-07"
+#> description = "Multiple dispatch in Julia"
+
 using Markdown
 using InteractiveUtils
 
@@ -360,6 +365,30 @@ multimethod_func3(1, 2)
 # ╔═╡ 9a0f3de5-8d0d-4660-97f9-a2ac97f3ff2c
 multimethod_func3(1, 2.)
 
+# ╔═╡ 48090516-ded2-4913-9e28-0a61a4536e98
+md"""
+Moreover, methods are associated with types, hence you can attach types to a concrete or abstract type and make an object of that type _callable_.
+"""
+
+# ╔═╡ ee077522-7dd7-4212-9dc1-8c5287697325
+begin
+	abstract type AbstractParrot end
+	
+	# Struct will be discussed next, for now 
+	# let's assume that the following makes sense
+	struct Parrot <: AbstractParrot
+		str::String
+	end
+
+	(obj::AbstractParrot)(n) = obj.str ^ n
+end
+
+# ╔═╡ 73ec2b66-fb4c-4835-aa81-617cec6a288c
+dalek = Parrot("Exterminate! ")
+
+# ╔═╡ 50eef771-62d7-454d-b9f4-1803e2e21b4e
+dalek(3)
+
 # ╔═╡ 531e9be9-e0a8-49ab-8f18-d90d2f87f291
 md"""
 Finally, it is possible to design combinations of types that make dispatch discretionary (such that there are multiple equally valid methods). In that case, Julia throws an error.
@@ -371,9 +400,6 @@ let
 	f(x, y::Float64) = x + 2y
 	f(2.0, 3.0)
 end
-
-# ╔═╡ ad922caa-131c-4eb4-a22f-ea48d4ff64f4
-
 
 # ╔═╡ fe5e4582-f301-4e53-b633-28d2ca87b513
 md"""
@@ -387,11 +413,6 @@ md"""
 ### Example: the iterator interface
 
 ### Example: pretty printing
-"""
-
-# ╔═╡ 74047318-2e47-4829-abff-1301e7fc0caa
-md"""
-
 """
 
 # ╔═╡ cf07a313-9931-473b-8fe4-906b71af387c
@@ -732,12 +753,14 @@ version = "17.4.0+0"
 # ╠═779b5ea2-d88d-4b98-acb7-c9e698039db1
 # ╠═4d3c126d-5050-4a9b-9306-f7aad610a634
 # ╠═9a0f3de5-8d0d-4660-97f9-a2ac97f3ff2c
+# ╟─48090516-ded2-4913-9e28-0a61a4536e98
+# ╠═ee077522-7dd7-4212-9dc1-8c5287697325
+# ╠═73ec2b66-fb4c-4835-aa81-617cec6a288c
+# ╠═50eef771-62d7-454d-b9f4-1803e2e21b4e
 # ╟─531e9be9-e0a8-49ab-8f18-d90d2f87f291
 # ╠═b62b1f35-6f98-4ca0-ac8d-6b1f538ac643
-# ╠═ad922caa-131c-4eb4-a22f-ea48d4ff64f4
-# ╠═fe5e4582-f301-4e53-b633-28d2ca87b513
-# ╠═e6751e0d-2e6f-4324-8d36-3755d50e5a4a
-# ╠═74047318-2e47-4829-abff-1301e7fc0caa
+# ╟─fe5e4582-f301-4e53-b633-28d2ca87b513
+# ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═6d0071a2-9f72-4d65-8770-b4e8283bd7c1
 # ╠═cf07a313-9931-473b-8fe4-906b71af387c
 # ╟─00000000-0000-0000-0000-000000000001

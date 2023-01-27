@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.19.20
 
+#> [frontmatter]
+#> title = "The Julia type system"
+#> date = "2023-02-07"
+#> description = "Mainly about types, subtypes and parametric types in Julia"
+
 using Markdown
 using InteractiveUtils
 
@@ -11,7 +16,7 @@ using BenchmarkTools
 using PlutoUI
 
 # ╔═╡ 497dacf1-fc19-484f-800b-64bc1497820a
-md""" # The Julia Type System
+md""" # The Julia type system
 
 It is possible to write simple Julia programs while being unaware of the type system in the language. These Julia programs would look very similar to the ones that unexperienced programmers would write in Python or Matlab. However, to write more complex or general programs, to debug them and to ensure good performance, it is necessary to have some understanding of the Julia type system. Fortunately, a description of the type system sufficient for the purposes of this document can be given in few notions. The interested reader can find the details in the Julia [documentation](https://docs.julialang.org/en/v1/) (which is well written, extensive and clear).
 
@@ -626,7 +631,7 @@ version = "17.4.0+0"
 # ╟─1ba15d0b-fda6-4f0c-b6fd-8f23f242b94d
 # ╠═f81e6114-b046-4adf-bc8a-68f0624e91af
 # ╠═ce484dea-b7e2-4e08-9138-b24b004911a8
-# ╠═dba01f0b-0041-4246-9c98-d941ec65ccb5
+# ╟─dba01f0b-0041-4246-9c98-d941ec65ccb5
 # ╠═558a5c89-6569-435e-a12a-bd5ce6e2aea5
 # ╠═e79ee8ba-b47d-4038-92ee-52d6afb1cfeb
 # ╟─6b281640-d447-4741-822c-d6a574dfe45d
