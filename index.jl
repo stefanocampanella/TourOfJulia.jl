@@ -26,7 +26,7 @@ The material covered in this seminar is hardly original. It is mostly a reworkin
 
 Here there are the core topics that I would like to touch in this short series of notebooks:
 
-1. [Preliminary stuff](01_introduction.html) (installation, package management, editors and IDE support)
+1. [Preliminary stuff](01_prelims.html) (installation, package management, editors and IDE support)
 2. [The Julia type system](02_types.html)
 3. [Building abstractions with procedures](03_procedures.html)
 4. [Building abstractions with data](04_data.html)
@@ -39,5 +39,23 @@ Finally, we will see how to [solve a sudoku puzzle or the one-dimensional advect
 Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 """
 
+# ╔═╡ 98a176d7-5140-4492-8a18-b42ca3c3e87d
+md"""
+## Motivation
+
+The great pyramid of Giza resisted the forces of nature, the winds, the sun, and the movements of the Earth, serving its purpose for more than four thousands years. Its thick walls might even provide a good energy rating, but nobody would ever immagine to make new buildings using the same solutions adopted in the ancient Egypt. This analogy illustrate why, in the opinion of the author, you should **stop writing scientific code in Fortran _whenever possible_**. Which language one might use then? 
+
+There are practical reasons why **Julia it's a good choice**: it's a language that allows to write code that is maintainable, correct and sufficiently fast to shortcircuit prototipation and production cycle (the so-called two language problem).
+
+On a less technical level, Julia code tends to comply with the virtues proposed by Italo Calvino in "Six Memos for the Next Millennium": lightness, quickness, exactitude, visibility, multiplicity, and consistency (an unrecognized treatise about software engineering, in the end code is literature), more than the venerable FORTRAN 77.
+
+On an even lesser technical level, and this is my favourite answer, Julia is a good choice because **writing Julia code is fun**. This is a perfectly reasonable argument to choose a programming language (or any other thing used to reason about computer programs and processes, the spirits that live in the computer). 
+
+As in the quote of Alan J. Perlis that opens the memorable Structure and Interpretation of Computer Programs by Abelson and Sussmann:
+
+>``I think that it's extraordinarily important that we in computer science keep fun in computing. When it started out, it was an awful lot of fun. Of course, the paying customers got shafted every now and then, and after a while we began to take their complaints seriously. We began to feel as if we really were responsible for the successful, error-free perfect use of these machines. I don't think we are. I think we're responsible for stretching them, setting them off in new directions, and keeping fun in the house. I hope the field of computer science never loses its sense of fun. Above all, I hope we don't become missionaries. Don't feel as if you're Bible salesmen. The world has too many of those already. What you know about computing other people will learn. Don't feel as if the key to successful computing is only in your hands. What's in your hands, I think and hope, is intelligence: the ability to see the machine as more than when you were first led up to it, that you can make it more.''
+"""
+
 # ╔═╡ Cell order:
 # ╟─8d964530-9e3d-11ed-301f-43882004bcd5
+# ╟─98a176d7-5140-4492-8a18-b42ca3c3e87d
