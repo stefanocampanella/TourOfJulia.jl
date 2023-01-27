@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.19.20
 
+#> [frontmatter]
+#> title = "A Tour of Julia"
+#> date = "2023-02-07"
+#> description = "Seminar frontmatter"
+
 using Markdown
 using InteractiveUtils
 
@@ -21,15 +26,18 @@ The material covered in this seminar is hardly original. It is mostly a reworkin
 
 Here there are the core topics that I would like to touch in this short series of notebooks:
 
-0. [Preliminary stuff](01_introduction.html) (installation, package management, editors and IDE support)
-1. The Julia type system
-2. Building abstractions with procedures
-3. Building abstractions with data
-4. How to organize, test and distribute Julia code
-5. HPC related topics (concurrency, noteworthy packages, etc.)
+1. [Preliminary stuff](01_introduction.html) (installation, package management, editors and IDE support)
+2. [The Julia type system](02_types.html)
+3. [Building abstractions with procedures](03_procedures.html)
+4. [Building abstractions with data](04_data.html)
+5. [Multidimensional arrays](05_arrays.html)
+6. [Code reuse](07_reuse.html) (how to organize, test and distribute Julia code)
+7. [HPC related topics](08_hpc.html) (concurrency, noteworthy packages, etc.)
+
+Finally, we will see how to [solve a sudoku puzzle or the one-dimensional advection equation](06_examples.html) using Julia, and putting together a few thing seen along the way.
 
 Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 """
 
 # ╔═╡ Cell order:
-# ╠═8d964530-9e3d-11ed-301f-43882004bcd5
+# ╟─8d964530-9e3d-11ed-301f-43882004bcd5
