@@ -298,6 +298,85 @@ Therefore, Julia shouldn't be considered an OOP language in the usual sense of t
 md"""
 ## Methods
 
+When presenting optional arguments, we've given multiple definitions of the same function. In julian terms, these are called _methods_, and a function is a callable object packing different methods. At runtime, when a function is called, Julia select the most specific method compatible with the type of the arguments. This is called _dispatch_.
+
+To define different methods, specify the type of the arguments within the function signature.
+"""
+
+# ╔═╡ ce919012-aa4a-4964-a5ab-a91ceb8b7328
+multimethod_func(x::Float64, y::Float64) = x + y
+
+# ╔═╡ ffdec854-d0fe-4db3-ae2d-593c76f3a905
+multimethod_func(x::String, y::String) = x * y
+
+# ╔═╡ 9e93d8b6-4b1c-49dc-8cbb-a5ac28c4fb3d
+multimethod_func(2., 3.), multimethod_func("Seek &", " Destroy!")
+
+# ╔═╡ b57d8f08-8851-40b6-a66a-de01d391d240
+md"""
+Notice that Julia will not convert automatically the argument to the right type, even when the conversion is intuitively meaningful. If there are no available methods, an exception is thrown.
+
+In our example, if `multimethod_func2` compute the sum of two numbers, no matter what type of numbers they are, you should declare a method using the abstract type `Number`, which is a supertype of `Int`, `Float64`, `Float32`, etc. Notice that, in case of multiple compatible methods, Julia will select the most specific one.
+"""
+
+# ╔═╡ e27abf2d-94a8-4d32-bc4c-1b0bbd8b7c92
+multimethod_func(1.0, 2)
+
+# ╔═╡ 93ead583-3262-406b-906c-0fa10811049b
+multimethod_func2(x::Number, y::Number) = x + y
+
+# ╔═╡ 897d367b-0d13-45b5-979e-c93fbc5a94a0
+multimethod_func2(x::Int, y::Number) = y - x
+
+# ╔═╡ 30c0868e-1042-4b2c-874f-b38400df6a17
+multimethod_func2(1.0, 2), multimethod_func2(1. + 2.0im, 2. - 2.0im)
+
+# ╔═╡ b76b8aa9-d1a0-49b5-b471-34464a42bb16
+multimethod_func2(1, 2)
+
+# ╔═╡ 8c8ffb12-e745-4e82-8802-c2efefc0223a
+md"""
+It is possible to list all the methods of a function with `methods`. Notice that this list might be quite long, expecially for mathematical operators (eg. $(length(methods(+))) methods for `+` in the current session).
+"""
+
+# ╔═╡ 4d3cfd0d-042d-4141-bc96-390399ffacbc
+# First 10 methods of +
+methods(+)[1:10]
+
+# ╔═╡ 02db4e80-3cc5-4983-88a2-d92ac26081bd
+md"""
+It is also possible to define methods parametrically, using `where` and, eventually, type constraints. The type parameters introduced in this way can be used everywhere in the function body.
+"""
+
+# ╔═╡ 48f3ee90-3222-4710-9a3b-2fb935b8ebf8
+multimethod_func3(x::T, y::T) where {T <: Number} = "Arguments have the same (numeric) type!"
+
+# ╔═╡ 779b5ea2-d88d-4b98-acb7-c9e698039db1
+multimethod_func3(x::Number, y::Number) = "Arguments have different (numeric) types!"
+
+# ╔═╡ 4d3c126d-5050-4a9b-9306-f7aad610a634
+multimethod_func3(1, 2)
+
+# ╔═╡ 9a0f3de5-8d0d-4660-97f9-a2ac97f3ff2c
+multimethod_func3(1, 2.)
+
+# ╔═╡ 531e9be9-e0a8-49ab-8f18-d90d2f87f291
+md"""
+Finally, it is possible to design combinations of types that make dispatch discretionary (such that there are multiple equally valid methods). In that case, Julia throws an error.
+"""
+
+# ╔═╡ b62b1f35-6f98-4ca0-ac8d-6b1f538ac643
+let
+	f(x::Float64, y) = 2x + y
+	f(x, y::Float64) = x + 2y
+	f(2.0, 3.0)
+end
+
+# ╔═╡ ad922caa-131c-4eb4-a22f-ea48d4ff64f4
+
+
+# ╔═╡ fe5e4582-f301-4e53-b633-28d2ca87b513
+md"""
 ## Conversions and promotions
 """
 
@@ -636,7 +715,27 @@ version = "17.4.0+0"
 # ╠═1c7c4966-428f-483c-acea-25b4e7c677fb
 # ╠═cf8cdafd-4814-4a18-8b96-29db5a86872f
 # ╟─84d5e04e-f828-42e6-a45e-cebdcd13cd1a
-# ╠═80768236-9675-11ed-3cfb-c31606f7223e
+# ╟─80768236-9675-11ed-3cfb-c31606f7223e
+# ╠═ce919012-aa4a-4964-a5ab-a91ceb8b7328
+# ╠═ffdec854-d0fe-4db3-ae2d-593c76f3a905
+# ╠═9e93d8b6-4b1c-49dc-8cbb-a5ac28c4fb3d
+# ╟─b57d8f08-8851-40b6-a66a-de01d391d240
+# ╠═e27abf2d-94a8-4d32-bc4c-1b0bbd8b7c92
+# ╠═93ead583-3262-406b-906c-0fa10811049b
+# ╠═30c0868e-1042-4b2c-874f-b38400df6a17
+# ╠═897d367b-0d13-45b5-979e-c93fbc5a94a0
+# ╠═b76b8aa9-d1a0-49b5-b471-34464a42bb16
+# ╟─8c8ffb12-e745-4e82-8802-c2efefc0223a
+# ╠═4d3cfd0d-042d-4141-bc96-390399ffacbc
+# ╟─02db4e80-3cc5-4983-88a2-d92ac26081bd
+# ╠═48f3ee90-3222-4710-9a3b-2fb935b8ebf8
+# ╠═779b5ea2-d88d-4b98-acb7-c9e698039db1
+# ╠═4d3c126d-5050-4a9b-9306-f7aad610a634
+# ╠═9a0f3de5-8d0d-4660-97f9-a2ac97f3ff2c
+# ╟─531e9be9-e0a8-49ab-8f18-d90d2f87f291
+# ╠═b62b1f35-6f98-4ca0-ac8d-6b1f538ac643
+# ╠═ad922caa-131c-4eb4-a22f-ea48d4ff64f4
+# ╠═fe5e4582-f301-4e53-b633-28d2ca87b513
 # ╠═e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═74047318-2e47-4829-abff-1301e7fc0caa
 # ╠═6d0071a2-9f72-4d65-8770-b4e8283bd7c1
