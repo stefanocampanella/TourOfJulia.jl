@@ -21,7 +21,7 @@ The material covered in this seminar is hardly original. It is mostly a reworkin
 
 Here there are the core topics that I would like to touch in this short series of notebooks:
 
-0. Preliminary matters (installation, package management, editors and IDE support)
+0. [Preliminary stuff](01_introduction.html) (installation, package management, editors and IDE support)
 1. The Julia type system
 2. Building abstractions with procedures
 3. Building abstractions with data
@@ -32,4 +32,4 @@ Let's begin with a digression and answer the question _why should I learn progra
 """
 
 # ╔═╡ Cell order:
-# ╟─8d964530-9e3d-11ed-301f-43882004bcd5
+# ╠═8d964530-9e3d-11ed-301f-43882004bcd5
