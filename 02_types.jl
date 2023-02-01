@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.20
+# v0.19.22
 
 #> [frontmatter]
 #> title = "The Julia type system"

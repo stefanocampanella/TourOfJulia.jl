@@ -9,6 +9,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 7d9504c8-1bd0-4325-a122-e50c965ad8b2
+using Statistics
+
 # ╔═╡ 6d0071a2-9f72-4d65-8770-b4e8283bd7c1
 using PlutoUI
 
@@ -231,7 +234,7 @@ let
 end
 
 # ╔═╡ 24b123f4-eb89-4a77-9e3a-d92184d3d1a6
-# right fold definition using splatting and slurping
+# fold right definition using splatting and slurping
 rfold(f, x, xs...) = isempty(xs) ? x : f(x, rfold(f, xs...))
 
 # ╔═╡ ae284bf3-29e9-47e5-8442-b02b341b7bd5
@@ -474,10 +477,66 @@ promote_type(Float64, Int, StrangeNum)
 md"""
 ## Interfaces
 
+In Julia there are no traits, type classes or multiple inheritance. There is no formal or automated way of knowing that an object has some behavior, i.e. that some methods have been defined somewhere, or of knowing which methods you should write to ensure that behavior. Instead, in Julia there are _informal interfaces_, as the manual call them. The knowledge of which methods one should define for custom types to get the desired behavior is based on documentation and experimentation. Writing generic methods using these interfaces turns out to be a powerful code reuse technique. I'll quote verbatim the Julia manual on interfaces.
+
+> By extending a few specific methods to work for a custom type, objects of that type not only receive those functionalities, but they are also able to be used in other methods that are written to generically build upon those behaviors.
+
+**Notice: if you want to extend an interface defined in another module, you have to use its fully qualified name.**
+
 ### Example: the iterator interface
 
+A `for` loop
+
+```julia
+for item in iter # or "for item = iter"
+	# body
+end
+```
+
+is desugared to
+
+```julia
+next = iterate(iter)
+while next !== nothing
+	(item, state) = next
+	# body
+	next = iterate(iter, state)
+end
+```
+
+Therefore any object `iter::T` for which `iterate(iter::T)::Union{Nothing, Tuple{I, S}}` and `iterate(iter::T, state::S)::Union{Nothing, Tuple{I, S}}` are defined is iterable.
+"""
+
+# ╔═╡ 81dc5bbc-8d95-409a-a2b5-1c945feb0496
+struct Squares
+    count::Int
+end
+
+# ╔═╡ 482a309b-2030-437e-85ca-55b5fccd7ba5
+Base.iterate(S::Squares, state=1) = state > S.count ? nothing : (state*state, state+1)
+
+# ╔═╡ c2063d74-ec35-422f-845b-6e3a64171596
+25 in Squares(10)
+
+# ╔═╡ 955ca71f-046e-4924-a3f4-b3951178cfea
+mean(Squares(10))
+
+# ╔═╡ 603abe15-6a4c-407a-a701-3face5f98cb5
+md"""
 ### Example: pretty printing
 """
+
+# ╔═╡ 0b254224-7dae-43fa-86f3-fc5bf044358c
+struct DignifiedString <: AbstractString
+	content::String
+	exclamationmarkscount::Int
+end
+
+# ╔═╡ 9983c5c9-f1da-4132-ac41-2e696f80be15
+Base.show(io, ::MIME"text/html", s::DignifiedString) = print(io, uppercase(s.content) * reduce(*, rand(["!", "1"], s.exclamationmarkscount)))
+
+# ╔═╡ e1821814-5d9c-403b-a1ab-ce4ecb7641f3
+DignifiedString("Hello world", 10)
 
 # ╔═╡ cf07a313-9931-473b-8fe4-906b71af387c
 PlutoUI.TableOfContents()
@@ -486,6 +545,7 @@ PlutoUI.TableOfContents()
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 PlutoUI = "~0.7.49"
@@ -497,7 +557,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "08cc58b1fbde73292d848136b97991797e6c5429"
+project_hash = "637bd6b2420481860177e21111ae8674981dff3a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -833,7 +893,16 @@ version = "17.4.0+0"
 # ╠═97a2fff2-f476-4177-8051-f5a5693725a5
 # ╠═6a808540-b9c9-43a8-9ed3-97bcf7a75b77
 # ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
-# ╠═6d0071a2-9f72-4d65-8770-b4e8283bd7c1
-# ╠═cf07a313-9931-473b-8fe4-906b71af387c
+# ╠═81dc5bbc-8d95-409a-a2b5-1c945feb0496
+# ╠═482a309b-2030-437e-85ca-55b5fccd7ba5
+# ╠═c2063d74-ec35-422f-845b-6e3a64171596
+# ╠═7d9504c8-1bd0-4325-a122-e50c965ad8b2
+# ╠═955ca71f-046e-4924-a3f4-b3951178cfea
+# ╟─603abe15-6a4c-407a-a701-3face5f98cb5
+# ╠═0b254224-7dae-43fa-86f3-fc5bf044358c
+# ╠═9983c5c9-f1da-4132-ac41-2e696f80be15
+# ╠═e1821814-5d9c-403b-a1ab-ce4ecb7641f3
+# ╟─6d0071a2-9f72-4d65-8770-b4e8283bd7c1
+# ╟─cf07a313-9931-473b-8fe4-906b71af387c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
