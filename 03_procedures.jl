@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.20
+# v0.19.22
 
 #> [frontmatter]
 #> title = "Building abstractions with procedures"
@@ -404,7 +404,71 @@ end
 # ╔═╡ fe5e4582-f301-4e53-b633-28d2ca87b513
 md"""
 ## Conversions and promotions
+
+The original sin of FORTRAN is written in its name, which stands for FORmula TRANslator, as it is known. Unfortunately, math is orthogonal to computation, and such a translation is impossible[^1]. However, the illusion that one can just write arithmetic expressions and obtain meaningful results relieves the scientific programmeer from some cognitive burden. 
+
+But how is `1.5 + 1` evaluated? Machines can't add floating point numbers and integers as is, hence it is necessary to convert them to a common type for which addition is defined. Some programming languages use automatic promotion of built-in arithmetic types and operators, and must have rules for these automatic conversions within their specifications or implementations.
+
+Julia uses a different strategy, leveraging multiple dispatch. It defines catch-all methods, and delegates type promotions and conversions to another function--an example of application of the [fundamental theorem of software engineering](https://en.wikipedia.org/wiki/Fundamental_theorem_of_software_engineering).
+
+
+[^1]: 
+	This is admittedly a bold statement, and few people will agree. [As taught by Prof. George O. Strawn Ph.D. to his Ph.D. student Walter E. Brown](https://youtu.be/L5daPjK00bo)
+	> Mathematics is, after all, a small branch of computer science. 
+	If you ask a homotopy type theoretician, he will probably give you a very profound and epistemologically insighful answer, the bottom line of which would probably be that they are the same thing. My favourite, non-constructivist answer comes from the preface to the first edition of SICP:
+	> Underlying our approach to this subject is our conviction that "computer science" is not a science and that its significance has little to do with computers. The computer revolution is a revolution in the way we think and in the way we express what we think. The essence of this change is the emergence of what might best be called _procedural epistemology_--the study of the structure of knowledge from an imperative point of view, as opposed to the more declarative point of view taken by classical mathematical subjects. Mathematics provides a framework for dealing precisely with notions of "what is." Computation provides a framework for dealing precisely with notions of "how to."
 """
+
+# ╔═╡ 4e0713ad-c859-4eac-af87-6648bf1bac0e
+add(x::Float64, y::Float64) = "Flipping FP arithmetic transistors"
+
+# ╔═╡ 9978d683-6064-443f-9a09-ee5010c27c94
+add(x::Int, y::Int) = "Flipping integer arithmetic transistors"
+
+# ╔═╡ 2413e420-bc28-4bfa-94ad-65c6e848adf6
+add(x::Number, y::Number) = add(promote(x, y)...)
+
+# ╔═╡ bacb5c54-5a63-47f4-a174-d21f31eff2b0
+add(1.5, 1)
+
+# ╔═╡ e61754a8-8596-4124-be26-0f0b3e505b6a
+md"""
+The two ingredients used in this pattern (value promotion) are value conversions and type promotions. In Julia the first is done using the `convert` function, the second with `promote_type`. The `promote` function which we have just seen in action and implicitly calls `convert`, as can be seen in the [source code on GitHub](https://github.com/JuliaLang/julia/blob/77a55743e478a3da248ee6dd226af8ec0da66577/base/promotion.jl#L354-L409). The idea can be captured by the following (simplified) function definition.
+
+```julia
+function promote(x::T, y::S) where {T,S}
+    R = promote_type(T, S)
+    return (convert(R, x), convert(R, y))
+end
+```
+
+Other language constructs that implicitly call `convert`:
+
+* Assigning to an array converts to the array's element type.
+* Assigning to a field of an object converts to the declared type of the field.
+* Constructing an object with `new` converts to the object's declared field types.
+* Assigning to a variable with a declared type (e.g. `local x::T`) converts to that type.
+* A function with a declared return type converts its return value to that type
+* Passing a value to `ccall` converts it to the corresponding argument type.
+
+What has been said for built-in arithmetic types is valid for all types, hence for user defined types. 
+
+User defined promotion rules can be introduced by adding methods to the function `promote_rule`, and **not** to `promote_type`. Indeed, `promote_type` is defined in terms of `promote_rule` and ensures symmetry. Also, `promote_type` will work with multiple types, [using a right fold of the arguments list](https://github.com/JuliaLang/julia/blob/77a55743e478a3da248ee6dd226af8ec0da66577/base/promotion.jl#L292-L294).
+```julia
+promote_type()  = Bottom
+promote_type(T) = T
+promote_type(T, S, U, V...) = (@inline; promote_type(T, promote_type(S, U, V...)))
+```
+"""
+
+# ╔═╡ a4df77e5-20af-4f05-bdca-2dc130ea5dcc
+struct StrangeNum end
+
+# ╔═╡ 97a2fff2-f476-4177-8051-f5a5693725a5
+Base.promote_rule(::Type{StrangeNum}, ::Type{Int}) = Complex{Float32}
+
+# ╔═╡ 6a808540-b9c9-43a8-9ed3-97bcf7a75b77
+promote_type(Float64, Int, StrangeNum)
 
 # ╔═╡ e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 md"""
@@ -760,6 +824,14 @@ version = "17.4.0+0"
 # ╟─531e9be9-e0a8-49ab-8f18-d90d2f87f291
 # ╠═b62b1f35-6f98-4ca0-ac8d-6b1f538ac643
 # ╟─fe5e4582-f301-4e53-b633-28d2ca87b513
+# ╠═4e0713ad-c859-4eac-af87-6648bf1bac0e
+# ╠═9978d683-6064-443f-9a09-ee5010c27c94
+# ╠═2413e420-bc28-4bfa-94ad-65c6e848adf6
+# ╠═bacb5c54-5a63-47f4-a174-d21f31eff2b0
+# ╟─e61754a8-8596-4124-be26-0f0b3e505b6a
+# ╠═a4df77e5-20af-4f05-bdca-2dc130ea5dcc
+# ╠═97a2fff2-f476-4177-8051-f5a5693725a5
+# ╠═6a808540-b9c9-43a8-9ed3-97bcf7a75b77
 # ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═6d0071a2-9f72-4d65-8770-b4e8283bd7c1
 # ╠═cf07a313-9931-473b-8fe4-906b71af387c
