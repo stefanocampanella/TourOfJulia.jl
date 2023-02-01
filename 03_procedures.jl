@@ -477,7 +477,7 @@ promote_type(Float64, Int, StrangeNum)
 md"""
 ## Interfaces
 
-In Julia there are no traits, type classes or multiple inheritance. There is no formal or automated way of knowing that an object has some behavior, i.e. that some methods have been defined somewhere, or of knowing which methods you should write to ensure that behavior. Instead, in Julia there are _informal interfaces_, as the manual call them. The knowledge of which methods one should define for custom types to get the desired behavior is based on documentation and experimentation. Writing generic methods using these interfaces turns out to be a powerful code reuse technique. I'll quote verbatim the Julia manual on interfaces.
+In Julia there are no traits[^1], type classes or multiple inheritance. There is no formal or automated way of knowing that an object has some behavior, i.e. that some methods have been defined somewhere, or of knowing which methods you should write to ensure that behavior. Instead, in Julia there are _informal interfaces_, as the manual call them. The knowledge of which methods one should define for custom types to get the desired behavior is based on documentation and experimentation. Writing generic methods using these interfaces turns out to be a powerful code reuse technique. I'll quote verbatim the Julia manual on interfaces.
 
 > By extending a few specific methods to work for a custom type, objects of that type not only receive those functionalities, but they are also able to be used in other methods that are written to generically build upon those behaviors.
 
@@ -505,6 +505,8 @@ end
 ```
 
 Therefore any object `iter::T` for which `iterate(iter::T)::Union{Nothing, Tuple{I, S}}` and `iterate(iter::T, state::S)::Union{Nothing, Tuple{I, S}}` are defined is iterable.
+
+[^1]: I'll discuss Holy traits in the next section.
 """
 
 # ╔═╡ 81dc5bbc-8d95-409a-a2b5-1c945feb0496
@@ -537,6 +539,36 @@ Base.show(io, ::MIME"text/html", s::DignifiedString) = print(io, uppercase(s.con
 
 # ╔═╡ e1821814-5d9c-403b-a1ab-ce4ecb7641f3
 DignifiedString("Hello world", 10)
+
+# ╔═╡ 151f2793-fd38-4590-bffb-9d55ccb5ffe5
+md"""
+
+## Tim Holy Trait Trick (THTT)
+
+As said, Julia does not have native traits: that is to list the methods that must be defined to implement an interface, or type class, add a type to that type class, and constraint a type variable in a method definition to belong to some type class. 
+
+However, there is a trick to let the programmer declare that objects of a certain type have some behavior, and then to dispatch the right method based on this trait.
+
+This trick is called Tim Holy Trait Trick, from the name of its author, Tim Holy, a long-time Julia contributor.
+"""
+
+# ╔═╡ f3ae77ea-6be2-4cca-a99d-cbe8b9c0420b
+abstract type IteratorSize end
+
+# ╔═╡ 688c006d-2fb5-472c-8229-aca89b80cad0
+struct SizeUnknown <: IteratorSize end
+
+# ╔═╡ 0a9267a9-1e9a-42e1-a19b-daa1698a1a48
+struct HasLength <: IteratorSize end
+
+# ╔═╡ 49bea5dd-c169-4ab6-8591-e1fdfb7ec340
+struct HasShape{N} <: IteratorSize end
+
+# ╔═╡ 7f1b2cf4-082c-4024-8090-25e4284dadce
+struct IsInfinite <: IteratorSize end
+
+# ╔═╡ 29cfbe82-bf9c-4158-b94c-3767c284bc1f
+
 
 # ╔═╡ cf07a313-9931-473b-8fe4-906b71af387c
 PlutoUI.TableOfContents()
@@ -902,6 +934,13 @@ version = "17.4.0+0"
 # ╠═0b254224-7dae-43fa-86f3-fc5bf044358c
 # ╠═9983c5c9-f1da-4132-ac41-2e696f80be15
 # ╠═e1821814-5d9c-403b-a1ab-ce4ecb7641f3
+# ╠═151f2793-fd38-4590-bffb-9d55ccb5ffe5
+# ╠═f3ae77ea-6be2-4cca-a99d-cbe8b9c0420b
+# ╠═688c006d-2fb5-472c-8229-aca89b80cad0
+# ╠═0a9267a9-1e9a-42e1-a19b-daa1698a1a48
+# ╠═49bea5dd-c169-4ab6-8591-e1fdfb7ec340
+# ╠═7f1b2cf4-082c-4024-8090-25e4284dadce
+# ╠═29cfbe82-bf9c-4158-b94c-3767c284bc1f
 # ╟─6d0071a2-9f72-4d65-8770-b4e8283bd7c1
 # ╟─cf07a313-9931-473b-8fe4-906b71af387c
 # ╟─00000000-0000-0000-0000-000000000001
