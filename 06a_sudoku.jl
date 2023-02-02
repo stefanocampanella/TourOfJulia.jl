@@ -100,10 +100,6 @@ boxing_indexing = boxs(fortran_indexing)
 # generators
 views(g) = (f(g) for f in (identity, transp, boxs))
 
-# ╔═╡ f1a81098-98f5-484f-86fb-f8f20ee0596d
-# stdlib function overload
-Base.size(A::Boxs) = size(A.parent)
-
 # ╔═╡ de33c856-ebb7-428e-b45f-dba5432ff6e2
 # metaprogramming, generated functions
 @generated function boxindx(::Boxs{S, T, L, R}, z) where {S, T, L, R}
@@ -126,10 +122,14 @@ Base.getindex(A::Boxs, i::Int, j::Int) = Base.getindex(A, LinearIndices(A.parent
 
 # ╔═╡ 8f22cc75-1ee6-47b3-bdd5-024d378122da
 md"""
-## A Sudoku Solver
+# A Sudoku Solver
 
 In this notebook I will code a sudoku solver in Julia. The implementation is based on the [Haskell one](http://www.cs.nott.ac.uk/~pszgmh/sudoku.lhs) provided by Graham Sutton in his course on advanced functional programming. This will be an excuse to illustrate with an example many of the features we encountered.
 """
+
+# ╔═╡ f1a81098-98f5-484f-86fb-f8f20ee0596d
+# stdlib function overload
+Base.size(A::Boxs) = size(A.parent)
 
 # ╔═╡ 5617c883-48dd-4f43-8d6f-dfe60a26f9c8
 # ternary operator (control flow), algorithms (reduce, foldl, folr)
@@ -227,11 +227,6 @@ valid(g) = all(all(allunique , eachcol(v)) for v in views(g))
 # ╔═╡ 26975725-62d5-4d1c-87d3-c18e3ad52f4d
 valid(diabolical_sol)
 
-# ╔═╡ 7e66da02-7894-43b4-aafe-a6127549c378
-md"""
-## Advection equation
-"""
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -254,10 +249,10 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 # ╠═f1dca892-160a-4fa3-9c74-5ae285ca1d6a
 # ╠═ac386887-4111-4914-ba86-76e6ce04d8dc
 # ╠═fbecde76-b1ad-4db0-9ddf-8e1e764aa468
-# ╠═f1a81098-98f5-484f-86fb-f8f20ee0596d
+# ╠═de33c856-ebb7-428e-b45f-dba5432ff6e2
 # ╠═1d2d111f-9dd5-44d1-9dd4-3bcf06c2e1af
 # ╠═45e8a15c-22b6-4a5b-96d7-9e3845b4aec2
-# ╠═de33c856-ebb7-428e-b45f-dba5432ff6e2
+# ╠═f1a81098-98f5-484f-86fb-f8f20ee0596d
 # ╠═0b0fa9da-63c2-416d-991f-99f3a3abbbf0
 # ╠═4f1fbbd0-f52b-4500-887d-8e6aff488287
 # ╠═a13ae96e-c81a-40f3-83f0-9a77e3a4dafc
@@ -287,6 +282,5 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 # ╠═cdc235e9-a2a2-43a5-94ef-832795e7fa2e
 # ╠═e2af96a9-e977-4d14-a52a-84b44bbb92b5
 # ╠═26975725-62d5-4d1c-87d3-c18e3ad52f4d
-# ╠═7e66da02-7894-43b4-aafe-a6127549c378
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
