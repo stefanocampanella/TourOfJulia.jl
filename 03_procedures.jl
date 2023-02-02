@@ -481,7 +481,8 @@ In Julia there are no traits[^1], type classes or multiple inheritance. There is
 
 > By extending a few specific methods to work for a custom type, objects of that type not only receive those functionalities, but they are also able to be used in other methods that are written to generically build upon those behaviors.
 
-**Notice: if you want to extend an interface defined in another module, you have to use its fully qualified name.**
+!!! note
+	If you want to extend an interface defined in another module, you have to use its fully qualified name.
 
 ### Example: the iterator interface
 
@@ -510,18 +511,15 @@ Therefore any object `iter::T` for which `iterate(iter::T)::Union{Nothing, Tuple
 """
 
 # ╔═╡ 81dc5bbc-8d95-409a-a2b5-1c945feb0496
-struct Squares
-    count::Int
+struct Collatz{T<:Integer}
+    seed::T
 end
 
 # ╔═╡ 482a309b-2030-437e-85ca-55b5fccd7ba5
-Base.iterate(S::Squares, state=1) = state > S.count ? nothing : (state*state, state+1)
-
-# ╔═╡ c2063d74-ec35-422f-845b-6e3a64171596
-25 in Squares(10)
+Base.iterate(iter::Collatz, n=iter.seed) = n == 1 ? nothing : (next = isodd(n) ? 3n + 1 : div(n, 2); (next, next))
 
 # ╔═╡ 955ca71f-046e-4924-a3f4-b3951178cfea
-mean(Squares(10))
+mean(Collatz(10))
 
 # ╔═╡ 603abe15-6a4c-407a-a701-3face5f98cb5
 md"""
@@ -545,29 +543,32 @@ md"""
 
 ## Tim Holy Trait Trick (THTT)
 
-As said, Julia does not have native traits: that is to list the methods that must be defined to implement an interface, or type class, add a type to that type class, and constraint a type variable in a method definition to belong to some type class. 
+Traits are a way of sharing behavior between types not related by subtyping relationship or by inheritance[^1].
+
+As said, Julia does not have native traits: that is a programmatic way to list the methods that must be defined to implement an interface, add a type to that type class, and constraint a type variable in a method definition to belong to some type class.
 
 However, there is a trick to let the programmer declare that objects of a certain type have some behavior, and then to dispatch the right method based on this trait.
+This trick is called Tim Holy Trait Trick, from the name of its author, Tim Holy, a neuroscientist and long-time Julia contributor.
 
-This trick is called Tim Holy Trait Trick, from the name of its author, Tim Holy, a long-time Julia contributor.
+The idea is to create new types representing the traits and use multiple dispatch to select implementations based on these types. This pattern is rather common in Julia code and appears also in parts of the language written in Julia itself. The iterator interface is a good example.
+
+[^1]:
+	In Haskell there is no subtyping, hence open type classes (together with parametric polymorphism) are the only way of sharing behavior.
 """
 
-# ╔═╡ f3ae77ea-6be2-4cca-a99d-cbe8b9c0420b
-abstract type IteratorSize end
+# ╔═╡ 62311b6e-8a4d-46dd-998e-4965b5bf1139
+Base.IteratorSize(::Type{Collatz{T}}) where {T<:Integer} = Base.SizeUnknown()
 
-# ╔═╡ 688c006d-2fb5-472c-8229-aca89b80cad0
-struct SizeUnknown <: IteratorSize end
+# ╔═╡ 07f83b6b-5600-4c8a-9f0f-08a397aa943a
+Base.IteratorEltype(::Type{Collatz{T}}) where {T<:Integer} = Base.HasEltype()
 
-# ╔═╡ 0a9267a9-1e9a-42e1-a19b-daa1698a1a48
-struct HasLength <: IteratorSize end
+# ╔═╡ 457f0a73-50b8-4243-b411-d2c5ebe5e036
+Base.eltype(::Type{Collatz{T}}) where {T<:Integer} = T
 
-# ╔═╡ 49bea5dd-c169-4ab6-8591-e1fdfb7ec340
-struct HasShape{N} <: IteratorSize end
+# ╔═╡ e1e79367-a44f-4fe9-9a56-167aaad3477c
+@code_typed collect(Collatz(13))
 
-# ╔═╡ 7f1b2cf4-082c-4024-8090-25e4284dadce
-struct IsInfinite <: IteratorSize end
-
-# ╔═╡ 29cfbe82-bf9c-4158-b94c-3767c284bc1f
+# ╔═╡ 4c27c603-2eb0-482a-a83a-c1a64f6166fd
 
 
 # ╔═╡ cf07a313-9931-473b-8fe4-906b71af387c
@@ -924,23 +925,21 @@ version = "17.4.0+0"
 # ╠═a4df77e5-20af-4f05-bdca-2dc130ea5dcc
 # ╠═97a2fff2-f476-4177-8051-f5a5693725a5
 # ╠═6a808540-b9c9-43a8-9ed3-97bcf7a75b77
-# ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
+# ╠═e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═81dc5bbc-8d95-409a-a2b5-1c945feb0496
 # ╠═482a309b-2030-437e-85ca-55b5fccd7ba5
-# ╠═c2063d74-ec35-422f-845b-6e3a64171596
 # ╠═7d9504c8-1bd0-4325-a122-e50c965ad8b2
 # ╠═955ca71f-046e-4924-a3f4-b3951178cfea
 # ╟─603abe15-6a4c-407a-a701-3face5f98cb5
 # ╠═0b254224-7dae-43fa-86f3-fc5bf044358c
 # ╠═9983c5c9-f1da-4132-ac41-2e696f80be15
 # ╠═e1821814-5d9c-403b-a1ab-ce4ecb7641f3
-# ╠═151f2793-fd38-4590-bffb-9d55ccb5ffe5
-# ╠═f3ae77ea-6be2-4cca-a99d-cbe8b9c0420b
-# ╠═688c006d-2fb5-472c-8229-aca89b80cad0
-# ╠═0a9267a9-1e9a-42e1-a19b-daa1698a1a48
-# ╠═49bea5dd-c169-4ab6-8591-e1fdfb7ec340
-# ╠═7f1b2cf4-082c-4024-8090-25e4284dadce
-# ╠═29cfbe82-bf9c-4158-b94c-3767c284bc1f
+# ╟─151f2793-fd38-4590-bffb-9d55ccb5ffe5
+# ╠═62311b6e-8a4d-46dd-998e-4965b5bf1139
+# ╠═07f83b6b-5600-4c8a-9f0f-08a397aa943a
+# ╠═457f0a73-50b8-4243-b411-d2c5ebe5e036
+# ╠═e1e79367-a44f-4fe9-9a56-167aaad3477c
+# ╠═4c27c603-2eb0-482a-a83a-c1a64f6166fd
 # ╟─6d0071a2-9f72-4d65-8770-b4e8283bd7c1
 # ╟─cf07a313-9931-473b-8fe4-906b71af387c
 # ╟─00000000-0000-0000-0000-000000000001
