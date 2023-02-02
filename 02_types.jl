@@ -18,7 +18,7 @@ using PlutoUI
 # ╔═╡ 497dacf1-fc19-484f-800b-64bc1497820a
 md""" # The Julia type system
 
-It is possible to write simple Julia programs while being unaware of the type system in the language. These Julia programs would look very similar to the ones that unexperienced programmers would write in Python or Matlab. However, to write more complex or general programs, to debug them and to ensure good performance, it is necessary to have some understanding of the Julia type system. Fortunately, a description of the type system sufficient for the purposes of this document can be given in few notions. The interested reader can find the details in the Julia [documentation](https://docs.julialang.org/en/v1/) (which is well written, extensive and clear).
+It is possible to write simple Julia programs while being unaware of the type system in the language. These Julia programs would look very similar to the ones that unexperienced programmers would write in Python or Matlab. However, to write more complex or general programs, to debug them and to ensure good performance, it is necessary to have some understanding of the Julia type system. Fortunately, a description of the type system sufficient for the purposes of this document can be given in few notions.
 
 """
 
@@ -60,10 +60,15 @@ typeof(x)
 typeof(typeof)
 
 # ╔═╡ f7f2503b-a415-4c82-9afe-13ba3bf7e966
-md"""You can also annotate the type of a literal or an object using `::`. Quoting from the manual ''Adding annotations serves three primary purposes: to take advantage of Julia's powerful multiple-dispatch mechanism, to improve human readability, and to catch programmer errors.''"""
+md"""
+You can also annotate the type of a literal or an object using `::`. Quoting from the manual ''Adding annotations serves three primary purposes: to take advantage of Julia's powerful multiple-dispatch mechanism, to improve human readability, and to catch programmer errors.'' Annotating the type of an object is an assertion.
+"""
 
 # ╔═╡ 7dc1b2ef-dbb3-4ecb-b7c0-60d9c7184530
 1.0::Float64
+
+# ╔═╡ 420f056b-cb78-4e3d-af47-6baad9dd45cb
+x::Float64
 
 # ╔═╡ 6a67fecb-e92f-4e2f-8c57-f0d131481422
 md"""If you annotate a variable on the left hand side of an assignment, that annotation will work as the type declarations of statically typed languages. Type declarations are valid in the whole scope of the variable and the right hand side of assignments will be converted to the right type, if possible."""
@@ -593,6 +598,7 @@ version = "17.4.0+0"
 # ╠═8f130b81-7dd3-4c33-aee8-54970bb5d667
 # ╟─f7f2503b-a415-4c82-9afe-13ba3bf7e966
 # ╠═7dc1b2ef-dbb3-4ecb-b7c0-60d9c7184530
+# ╠═420f056b-cb78-4e3d-af47-6baad9dd45cb
 # ╟─6a67fecb-e92f-4e2f-8c57-f0d131481422
 # ╠═6bcd9def-1fda-4ff2-bc40-3f8c70d36370
 # ╠═0cab47f9-cf8b-49be-9a66-89af9a03ebd6
