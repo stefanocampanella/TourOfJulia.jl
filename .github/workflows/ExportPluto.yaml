@@ -10,6 +10,9 @@ concurrency:
     group: pluto-export
     cancel-in-progress: true
 
+env:
+  HTML: ON
+
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
