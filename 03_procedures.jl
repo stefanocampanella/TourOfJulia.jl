@@ -519,7 +519,15 @@ end
 Base.iterate(iter::Collatz, n=iter.seed) = n == 1 ? nothing : (next = isodd(n) ? 3n + 1 : div(n, 2); (next, next))
 
 # ╔═╡ 955ca71f-046e-4924-a3f4-b3951178cfea
-mean(Collatz(10))
+let x = []
+	for n in Collatz(13)
+		push!(x, n)
+	end
+	x
+end
+
+# ╔═╡ 22591f15-8b59-42e4-a370-3396571e5bb3
+mean(Collatz(13))
 
 # ╔═╡ 603abe15-6a4c-407a-a701-3face5f98cb5
 md"""
@@ -545,15 +553,52 @@ md"""
 
 Traits are a way of sharing behavior between types not related by subtyping relationship or by inheritance[^1].
 
-As said, Julia does not have native traits: that is a programmatic way to list the methods that must be defined to implement an interface, add a type to that type class, and constraint a type variable in a method definition to belong to some type class.
+As said, Julia does not have native traits: there is no programmatic way to list the methods that must be defined to implement an interface, add a type to that typeclass, and constraint a type variable in a method definition to belong to some typeclass.
 
-However, there is a trick to let the programmer declare that objects of a certain type have some behavior, and then to dispatch the right method based on this trait.
-This trick is called Tim Holy Trait Trick, from the name of its author, Tim Holy, a neuroscientist and long-time Julia contributor.
+However, there is a trick to let the programmer declare that objects of a certain type have some behavior, and then to select the method, amongst the available ones, that build upon that behavior. This trick is called [Tim Holy Trait Trick](https://github.com/JuliaLang/julia/issues/2345#issuecomment-54537633), from the name of its author, [Tim Holy](https://github.com/timholy), a neuroscientist and long-time Julia contributor.
 
-The idea is to create new types representing the traits and use multiple dispatch to select implementations based on these types. This pattern is rather common in Julia code and appears also in parts of the language written in Julia itself. The iterator interface is a good example.
+The idea is to create new (singleton) types representing traits and use multiple dispatch. This example (adapted from [here](https://github.com/mauro3/Traits.jl#dispatch-on-traits)) should be self explanatory.
 
 [^1]:
 	In Haskell there is no subtyping, hence open type classes (together with parametric polymorphism) are the only way of sharing behavior.
+"""
+
+# ╔═╡ 96e142fa-2e5d-42a5-9e7d-b4fff4856243
+let
+	# Define traits as singleton types
+	struct Trait1 end
+	struct Trait2 end
+	struct Trait3 end
+	
+	# Now define function f which should dispatch on those traits:
+	f(x,y) = _f(x,y, traitfn(x,y))
+	
+	# Logic which dispatches on trait:
+	_f(x,y,::Type{Trait1}) = x + y
+	_f(x,y,::Type{Trait2}) = x - y
+	_f(x,y,::Type{Trait3}) = x * y
+	
+	# Association of types with traits through method definitions:
+	# Throw error as default
+	traitfn(x::T,y::S) where {T, S} = error("Function f not implemented for type ($T, $S)")
+	# Add types-tuples to Trait1, Trait2 or Trait3
+	traitfn(::Int, ::Int) = Trait1
+	traitfn(::Int, ::Float64) = Trait2
+	traitfn(::Float64, ::Float64) = Trait3
+	
+	# use
+	@assert f(3,4) == 7      # Trait1
+	@assert f(3,4.) == -1.0  # Trait2
+	@assert f(3.,4.) == 12.0 # Trait3
+	
+	# add another type-tuple to Trait3
+	traitfn(::String, ::String) = Trait3
+	@assert f("Lorem ", "Ipsum") == "Lorem Ipsum"
+end
+
+# ╔═╡ f371891c-1411-45f9-ad91-e933fcc22a1d
+md"""
+This pattern is rather common in Julia code and appears also in parts of the language written in Julia itself. The iterator interface is a [good example](https://github.com/JuliaLang/julia/blob/e48a0c99bef949a84979c05dc33fd5578f684c1d/base/generator.jl).
 """
 
 # ╔═╡ 62311b6e-8a4d-46dd-998e-4965b5bf1139
@@ -925,16 +970,19 @@ version = "17.4.0+0"
 # ╠═a4df77e5-20af-4f05-bdca-2dc130ea5dcc
 # ╠═97a2fff2-f476-4177-8051-f5a5693725a5
 # ╠═6a808540-b9c9-43a8-9ed3-97bcf7a75b77
-# ╠═e6751e0d-2e6f-4324-8d36-3755d50e5a4a
+# ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═81dc5bbc-8d95-409a-a2b5-1c945feb0496
 # ╠═482a309b-2030-437e-85ca-55b5fccd7ba5
-# ╠═7d9504c8-1bd0-4325-a122-e50c965ad8b2
 # ╠═955ca71f-046e-4924-a3f4-b3951178cfea
+# ╠═7d9504c8-1bd0-4325-a122-e50c965ad8b2
+# ╠═22591f15-8b59-42e4-a370-3396571e5bb3
 # ╟─603abe15-6a4c-407a-a701-3face5f98cb5
 # ╠═0b254224-7dae-43fa-86f3-fc5bf044358c
 # ╠═9983c5c9-f1da-4132-ac41-2e696f80be15
 # ╠═e1821814-5d9c-403b-a1ab-ce4ecb7641f3
 # ╟─151f2793-fd38-4590-bffb-9d55ccb5ffe5
+# ╠═96e142fa-2e5d-42a5-9e7d-b4fff4856243
+# ╟─f371891c-1411-45f9-ad91-e933fcc22a1d
 # ╠═62311b6e-8a4d-46dd-998e-4965b5bf1139
 # ╠═07f83b6b-5600-4c8a-9f0f-08a397aa943a
 # ╠═457f0a73-50b8-4243-b411-d2c5ebe5e036

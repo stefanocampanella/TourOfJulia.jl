@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.20
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -153,14 +153,14 @@ function expand(chs)
 end
 
 # ╔═╡ f464b57e-996a-4101-8ecb-87e9e8d0d389
-function search(chs::Matrix{Vector{T}}) where {T}
-    fullsimplify!(chs) 
-    if !isconsistent(chs)
+function search(parent::Matrix{Vector{T}}) where {T}
+    fullsimplify!(parent) 
+    if !isconsistent(parent)
         Matrix{T}[]
-    elseif iscomplete(chs)
-        [map(first, chs)]
+	elseif iscomplete(parent)
+        [map(only, parent)]
     else
-        [g for chs_ in expand(chs) for g in search(chs_)]
+        [grid for child in expand(parent) for grid in search(child)]
     end
 end
 
@@ -183,7 +183,10 @@ let chs = deepcopy(choices(diabolical))
 end
 
 # ╔═╡ cdc235e9-a2a2-43a5-94ef-832795e7fa2e
-search(choices(diabolical))
+diabolical_sol, _...  = search(choices(diabolical))
+
+# ╔═╡ 26975725-62d5-4d1c-87d3-c18e3ad52f4d
+valid(diabolical_sol)
 
 # ╔═╡ 7e66da02-7894-43b4-aafe-a6127549c378
 md"""
@@ -239,6 +242,7 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 # ╠═acbbafc0-d489-434b-a6b3-6d14a00e4132
 # ╠═ba3c7fc7-750d-461b-a164-20ae4e96dbad
 # ╠═cdc235e9-a2a2-43a5-94ef-832795e7fa2e
+# ╠═26975725-62d5-4d1c-87d3-c18e3ad52f4d
 # ╠═7e66da02-7894-43b4-aafe-a6127549c378
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
