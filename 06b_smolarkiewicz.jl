@@ -34,10 +34,11 @@ The scheme is positive definite as long as
 Using a clever argument, Smolarkiewicz counteract the numerical diffusion of the scheme using a phantom timestep with antidiffusion velocity ``u_\text{eff}``, defined as
 
 ```math
-u_\text{eff} = \frac{\psi_{i + 1} - \psi_i}{\psi_{i + 1} + \psi_i + \varepsilon} \left( \vert u_{i + 1 / 2} \vert - u_{i + 1 / 2}^2 \frac{\Delta t}{\Delta x} \right) \; .
+u_\text{eff} = \frac{\psi_{i + 1} - \psi_i}{\psi_{i + 1} + \psi_i + \varepsilon} \left( \vert u_{i + 1 / 2} \vert - u_{i + 1 / 2}^2 \frac{\Delta t}{\Delta x} \right) \; ,
 ```
+where ``\varepsilon`` is a small number used to set ``u_\text{eff} = 0`` when ``\psi_i = \psi_{i + 1} = 0`` without branching.
 
-Indeed, it is possible iterate the step using antidiffusion velocity.
+Finally, it is possible to do more than one antidiffusion step, re-computing each time the antidiffusion velocity.
 """
 
 # ╔═╡ 131bc319-530d-451c-9dce-8f2f59bb72e8
@@ -58,14 +59,16 @@ function fixboundary!(xs, g, type=:periodic)
 end
 
 # ╔═╡ 336edc74-81c2-4e09-9389-1e400e882d73
-@views function smolarkiewicz!(δψ, ψ, u, Δt, Δx, g)
+# array views, broadcasting
+@views function smolarkiewicz!(ψ, u, Δt, Δx, g)
+	@assert maximum(u) * Δt <= Δx
     ψc = ψ[g + 1:end - g]
     ψr = ψ[(g + 1) + 1:end - g + 1]
     ψl = ψ[(g + 1) - 1:end - g - 1]
     ur = u[(g + 1) + 1:end - g + 1]
     ul = u[(g + 1) - 1:end - g - 1]
-    @. δψ[g + 1:end - g] = flux(ψc, ψr, ur, Δt, Δx) - flux(ψl, ψc, ul, Δt, Δx)
-	fixboundary!(δψ, g)
+    @. ψ[g + 1:end - g] += flux(ψl, ψc, ur, Δt, Δx) - flux(ψc, ψr, ul, Δt, Δx)
+	fixboundary!(ψ, g)
     return
 end
 
@@ -74,93 +77,36 @@ end
     ψr = ψ[(g + 1) + 1:end - g + 1]
     ψc = ψ[g + 1:end - g]
     uc = u[(g + 1):end - g]
-    @. u[g + 1:end - g] = (abs(uc) * Δx - Δt * uc ^ 2) * (ψr - ψc) / (Δx * (ψc + ψr + ϵ))
+    @. u[g + 1:end - g] = ((ψr - ψc) / (ψc + ψr + ϵ)) * (abs(uc) - (Δt / Δx) * uc ^ 2)
     fixboundary!(u, g)
     return
 end
 
 # ╔═╡ 7db74a32-7e4d-4db7-bd48-246231bcbf6a
-function advectionstep!(ψ, u, Δt, Δx, n, ϵ, g)
-    if n <= 0
+function advectionstep!(ψ, u, Δt, Δx, n=2, ϵ=1e-15, g=1)
+    if n < 1
         return
     else
-        Δψ = similar(ψ)
-        δψ = similar(ψ)
-        ψ_eff = copy(ψ)
         u_eff = copy(u)
         for k = 1:n
+			smolarkiewicz!(ψ, u_eff, Δt, Δx, g)
             if k > 1
-                Δψ .+= δψ
-                ψ_eff .-= δψ 
-                effvelocity!(u_eff, ψ_eff, Δt, Δx, ϵ, g)
+                effvelocity!(u_eff, ψ, Δt, Δx, ϵ, g)
             end
-            smolarkiewicz!(δψ, ψ_eff, u_eff, Δt, Δx, g)
         end
     end
-	ψ .-= Δψ
     return
 end
 
-# ╔═╡ 7c5fb963-44de-4f37-964d-a4bf00be6d5f
-begin
-	struct AdvectionProblem
-	    field :: Vector{Float64}
-	    velocity :: Vector{Float64}
-	    timestep :: Float64
-	    latticestep :: Float64
-	    timeperiod :: Float64
-	    iterations :: Int
-	    nghostcells :: Int
-	    eps :: Float64
-	end
-	
-	AdvectionProblem(ψ, u, Δt, Δx, T; it=2, ng=1, ϵ=1e-15) = AdvectionProblem(ψ, u, Δt, Δx, T, it, ng, ϵ)
-end
-
-# ╔═╡ 6b4928bc-ca70-4f47-8e03-d1e47dfda2fc
-advectionstep!(ψ, a::AdvectionProblem) = advectionstep!(ψ, 
-                                                    a.velocity, 
-                                                    a.timestep, 
-                                                    a.latticestep, 
-                                                    a.iterations,
-                                                    a.eps,
-                                                    a.nghostcells)
-
-# ╔═╡ ab533640-1cf3-44f3-92b9-d5290c90d5e2
-Base.iterate(a::AdvectionProblem) = a.timeperiod < a.timestep ? nothing : (a.field, (copy(a.field), 0.0))
-
-# ╔═╡ 26b9a797-be7a-4175-8d71-7e5baa1af2aa
-function Base.iterate(a::AdvectionProblem, state)
-    ψ, t = state
-    if t > a.timeperiod 
-        nothing 
-    else
-        advectionstep!(ψ, a)
-        (ψ, (ψ, t + a.timestep))
-    end
-end
-
-# ╔═╡ 525a184a-79c5-4bb0-a11d-6d1d3e775dfe
-ψ = [0; sin.(range(0, π, length=50)); zeros(51)]
-
-# ╔═╡ e7789984-f99e-43e0-98fc-a7434abd912a
-u = ones(102)
-
-# ╔═╡ ee7cd0c8-01f2-4fff-a06c-a78f248ab31c
-let δ = Vector(undef, 102)
-	smolarkiewicz!(δ, ψ, u, 0.01, 0.01, 1)
-	δ
-end
-
-# ╔═╡ bdbaf915-5702-4b0c-9b7e-d7f43562eb04
-plot(ψ)
-
-# ╔═╡ 47b05cae-66dd-4da3-867c-959b8a2ec097
-p = AdvectionProblem(ψ, u, 0.01, 0.01, 1)
-
 # ╔═╡ b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
-@gif for ψt in p
-	plot(ψt)
+let N = 100, u = ones(2N + 2), Δx = 0.01, Δt = 0.01, T = 1.0
+	ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
+	t = 0.0
+	@gif while t <= T
+		t += Δt
+		advectionstep!(ψ, u, Δt, Δx)
+		plot(ψ, label=nothing)
+	end
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1103,18 +1049,9 @@ version = "1.4.1+0"
 # ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═a12e1ef4-ad61-4235-9fc2-45d4f43c810a
 # ╠═336edc74-81c2-4e09-9389-1e400e882d73
-# ╠═ee7cd0c8-01f2-4fff-a06c-a78f248ab31c
 # ╠═5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
 # ╠═7db74a32-7e4d-4db7-bd48-246231bcbf6a
-# ╠═7c5fb963-44de-4f37-964d-a4bf00be6d5f
-# ╠═6b4928bc-ca70-4f47-8e03-d1e47dfda2fc
-# ╠═ab533640-1cf3-44f3-92b9-d5290c90d5e2
-# ╠═26b9a797-be7a-4175-8d71-7e5baa1af2aa
-# ╠═525a184a-79c5-4bb0-a11d-6d1d3e775dfe
-# ╠═e7789984-f99e-43e0-98fc-a7434abd912a
 # ╠═9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
-# ╠═bdbaf915-5702-4b0c-9b7e-d7f43562eb04
-# ╠═47b05cae-66dd-4da3-867c-959b8a2ec097
 # ╠═b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
