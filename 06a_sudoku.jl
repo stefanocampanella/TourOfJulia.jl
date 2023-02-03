@@ -219,7 +219,7 @@ let chs = deepcopy(choices(diabolical))
 end
 
 # ╔═╡ cdc235e9-a2a2-43a5-94ef-832795e7fa2e
-diabolical_sol, _...  = search(choices(diabolical)); diabolical_sol
+diabolical_sol = first(search(choices(diabolical))); diabolical_sol
 
 # ╔═╡ e2af96a9-e977-4d14-a52a-84b44bbb92b5
 valid(g) = all(all(allunique , eachcol(v)) for v in views(g))

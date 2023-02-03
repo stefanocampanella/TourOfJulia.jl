@@ -105,7 +105,9 @@ Garbage collection comes with some downsides (and it's the reason why, for examp
 # ╔═╡ 96226625-bb1a-4c58-ba14-e27f27b9a78d
 md"""
 
-## Default constructors
+## Constructors
+
+### Default constructors
 
 When a composite type is declared, Julia defines two default constructors: one with arguments of the declared type and one that accept arguments of any type, and tryies to convert them (throwing an error if that isn't possible).
 
@@ -144,14 +146,45 @@ EmbellishedInt(13, "String representation of 14")
 # ╔═╡ ac81d1bc-af19-4194-9ad2-b5aad9959c2d
 md"""
 
-## Parametric constructors
+### Parametric constructors
 
 """
+
+# ╔═╡ 03801f8a-ac77-488a-abba-8f6e0fd573f6
+struct Point{T<:Real}
+	x::T
+    y::T
+end
+
+# ╔═╡ 197bb855-93b8-48b8-83f8-bbc273cc7c0c
+Point(1,2) ## implicit T ##
+
+# ╔═╡ ae508055-20e5-41c7-818c-7bd31c6bb5e2
+Point(1.0,2.5) ## implicit T ##
+
+# ╔═╡ eb26aec5-c098-42e6-899a-87e145bad369
+Point(1,2.5) ## implicit T ##
+
+# ╔═╡ e082e8c4-c502-41b0-b485-579a0ee9f672
+Point{Int64}(1.0,2.5) ## explicit T ##
+
+# ╔═╡ 075ecd9d-65c3-405e-83f2-66156bf6ae0b
+begin
+	struct Point_v2{T<:Real}
+		x::T
+	    y::T
+	end
+
+	Point_v2(x::Real, y::Real) = Point_v2(promote(x,y)...)
+end
+
+# ╔═╡ 8cde7fca-b5bb-4f2c-ad7d-447f7c063ebf
+Point_v2(1, 2.5)
 
 # ╔═╡ 515db4c8-fb26-4b64-a22d-954ebf24bc21
 md"""
 
-## Internal constructors
+### Internal constructors
 
 The previous discussion leaves out the problem of un-initialized objects. Since, up to this point, every constructor is expressed in terms of the defaul one, which requires a value for every field of the struct. To overcome this problem, Julia uses "internal constructors", which are useful also to enforce preconditions on constructor arguments.
 
@@ -190,11 +223,200 @@ end
 # ╔═╡ 1b53989c-97be-419a-b08f-b11d143762f8
 EmbellishedInt_v2(13, "String representation of 14")
 
+# ╔═╡ 13b3e900-21ae-4b02-93cb-54f0c586b024
+md"""
+## Default data structures
+
+Several data structures are readily available in Julia. The underlying types (abstract or concrete) have different interfaces, for example, you can use the same `Vector` as an array or a deque. Here I list some of them, without differentiating between abstract types and concrete types.
+
+* Arrays (see notebook on multidimensional arrays)
+* Dicts ([`Dict`](https://docs.julialang.org/en/v1/base/collections/#Base.Dict), [`IdDict`](https://docs.julialang.org/en/v1/base/collections/#Base.IdDict), [`WeakKeyDict`](https://docs.julialang.org/en/v1/base/collections/#Base.WeakKeyDict), [`ImmutableDict`](https://docs.julialang.org/en/v1/base/collections/#Base.ImmutableDict), [EnvDict](https://docs.julialang.org/en/v1/base/base/#Base.EnvDict))
+* Tuples ([`Tuple`](https://docs.julialang.org/en/v1/base/base/#Core.Tuple), [`NTuple`](https://docs.julialang.org/en/v1/base/base/#Core.NTuple), [`Vararg`](https://docs.julialang.org/en/v1/base/base/#Core.Vararg), [`Pair`](https://docs.julialang.org/en/v1/base/collections/#Core.Pair), [`NamedTuples`](https://docs.julialang.org/en/v1/base/base/#Core.NamedTuple))
+* Sets ([`Set`](https://docs.julialang.org/en/v1/base/collections/#Base.Set), [`BitSet`](https://docs.julialang.org/en/v1/base/collections/#Base.BitSet))
+"""
+
+# ╔═╡ 4282a40a-e833-4eb3-b208-64fc99236060
+d = Dict("one" => 1, "two" => 2)
+
+# ╔═╡ 5e15857a-9be7-46dc-a6da-dcb474b311d1
+collect(keys(d)), collect(values(d))
+
 # ╔═╡ 54ee6d73-aff2-4b92-afdc-8b5db533d499
 md"""
 
 ## Metaprogramming: programs as data
+
+Julia is a homoiconic language: it represents its own code as a data structure of the language itself. This is the strongest legacy of Lisp and enable powerful code transformations, generations and introspection. With respect to C and C++, which just do textual manipulation, in Julia the code is parsed and stored as a data structure representing its abstract syntax tree. This is why we're discussing it here.
+
+### Expressions, quoting, and interpolation
+
+The main data structure for code representation is an expression, and correspond to the `Expr` type. An object of this type will have a head, which is a `Symbol` (an interned string), and a `Vector{Any}` of zero or more arguments, which may be symbols, other expressions, or literal values. You can construct expressions using the `Expr` constructor or you can parse Julia code using the `Meta.parse` function. You can also use the function `Meta.show_sexpr`, which will format an expression as an S-expression, if you are familiar with them from Lisp.
+
+The double colon symbol `:` is used to declare a `Symbol` (if it's a valid identifier) or to _quote_ some expression, that is prevent Julia from evaluating it and instead parse it and return an object. More complex expressions and chains of expressions can be quoted using the `quote ... end` block. The resulting expression will contain information about the file and line containing the code that has been parsed.
+
+!!! note
+	A `Symbol` can be whathever string. However, if it has a non-valid identifier, it has to be built using the `Symbol(...)` constructor. Notice that this will return a `Symbol` object: you can't use it, for example, in an assignment. You can use it to construct an expression which contains an assignment, and then evaluate that expression.
 """
+
+# ╔═╡ 4a188514-97f6-4f25-bafc-f0517d1d32ef
+Meta.@dump 1 + 2
+
+# ╔═╡ dd7a8bd7-055d-4574-9baf-30c5a191d1a7
+Meta.parse("1 + 2") == Meta.parse("+(1, 2)") == :(1 + 2) == Expr(:call, :+, 1, 2)
+
+# ╔═╡ ae26ca38-6d4b-43d0-822f-8c948e163ce3
+Symbol("This is a symbol with spaces")
+
+# ╔═╡ 05505b87-fe4a-4420-a76c-2f9ab828673e
+Meta.show_sexpr(:(x = 1))
+
+# ╔═╡ 8219e408-cfaa-4236-a80d-aed158772115
+e =	quote
+		x = 1
+		y = 1
+		x + y
+	end
+
+# ╔═╡ 4e45777d-539b-4b88-9416-ddf12b2bf7da
+dump(e)
+
+# ╔═╡ ef7704a0-64d8-429d-a7a3-4c84b650afd9
+md"""
+As with string, you can interpolate expressions using `$`. This means that Julia will evaluate the expression following the dollar sign and insert that in the un-evaluated quoted outer expression. Quotes can be nested and so interpolations, in this case multiple `$` will interpolate more internal levels.
+
+Finally, expressions can be evaluated via the `eval` function.
+"""
+
+# ╔═╡ faab6a10-6bb7-45ec-b529-42b018141d53
+str = "Seek & Destroy!"
+
+# ╔═╡ f59f04f6-c9d2-4d93-a0d1-c019f14a83ec
+quote
+	println($str)
+end
+
+# ╔═╡ 47b9b45c-e7ba-4fe8-a504-6019d19ee166
+quote quote println($$str) end end
+
+# ╔═╡ 632b3f75-7b08-40ba-a2e6-9d82f65b3741
+eval(eval(quote quote println($$str) end end))
+
+# ╔═╡ c61a7dff-67c5-48dd-9316-f0f91b12ea31
+# Using these ingredients it is possible to generate code programmatically and avoid 
+# repetitions (which means more chances of errors and code to mantain).
+for (name, op) in [("add", :+), ("subtract", :-)]
+	eval(
+		quote
+			function $(Symbol("my", name))(a, b)
+				$(op)(a, b)
+			end
+		end)
+end
+
+# ╔═╡ 360ee01e-fd15-4021-bdf7-f6a629b391e8
+myadd(1, 2), mysubtract(1, 2)
+
+# ╔═╡ d62b0f00-f30a-463d-bcbc-c2037b73c708
+#Indeed, this is a pattern so common that the `@eval` macro can be used 
+# to avoid quoting and evaluating
+for (name, op) in [("multiply", :*), ("divide", :/)]
+	@eval function $(Symbol("my", name))(a, b)
+		$(op)(a, b)
+	end
+	
+end
+
+# ╔═╡ 1855a9ec-4378-44b1-ba1f-d63126affdb6
+mymultiply(1, 2), mydivide(1, 2)
+
+# ╔═╡ 62ca9ea4-7042-4ea1-94b7-bbcfe939cc95
+md"""
+### Macros
+
+Macros are a way to generate code at parse time. They map the arguments to a returned expression which then is compiled directly rather than requiring a runtime `eval` call. Consider the comparison between the following macro and function.
+"""
+
+# ╔═╡ fbd19e98-be70-481f-a9b7-83834b0b7b38
+function twostep(arg)
+	println("I execute at run time. The argument is ", arg)
+	eval(:(println("I execute at runtime. The argument is ", $arg)))
+end
+
+# ╔═╡ 6f87cf11-eb29-475c-b41f-28bc346f3306
+twostep((1, 2, 3))
+
+# ╔═╡ 0598395e-48ad-4277-9f63-dd2492d81d99
+macro twostep(arg)
+	println("I execute at parse time. The argument is ", arg)
+	return :(println("I execute at runtime. The argument is ", $arg))
+end
+
+# ╔═╡ 93154251-99a9-4828-a023-49a049b75019
+@twostep (1, 2, 3)
+
+# ╔═╡ 986fdbd6-2d77-41fd-a66f-1650c7914181
+md"""
+The two appear to be the same. Their behavior is different when we just parse the code. Which is more apparent when the `macroexpand(Context, Expression)` or the `@macroexpand` macro is used.
+"""
+
+# ╔═╡ 7a000c30-0447-4de3-a4a5-59071ffce7fb
+ex_f = @macroexpand twostep((1, 2, 3))
+
+# ╔═╡ b355e425-6c44-4e4e-9de5-d99106c25286
+ex_m = @macroexpand @twostep (1, 2, 3)
+
+# ╔═╡ 0d6255e3-1424-411c-ad4f-353be964469a
+eval(ex_f)
+
+# ╔═╡ f021a15d-f0ab-4c47-a38c-a8aeb1c7fa7e
+eval(ex_m)
+
+# ╔═╡ f0e9dbfc-1e22-48b1-aa87-64542a87537d
+# A simplified version of the @assert macro makes 
+# a good example of how macros work
+macro myassert(ex)
+	return :( $ex ? nothing : println($(string(ex)), " is false!") )
+end
+
+# ╔═╡ 7e3cda18-a6d9-479b-8dfd-6a95bd68598f
+@myassert 1 == 2
+
+# ╔═╡ 4a68ec6c-5838-4bc4-b9e6-e0b047854c05
+md"""
+### Generated functions
+
+_Metaprogramming and generated functions are a tough topic, I am late on the preparation of these notebooks and a bit tired. I'll quote verbatim the manual without all the bells and whistles._
+
+A very special macro is `@generated`, which allows you to define so-called generated functions. These have the capability to generate specialized code depending on the types of their arguments with more flexibility and/or less code than what can be achieved with multiple dispatch. While macros work with expressions at parse time and cannot access the types of their inputs, a generated function gets expanded at a time when the types of the arguments are known, but the function is not yet compiled.
+
+Instead of performing some calculation or action, a generated function declaration returns a quoted expression which then forms the body for the method corresponding to the types of the arguments. When a generated function is called, the expression it returns is compiled and then run. To make this efficient, the result is usually cached. And to make this inferable, only a limited subset of the language is usable. Thus, generated functions provide a flexible way to move work from run time to compile time, at the expense of greater restrictions on allowed constructs.
+
+When defining generated functions, there are five main differences to ordinary functions:
+
+1. You annotate the function declaration with the `@generated` macro. This adds some information to the AST that lets the compiler know that this is a generated function.
+2. In the body of the generated function you only have access to the types of the arguments – not their values.
+3. Instead of calculating something or performing some action, you return a quoted expression which, when evaluated, does what you want.
+4. Generated functions are only permitted to call functions that were defined before the definition of the generated function. (Failure to follow this may result in getting MethodErrors referring to functions from a future world-age.)
+5. Generated functions must not mutate or observe any non-constant global state (including, for example, IO, locks, non-local dictionaries, or using hasmethod). This means they can only read global constants, and cannot have any side effects. In other words, they must be completely pure. Due to an implementation limitation, this also means that they currently cannot define a closure or generator.
+"""
+
+# ╔═╡ 3e9c6041-6dd4-4f8c-83b7-6dd0ea01aeb6
+@generated function foo(x)
+	Core.println(x)
+    return :(x * x * x)
+end
+
+# ╔═╡ e95601f6-139b-42e3-a182-aec0abe4a8e9
+foo("Oh! ")
+
+# ╔═╡ 6c05e7f6-373f-4eb7-a88b-608a3c34448e
+foo("Exterminate! ")
+
+# ╔═╡ 97c1a800-9e54-4af1-bd0f-34d8f502772f
+foo(3)
+
+# ╔═╡ ba0d8418-41fe-4851-b00c-b34c8b09b843
+foo(2)
 
 # ╔═╡ 09699783-a094-49ea-9f28-50c65c1e0259
 PlutoUI.TableOfContents()
@@ -491,14 +713,57 @@ version = "17.4.0+0"
 # ╠═885c3368-c7cb-43a3-a973-9ff495f27b4b
 # ╠═6ee40305-5217-45cf-b106-6eb5b32637d4
 # ╠═def9ec21-9b8d-4283-bb05-e7d2ec76d880
-# ╠═ac81d1bc-af19-4194-9ad2-b5aad9959c2d
+# ╟─ac81d1bc-af19-4194-9ad2-b5aad9959c2d
+# ╠═03801f8a-ac77-488a-abba-8f6e0fd573f6
+# ╠═197bb855-93b8-48b8-83f8-bbc273cc7c0c
+# ╠═ae508055-20e5-41c7-818c-7bd31c6bb5e2
+# ╠═eb26aec5-c098-42e6-899a-87e145bad369
+# ╠═e082e8c4-c502-41b0-b485-579a0ee9f672
+# ╠═075ecd9d-65c3-405e-83f2-66156bf6ae0b
+# ╠═8cde7fca-b5bb-4f2c-ad7d-447f7c063ebf
 # ╟─515db4c8-fb26-4b64-a22d-954ebf24bc21
 # ╠═e3b0b38b-797d-4f74-bc3a-182158bdcf5c
 # ╠═8d0a913d-365b-4695-b67e-25efd6b8c977
 # ╠═08469e55-5462-4037-97b4-91e74751d64d
 # ╠═6cf5cd93-6772-49b5-a38f-52dd55f5660b
 # ╠═1b53989c-97be-419a-b08f-b11d143762f8
-# ╠═54ee6d73-aff2-4b92-afdc-8b5db533d499
+# ╟─13b3e900-21ae-4b02-93cb-54f0c586b024
+# ╠═4282a40a-e833-4eb3-b208-64fc99236060
+# ╠═5e15857a-9be7-46dc-a6da-dcb474b311d1
+# ╟─54ee6d73-aff2-4b92-afdc-8b5db533d499
+# ╠═4a188514-97f6-4f25-bafc-f0517d1d32ef
+# ╠═dd7a8bd7-055d-4574-9baf-30c5a191d1a7
+# ╠═ae26ca38-6d4b-43d0-822f-8c948e163ce3
+# ╠═05505b87-fe4a-4420-a76c-2f9ab828673e
+# ╠═8219e408-cfaa-4236-a80d-aed158772115
+# ╠═4e45777d-539b-4b88-9416-ddf12b2bf7da
+# ╟─ef7704a0-64d8-429d-a7a3-4c84b650afd9
+# ╠═faab6a10-6bb7-45ec-b529-42b018141d53
+# ╠═f59f04f6-c9d2-4d93-a0d1-c019f14a83ec
+# ╠═47b9b45c-e7ba-4fe8-a504-6019d19ee166
+# ╠═632b3f75-7b08-40ba-a2e6-9d82f65b3741
+# ╠═c61a7dff-67c5-48dd-9316-f0f91b12ea31
+# ╠═360ee01e-fd15-4021-bdf7-f6a629b391e8
+# ╠═d62b0f00-f30a-463d-bcbc-c2037b73c708
+# ╠═1855a9ec-4378-44b1-ba1f-d63126affdb6
+# ╟─62ca9ea4-7042-4ea1-94b7-bbcfe939cc95
+# ╠═fbd19e98-be70-481f-a9b7-83834b0b7b38
+# ╠═6f87cf11-eb29-475c-b41f-28bc346f3306
+# ╠═0598395e-48ad-4277-9f63-dd2492d81d99
+# ╠═93154251-99a9-4828-a023-49a049b75019
+# ╟─986fdbd6-2d77-41fd-a66f-1650c7914181
+# ╠═7a000c30-0447-4de3-a4a5-59071ffce7fb
+# ╠═b355e425-6c44-4e4e-9de5-d99106c25286
+# ╠═0d6255e3-1424-411c-ad4f-353be964469a
+# ╠═f021a15d-f0ab-4c47-a38c-a8aeb1c7fa7e
+# ╠═f0e9dbfc-1e22-48b1-aa87-64542a87537d
+# ╠═7e3cda18-a6d9-479b-8dfd-6a95bd68598f
+# ╟─4a68ec6c-5838-4bc4-b9e6-e0b047854c05
+# ╠═3e9c6041-6dd4-4f8c-83b7-6dd0ea01aeb6
+# ╠═e95601f6-139b-42e3-a182-aec0abe4a8e9
+# ╠═6c05e7f6-373f-4eb7-a88b-608a3c34448e
+# ╠═97c1a800-9e54-4af1-bd0f-34d8f502772f
+# ╠═ba0d8418-41fe-4851-b00c-b34c8b09b843
 # ╟─4ccae334-857b-4957-9c58-d2354894148b
 # ╟─09699783-a094-49ea-9f28-50c65c1e0259
 # ╟─00000000-0000-0000-0000-000000000001

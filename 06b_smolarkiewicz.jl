@@ -4,14 +4,30 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
+# ╔═╡ a2acb4b2-ef71-4f67-8c63-5a1edb764e53
+using PlutoUI
+
 # ╔═╡ 9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
 using Plots
 
+# ╔═╡ b9c2939f-b499-4588-985e-d81df8f7c3e1
+using Printf
+
 # ╔═╡ 3aadba74-a333-11ed-23fc-c9ada278e6dc
 md"""
-# Solution of the 1-dimensional advection equation
+# A numerical scheme for 1D advection
 
-In this example we will a numerical scheme for the integration of the 1-dimensional advection equation
+In this example we will the numerical scheme illustrated in [Smolarkiewicz, P. K. (1983)](https://doi.org/10.1175/1520-0493(1983)111%3C0479:ASPDAS%3E2.0.CO;2) for the integration of the 1-dimensional advection equation
 ```math
 \frac{\partial \psi}{\partial t} = \frac{\partial}{\partial x} \left(u \psi \right) \; ,
 ```
@@ -41,9 +57,6 @@ where ``\varepsilon`` is a small number used to set ``u_\text{eff} = 0`` when ``
 Finally, it is possible to do more than one antidiffusion step, re-computing each time the antidiffusion velocity.
 """
 
-# ╔═╡ 131bc319-530d-451c-9dce-8f2f59bb72e8
-flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt / 2Δx)
-
 # ╔═╡ a12e1ef4-ad61-4235-9fc2-45d4f43c810a
 function fixboundary!(xs, g, type=:periodic)
     if type == :periodic
@@ -57,6 +70,9 @@ function fixboundary!(xs, g, type=:periodic)
     end
     return
 end
+
+# ╔═╡ 131bc319-530d-451c-9dce-8f2f59bb72e8
+flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt / 2Δx)
 
 # ╔═╡ 336edc74-81c2-4e09-9389-1e400e882d73
 # array views, broadcasting
@@ -89,23 +105,43 @@ function advectionstep!(ψ, u, Δt, Δx, n=2, ϵ=1e-15, g=1)
     else
         u_eff = copy(u)
         for k = 1:n
-			smolarkiewicz!(ψ, u_eff, Δt, Δx, g)
-            if k > 1
-                effvelocity!(u_eff, ψ, Δt, Δx, ϵ, g)
+			if k > 1
+            	effvelocity!(u_eff, ψ, Δt, Δx, ϵ, g)
             end
+			smolarkiewicz!(ψ, u_eff, Δt, Δx, g)
         end
     end
     return
 end
 
+# ╔═╡ 90f415ee-8736-4ac6-8c65-4257f264323a
+md"""
+Lattice points (2x): $(@bind N Slider(50:150, default=100, show_value=true))
+
+Speed: $(@bind speed Slider(range(0., 10., step=0.1), default=1.0, show_value=true))
+
+Time steps: $(@bind T Slider(50:150, default=100, show_value=true))
+
+Δx: $(@bind Δx Slider(range(0.001, 0.1, step=0.001), default=0.01, show_value=true))
+
+Δt: $(@bind Δt Slider(range(0.001, 0.1, step=0.001), default=0.01, show_value=true))
+
+Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
+
+"""
+
+# ╔═╡ 78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
+ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
+
+# ╔═╡ 96572796-5c54-4056-acb8-593ef8627a71
+u = fill(speed, 2N + 2)
+
 # ╔═╡ b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
-let N = 100, u = ones(2N + 2), Δx = 0.01, Δt = 0.01, T = 1.0
-	ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
-	t = 0.0
-	@gif while t <= T
-		t += Δt
-		advectionstep!(ψ, u, Δt, Δx)
-		plot(ψ, label=nothing)
+let ψ = copy(ψ)
+	@gif for k in 1:T
+		advectionstep!(ψ, u, Δt, Δx, n)
+		title = @sprintf "t = %.3f" k * Δt
+		plot(range(0.0, step=Δx, length=2N), ψ[2:end - 1]; label=nothing, yrange=(-0.05, 1.05), title)
 	end
 end
 
@@ -113,9 +149,12 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 Plots = "~1.38.4"
+PlutoUI = "~0.7.49"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -124,7 +163,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "39d0d5866236472d6bc1a58c4e663ea8a2a2e057"
+project_hash = "2651def645e80d5c0db6665b72ef5d66d522b189"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "8eaf9f1b4921132a4cff3f36a1d9ba923b14a481"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.1.4"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -345,6 +390,24 @@ git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "c47c5fa4c5308f27ccaac35504858d8914e102f9"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.4"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "f7be53659ab06ddc986428d3a9dcc95f6fa6705a"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.2"
+
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
 uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
@@ -507,6 +570,11 @@ git-tree-sha1 = "cedb76b37bc5a6c702ade66be44f831fa23c681e"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.0"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
+
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "42324d08725e200c23d4dfb549e0d5d89dede2d2"
@@ -645,6 +713,12 @@ deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers"
 git-tree-sha1 = "87036ff7d1277aa624ce4d211ddd8720116f80bf"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.38.4"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "eadad7b14cf046de6eb41f13c9275e5aa2711ab6"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.49"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -789,6 +863,11 @@ deps = ["Random", "Test"]
 git-tree-sha1 = "94f38103c984f89cf77c402f2a68dbd870f8165f"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.9.11"
+
+[[deps.Tricks]]
+git-tree-sha1 = "6bac775f2d42a611cdfcd1fb217ee719630c4175"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.6"
 
 [[deps.URIs]]
 git-tree-sha1 = "ac00576f90d8a259f2c9d823e91d1de3fd44d348"
@@ -1046,12 +1125,17 @@ version = "1.4.1+0"
 
 # ╔═╡ Cell order:
 # ╟─3aadba74-a333-11ed-23fc-c9ada278e6dc
-# ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═a12e1ef4-ad61-4235-9fc2-45d4f43c810a
+# ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═336edc74-81c2-4e09-9389-1e400e882d73
 # ╠═5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
 # ╠═7db74a32-7e4d-4db7-bd48-246231bcbf6a
+# ╠═a2acb4b2-ef71-4f67-8c63-5a1edb764e53
 # ╠═9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
+# ╠═b9c2939f-b499-4588-985e-d81df8f7c3e1
+# ╟─90f415ee-8736-4ac6-8c65-4257f264323a
+# ╠═78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
+# ╠═96572796-5c54-4056-acb8-593ef8627a71
 # ╠═b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
