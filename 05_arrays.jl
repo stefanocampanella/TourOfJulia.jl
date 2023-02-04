@@ -129,7 +129,11 @@ prod("They're taking the hobbits to Isengard! " for _ = 1:10)
 md"""
 ## Broadcasting
 
-Julia has broadcasting, has Python does with Numpy. But in Julia broadcasting is explicit, and use the dot sintax. A function postfixed with a dot or an operator prefixed with a dot is broadcasted on its arguments. Furthermore, broadcasted operator are fused in a single loop (_loop fusion_) and the `@.` automatically broadcast all operations in the expression.
+Julia has broadcasting, has Python does with Numpy. But in Julia broadcasting is explicit, and use the dot sintax. A function postfixed with a dot or an operator prefixed with a dot is broadcasted on its arguments. Furthermore, broadcasted operator are fused in a single loop (_loop fusion_) and the `@.` automatically broadcast all operations in the expression. 
+
+Arithmetic operators and comparisons are also vectorized for convenience (they act on arrays, of the same shape). With matrices, multiplication and powers (including with negative integer exponents) are to be intended with respect to internal product, not element-wise. When mixing matrices and vectors multiplication and division symbols means row-by-column products and solution of a system of linear equations respectively. The `'` symbol is the adjoint (a lazy wrapper), the product of an adjoint with a vector is a scalar.
+
+
 """
 
 # ╔═╡ f87638dd-4961-4352-8fd3-0a4dccab2309
@@ -137,10 +141,23 @@ let ϕ = (1 + √5) / 2
 	round.(Int, (ϕ^n/ √5 for n = 1:20))
 end
 
+# ╔═╡ 2b1d4cba-f6e0-491d-903a-e7cf61ae6c59
+let N = 100_000_000
+	4count(<(1.0), rand(N).^2 + rand(N).^2) / N
+end
+
 # ╔═╡ 0bc6f709-ff25-45be-b97e-c1c6306dc2ac
 let xs = range(0, π, length=100)
 	plot(xs, @. √(1 - cos(xs)^2) / xs)
 end
+
+# ╔═╡ 2c2ce4c5-1868-40c6-ae87-4d59ad1a81d6
+[1/2, √3/2]' * [0 -1; 1 0] * [√3/2, -1/2]
+
+# ╔═╡ 5dfa0009-f8ff-4049-aebb-f98ddd711d59
+md"""
+## Array views
+"""
 
 # ╔═╡ 1cdf1772-3755-49ff-8bd3-fd95ab341ef6
 PlutoUI.TableOfContents()
@@ -164,7 +181,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "1c8452f6f0fc7e7cd1ef401982a93395e04d0870"
+project_hash = "2027106876308ea187edd906d8ca120921c67a0d"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1159,8 +1176,11 @@ version = "1.4.1+0"
 # ╠═39708ca1-48c5-4499-a299-59c12ffe6c6b
 # ╟─cb564a78-8c2f-4796-b6dd-ebddd24ed845
 # ╠═f87638dd-4961-4352-8fd3-0a4dccab2309
+# ╠═2b1d4cba-f6e0-491d-903a-e7cf61ae6c59
 # ╠═ff2f2b4e-3d12-4e78-a47d-5677f18a7d0b
 # ╠═0bc6f709-ff25-45be-b97e-c1c6306dc2ac
+# ╠═2c2ce4c5-1868-40c6-ae87-4d59ad1a81d6
+# ╠═5dfa0009-f8ff-4049-aebb-f98ddd711d59
 # ╟─15c50a5b-ea9e-4e7c-a3d1-0470eeed489c
 # ╟─1cdf1772-3755-49ff-8bd3-fd95ab341ef6
 # ╟─00000000-0000-0000-0000-000000000001
