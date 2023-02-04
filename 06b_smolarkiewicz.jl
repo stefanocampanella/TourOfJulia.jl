@@ -83,7 +83,7 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
     ψl = ψ[(g + 1) - 1:end - g - 1]
     ur = u[(g + 1) + 1:end - g + 1]
     ul = u[(g + 1) - 1:end - g - 1]
-    @. ψ[g + 1:end - g] -=  flux(ψc, ψr, ul, Δt, Δx) - flux(ψl, ψc, ur, Δt, Δx)
+    @. ψ[g + 1:end - g] -= flux(ψc, ψr, ul, Δt, Δx) - flux(ψl, ψc, ur, Δt, Δx)
 	fixboundary!(ψ, g)
     return
 end
@@ -123,15 +123,15 @@ end
 
 # ╔═╡ 90f415ee-8736-4ac6-8c65-4257f264323a
 md"""
-Lattice points (2x): $(@bind N Slider(50:150, default=100, show_value=true))
+Lattice points (2x): $(@bind N Slider(50:250, default=100, show_value=true))
 
-Speed: $(@bind speed Slider(range(0., 10., step=0.1), default=1.0, show_value=true))
+Speed: $(@bind speed Slider(range(0., 5., step=0.1), default=1.0, show_value=true))
 
 Time steps: $(@bind T Slider(50:250, default=100, show_value=true))
 
-Δx: $(@bind Δx Slider(range(0.001, 0.1, step=0.001), default=0.01, show_value=true))
+Δx: $(@bind Δx Slider(range(0.0, 0.02, step=0.001), default=0.01, show_value=true))
 
-Δt: $(@bind Δt Slider(range(0.001, 0.1, step=0.001), default=0.01, show_value=true))
+Δt: $(@bind Δt Slider(range(0.0, 0.02, step=0.001), default=0.01, show_value=true))
 
 Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
 
@@ -139,7 +139,8 @@ Compensation factor: $(@bind sc Slider(range(1.0, 1.1, step=0.005), default=1.05
 """
 
 # ╔═╡ 78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
-ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
+#ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
+ψ = [0; ones(N); zeros(N + 1)]
 
 # ╔═╡ 96572796-5c54-4056-acb8-593ef8627a71
 u = fill(speed, 2N + 2)
@@ -1136,7 +1137,7 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═3aadba74-a333-11ed-23fc-c9ada278e6dc
+# ╟─3aadba74-a333-11ed-23fc-c9ada278e6dc
 # ╠═a12e1ef4-ad61-4235-9fc2-45d4f43c810a
 # ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═336edc74-81c2-4e09-9389-1e400e882d73
