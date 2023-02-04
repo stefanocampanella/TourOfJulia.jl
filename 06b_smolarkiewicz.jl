@@ -29,7 +29,7 @@ md"""
 
 In this example we will the numerical scheme illustrated in [Smolarkiewicz, P. K. (1983)](https://doi.org/10.1175/1520-0493(1983)111%3C0479:ASPDAS%3E2.0.CO;2) for the integration of the 1-dimensional advection equation
 ```math
-\frac{\partial \psi}{\partial t} = \frac{\partial}{\partial x} \left(u \psi \right) \; ,
+\frac{\partial \psi}{\partial t} + \frac{\partial}{\partial x} \left(u \psi \right) = 0 \; ,
 ```
 where ``\psi`` is a passive tracer (some scalar field not producing momentum, e.g. via buoyancy) and ``u`` is the velocity field. The main features of this numerical scheme are that it is positive definite (if ``\psi`` is non-negative, it stays that way at each timestep) and it has low numerical diffusion.
 
@@ -83,7 +83,7 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
     ψl = ψ[(g + 1) - 1:end - g - 1]
     ur = u[(g + 1) + 1:end - g + 1]
     ul = u[(g + 1) - 1:end - g - 1]
-    @. ψ[g + 1:end - g] += flux(ψl, ψc, ur, Δt, Δx) - flux(ψc, ψr, ul, Δt, Δx)
+    @. ψ[g + 1:end - g] -=  flux(ψc, ψr, ul, Δt, Δx) - flux(ψl, ψc, ur, Δt, Δx)
 	fixboundary!(ψ, g)
     return
 end
@@ -99,7 +99,7 @@ end
 end
 
 # ╔═╡ 7db74a32-7e4d-4db7-bd48-246231bcbf6a
-function advectionstep!(ψ, u, Δt, Δx, n=2, ϵ=1e-15, g=1)
+function smolarkiewiczstep!(ψ, u, Δt, Δx, sc, n=2, ϵ=1e-15, g=1)
     if n < 1
         return
     else
@@ -107,11 +107,18 @@ function advectionstep!(ψ, u, Δt, Δx, n=2, ϵ=1e-15, g=1)
         for k = 1:n
 			if k > 1
             	effvelocity!(u_eff, ψ, Δt, Δx, ϵ, g)
+				u_eff .*= sc
             end
 			smolarkiewicz!(ψ, u_eff, Δt, Δx, g)
         end
     end
     return
+end
+
+# ╔═╡ 84a511c4-2ac3-4629-950a-1163e4b1e3b1
+function naivestep!(ψ, u, Δt, Δx)
+	ψ[2:end] .-= diff(u .* ψ) * Δt / Δx
+	fixboundary!(ψ, 1)
 end
 
 # ╔═╡ 90f415ee-8736-4ac6-8c65-4257f264323a
@@ -120,7 +127,7 @@ Lattice points (2x): $(@bind N Slider(50:150, default=100, show_value=true))
 
 Speed: $(@bind speed Slider(range(0., 10., step=0.1), default=1.0, show_value=true))
 
-Time steps: $(@bind T Slider(50:150, default=100, show_value=true))
+Time steps: $(@bind T Slider(50:250, default=100, show_value=true))
 
 Δx: $(@bind Δx Slider(range(0.001, 0.1, step=0.001), default=0.01, show_value=true))
 
@@ -128,6 +135,7 @@ Time steps: $(@bind T Slider(50:150, default=100, show_value=true))
 
 Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
 
+Compensation factor: $(@bind sc Slider(range(1.0, 1.1, step=0.005), default=1.05, show_value=true))
 """
 
 # ╔═╡ 78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
@@ -137,11 +145,15 @@ Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
 u = fill(speed, 2N + 2)
 
 # ╔═╡ b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
-let ψ = copy(ψ)
+let ψ_smol = copy(ψ), ψ_naive = copy(ψ)
 	@gif for k in 1:T
-		advectionstep!(ψ, u, Δt, Δx, n)
+		smolarkiewiczstep!(ψ_smol, u, Δt, Δx, sc, n)
+		naivestep!(ψ_naive, u, Δt, Δx)
 		title = @sprintf "t = %.3f" k * Δt
-		plot(range(0.0, step=Δx, length=2N), ψ[2:end - 1]; label=nothing, yrange=(-0.05, 1.05), title)
+		plt = plot(;xrange=(0, 2N * Δx), yrange=(-0.05, 1.05), title)
+		plot!(plt, range(0.0, step=Δx, length=2N), ψ_smol[2:end - 1], label="Smolarkiewicz")
+		plot!(plt, range(0.0, step=Δx, length=2N), ψ_naive[2:end - 1], label="Naive")
+		plt
 	end
 end
 
@@ -163,7 +175,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "2651def645e80d5c0db6665b72ef5d66d522b189"
+project_hash = "6e6f24f202eeb5781783968f2963f74e969f266c"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1124,12 +1136,13 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─3aadba74-a333-11ed-23fc-c9ada278e6dc
+# ╠═3aadba74-a333-11ed-23fc-c9ada278e6dc
 # ╠═a12e1ef4-ad61-4235-9fc2-45d4f43c810a
 # ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═336edc74-81c2-4e09-9389-1e400e882d73
 # ╠═5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
 # ╠═7db74a32-7e4d-4db7-bd48-246231bcbf6a
+# ╠═84a511c4-2ac3-4629-950a-1163e4b1e3b1
 # ╠═a2acb4b2-ef71-4f67-8c63-5a1edb764e53
 # ╠═9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
 # ╠═b9c2939f-b499-4588-985e-d81df8f7c3e1
