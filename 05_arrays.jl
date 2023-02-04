@@ -97,12 +97,31 @@ md"""
 
 Array literals are declared using square brackets and applying the following rules
 
-
+1. Prepending a type (no space) to the square brackets automatically creates an array of that type and tries to convert the elements.
+2. Comma separated values creates a column vector.
+3. Space (or tab) separated values creates a row vector (1xN matrix)
+3. Single semicolons (or newlines) and spaces (or tabs) can be combnined to caoncatenate both horizonatlly and vertically at the same time.
+4. Semi-colons can be used to concatenate along a dimension equal to the number of consecutive semicolons.
+5. Space (and tabs) have higher precedence than semicolons.
 
 """
 
 # ╔═╡ bea6cd29-a39c-4736-8ed0-46579a082fe1
-[]
+Float64[1, 2, 3]
+
+# ╔═╡ cd3ea6c0-9641-4843-a1c9-e39df0d0e024
+Float64[1 2 3]
+
+# ╔═╡ 7f95d9a9-5fa8-4934-be89-eea59d820d9c
+[1 2 3; 4 5 6; 7 8 9]
+
+# ╔═╡ 8a199bd4-1edb-40a0-b3bb-38189e6c1d4b
+[1 2 3
+ 4 5 6
+ 7 8 9]
+
+# ╔═╡ d41f1bbc-2cdb-4bcc-946a-94ca74f3eb04
+[[1 2; 3 4];;; [5 6; 7 8]]
 
 # ╔═╡ 0494939d-0f66-4b1f-8cbb-7f00e9f2c767
 md"""
@@ -156,8 +175,30 @@ end
 
 # ╔═╡ 5dfa0009-f8ff-4049-aebb-f98ddd711d59
 md"""
-## Array views
+## Indexing and array views
+
+An array can be indexed, as in Numpy, with scalars or vectors (of indices or booleans). The `end` keyword means the last index, the `:` symbol means the whole range of indices along that dimension.
+
+When assigning or accessing an array using vectors, Julia allocates a new object by default. It is possible to avoid it using the `view` function or the `@view` macro. 
 """
+
+# ╔═╡ 7ac90260-64fc-4b7e-b81e-b98930663a62
+function slowfunc_v2(xs, indxs)
+	ys = xs[indxs]
+	sum(ys)
+end
+
+# ╔═╡ 17d13076-231e-4207-a17a-36c22d1f4a0d
+function fastfunc_v2(xs, indxs)
+	ys = view(xs, indxs)
+	sum(ys)
+end
+
+# ╔═╡ ca5cc16a-2efd-4c54-9e80-da783c0f52d1
+@benchmark slowfunc_v2($rs, $100:600)
+
+# ╔═╡ c908e25c-f8e1-49d9-acd7-fdf7b82f67c1
+@benchmark fastfunc_v2($rs, $100:600)
 
 # ╔═╡ 1cdf1772-3755-49ff-8bd3-fd95ab341ef6
 PlutoUI.TableOfContents()
@@ -1167,8 +1208,12 @@ version = "1.4.1+0"
 # ╠═67561d62-0a27-43f1-9c0e-e122b1306eec
 # ╠═9eccdb07-b5c3-4285-a1bd-f90f71237558
 # ╠═3f7af6e3-5555-4b20-89ff-bf952a0618d6
-# ╠═f9a4ab44-3e70-47fd-a5d8-017c573e369f
+# ╟─f9a4ab44-3e70-47fd-a5d8-017c573e369f
 # ╠═bea6cd29-a39c-4736-8ed0-46579a082fe1
+# ╠═cd3ea6c0-9641-4843-a1c9-e39df0d0e024
+# ╠═7f95d9a9-5fa8-4934-be89-eea59d820d9c
+# ╠═8a199bd4-1edb-40a0-b3bb-38189e6c1d4b
+# ╠═d41f1bbc-2cdb-4bcc-946a-94ca74f3eb04
 # ╟─0494939d-0f66-4b1f-8cbb-7f00e9f2c767
 # ╠═37067e15-0110-4dc9-8284-994fd659e8cf
 # ╠═40e23ea2-3634-44db-8bf8-b3b3002a5822
@@ -1180,7 +1225,11 @@ version = "1.4.1+0"
 # ╠═ff2f2b4e-3d12-4e78-a47d-5677f18a7d0b
 # ╠═0bc6f709-ff25-45be-b97e-c1c6306dc2ac
 # ╠═2c2ce4c5-1868-40c6-ae87-4d59ad1a81d6
-# ╠═5dfa0009-f8ff-4049-aebb-f98ddd711d59
+# ╟─5dfa0009-f8ff-4049-aebb-f98ddd711d59
+# ╠═7ac90260-64fc-4b7e-b81e-b98930663a62
+# ╠═17d13076-231e-4207-a17a-36c22d1f4a0d
+# ╠═ca5cc16a-2efd-4c54-9e80-da783c0f52d1
+# ╠═c908e25c-f8e1-49d9-acd7-fdf7b82f67c1
 # ╟─15c50a5b-ea9e-4e7c-a3d1-0470eeed489c
 # ╟─1cdf1772-3755-49ff-8bd3-fd95ab341ef6
 # ╟─00000000-0000-0000-0000-000000000001
