@@ -138,7 +138,9 @@ However, I will list here some differences from Python (taken from [here](https:
 md"""
 ## The Julia package manager
 
-Julia built-in package manager can deal with multiple _environments_, which are similar to Conda envs or Python virtualenv. 
+Julia built-in package manager can deal with multiple _environments_, which are similar to Conda envs or Python virtualenv.
+
+You can _activate_ an environment with `Pkg.activate("path/to/dir")` or with `activate path/to/dir`, while in `pkg`. Once an environment has been activated you can add, update and remove packages.
 
 While in `pkg` mode, type "add Pluto" and hit enter. The Pluto.jl package will be installed in the current environment.
 """
@@ -451,7 +453,7 @@ version = "17.4.0+0"
 # ╠═44ed2314-3601-476c-b849-9190cf17f236
 # ╟─29736cc4-f8a3-4c85-9896-29a4e9a1b8e3
 # ╟─1ece9654-2e9e-4a77-be20-bf18bb754c64
-# ╠═a63fe8aa-19f4-48f1-990f-be41fc253e8f
+# ╟─a63fe8aa-19f4-48f1-990f-be41fc253e8f
 # ╟─2d5c9202-fd66-4584-82ea-7c48e9efbe6d
 # ╟─005d8679-5e59-4259-8971-30e50a40c1d6
 # ╟─7f5d4c23-19ef-436d-94e4-83a2cf5b0cd9

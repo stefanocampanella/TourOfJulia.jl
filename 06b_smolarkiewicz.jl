@@ -35,11 +35,11 @@ where ``\psi`` is a passive tracer (some scalar field not producing momentum, e.
 
 On a staggered grid, the values of the tracer at the timestep ``N + 1`` are given by
 ```math
-\psi^{N + 1}_i = \psi^N_i + \left(F(\psi^N_{i - 1}, \psi^N_i, u_{i - 1 / 2}) - F(\psi^N_i, \psi^N_{i+1}, u_{i + 1 / 2}) \right) \; ,
+\psi^{N + 1}_i = \psi^N_i - \left(F(\psi^N_i, \psi^N_{i+1}, u_{i + 1 / 2}) - F(\psi^N_{i - 1}, \psi^N_i, u_{i - 1 / 2})\right) \; ,
 ```
 where
 ```math
-F(\psi, \psi', u) = \frac{\Delta t}{2 \Delta x} \left( (u + \vert u \vert) \psi + (u - \vert u \vert) \psi' \right) \; .
+F(\psi_i, \psi_{i + 1}, u) = \frac{\Delta t}{2 \Delta x} \left( (u + \vert u \vert) \psi_i + (u - \vert u \vert) \psi_{i + 1} \right) \; .
 ```
 
 The scheme is positive definite as long as
@@ -129,7 +129,7 @@ Speed: $(@bind speed Slider(range(0., 5., step=0.1), default=1.0, show_value=tru
 
 Time steps: $(@bind T Slider(50:250, default=100, show_value=true))
 
-Δx: $(@bind Δx Slider(range(0.0, 0.02, step=0.001), default=0.01, show_value=true))
+Δx: $(@bind Δx Slider(range(0.0, 0.02, step=0.001), default=0.015, show_value=true))
 
 Δt: $(@bind Δt Slider(range(0.0, 0.02, step=0.001), default=0.01, show_value=true))
 
