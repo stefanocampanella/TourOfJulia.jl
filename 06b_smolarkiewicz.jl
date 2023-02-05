@@ -130,7 +130,7 @@ Lattice points (2x): $(@bind N Slider(50:250, default=100, show_value=true))
 
 Speed: $(@bind speed Slider(range(0., 5., step=0.1), default=1.0, show_value=true))
 
-Time steps: $(@bind T Slider(50:250, default=100, show_value=true))
+Time steps: $(@bind T Slider(50:500, default=100, show_value=true))
 
 Δx: $(@bind Δx Slider(range(0.0, 0.02, step=0.001), default=0.015, show_value=true))
 
