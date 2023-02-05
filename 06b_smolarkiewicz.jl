@@ -23,6 +23,9 @@ using Plots
 # ╔═╡ b9c2939f-b499-4588-985e-d81df8f7c3e1
 using Printf
 
+# ╔═╡ dcd81260-be8b-48fb-b5ce-bbb3737ad184
+using LaTeXStrings
+
 # ╔═╡ 3aadba74-a333-11ed-23fc-c9ada278e6dc
 md"""
 # A numerical scheme for 1D advection
@@ -135,23 +138,40 @@ Time steps: $(@bind T Slider(50:250, default=100, show_value=true))
 
 Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
 
-Compensation factor: $(@bind sc Slider(range(1.0, 1.1, step=0.005), default=1.05, show_value=true))
+Smolarkiewicz compensation factor: $(@bind sc Slider(range(1.0, 1.1, step=0.005), default=1.05, show_value=true))
+
+Density shape: $(@bind ψ_shape Select(["sin", "flat"], default="flat"))
+
+Velocity shape: $(@bind u_shape Select(["linear", "flat"], default="flat"))
 """
 
 # ╔═╡ 78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
-#ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
-ψ = [0; ones(N); zeros(N + 1)]
+if ψ_shape == "sin"
+	ψ = [0; sin.(range(0, π, length=N)); zeros(N + 1)]
+elseif ψ_shape == "flat"
+	ψ = [0; ones(N); zeros(N + 1)]
+end
+
+# ╔═╡ c652b94e-7a59-4f1d-820e-e84d360a1292
+plot(ψ, label="ψ")
 
 # ╔═╡ 96572796-5c54-4056-acb8-593ef8627a71
-u = fill(speed, 2N + 2)
+if u_shape == "linear"
+	u = [0; range(0, speed, length=2N); 0]
+elseif u_shape == "flat"
+	u = fill(speed, 2N + 2)
+end
+
+# ╔═╡ b39a2ff1-552c-49ed-9e2d-1df0a9f17d30
+plot(u, label="velocity")
 
 # ╔═╡ b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
-let ψ_smol = copy(ψ), ψ_naive = copy(ψ)
+let ψ_smol = copy(ψ), ψ_naive = copy(ψ), M = sum(ψ)
 	@gif for k in 1:T
 		smolarkiewiczstep!(ψ_smol, u, Δt, Δx, sc, n)
 		naivestep!(ψ_naive, u, Δt, Δx)
-		title = @sprintf "t = %.3f" k * Δt
-		plt = plot(;xrange=(0, 2N * Δx), yrange=(-0.05, 1.05), title)
+		title = @sprintf "t = %.3f \\quad (M_{smol} = %.1f \\%%, M_{naive} = %.1f \\%%)" k * Δt (100sum(ψ_smol) / M) (100sum(ψ_naive) / M)
+		plt = plot(xrange=(0, 2N * Δx), yrange=(-0.05, 1.05), title=latexstring(title))
 		plot!(plt, range(0.0, step=Δx, length=2N), ψ_smol[2:end - 1], label="Smolarkiewicz")
 		plot!(plt, range(0.0, step=Δx, length=2N), ψ_naive[2:end - 1], label="Naive")
 		plt
@@ -161,11 +181,13 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
+LaTeXStrings = "~1.3.0"
 Plots = "~1.38.4"
 PlutoUI = "~0.7.49"
 """
@@ -176,7 +198,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "6e6f24f202eeb5781783968f2963f74e969f266c"
+project_hash = "a31b4d30e3d47c0264038d41daa016128268970e"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1147,9 +1169,12 @@ version = "1.4.1+0"
 # ╠═a2acb4b2-ef71-4f67-8c63-5a1edb764e53
 # ╠═9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
 # ╠═b9c2939f-b499-4588-985e-d81df8f7c3e1
+# ╠═dcd81260-be8b-48fb-b5ce-bbb3737ad184
 # ╟─90f415ee-8736-4ac6-8c65-4257f264323a
 # ╠═78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
+# ╠═c652b94e-7a59-4f1d-820e-e84d360a1292
 # ╠═96572796-5c54-4056-acb8-593ef8627a71
+# ╠═b39a2ff1-552c-49ed-9e2d-1df0a9f17d30
 # ╠═b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
