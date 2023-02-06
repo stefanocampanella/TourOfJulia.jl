@@ -23,9 +23,6 @@ using Plots
 # ╔═╡ b9c2939f-b499-4588-985e-d81df8f7c3e1
 using Printf
 
-# ╔═╡ dcd81260-be8b-48fb-b5ce-bbb3737ad184
-using LaTeXStrings
-
 # ╔═╡ 3aadba74-a333-11ed-23fc-c9ada278e6dc
 md"""
 # A numerical scheme for 1D advection
@@ -62,66 +59,49 @@ The scheme is positive definite as long as
 Using a clever argument, Smolarkiewicz counteract the numerical diffusion of the scheme using a phantom timestep with antidiffusion velocity ``u_\text{eff}``, defined as
 
 ```math
-u_\text{eff} = \frac{\psi_{i + 1} - \psi_i}{\psi_{i + 1} + \psi_i + \varepsilon} \left( \vert u_{i + 1 / 2} \vert - u_{i + 1 / 2}^2 \frac{\Delta t}{\Delta x} \right) \; ,
+u_{\text{eff}, i + 1 / 2} = \frac{\psi_{i + 1} - \psi_i}{\psi_{i + 1} + \psi_i + \varepsilon} \left( \vert u_{i + 1 / 2} \vert - u_{i + 1 / 2}^2 \frac{\Delta t}{\Delta x} \right) \; ,
 ```
 where ``\varepsilon`` is a small number used to set ``u_\text{eff} = 0`` when ``\psi_i = \psi_{i + 1} = 0`` without branching.
 
 Finally, it is possible to do more than one antidiffusion step, re-computing each time the antidiffusion velocity.
 """
 
-# ╔═╡ a12e1ef4-ad61-4235-9fc2-45d4f43c810a
-@views function fixboundary!(xs, g, type=:periodic)
-    if type == :periodic
-        for i = 1:g
-            xs[g + 1 - i] = xs[end - g - (i - 1)]
-            xs[end - g + i] = xs[g + 1 + (i - 1)]
-        end
-    elseif type == :zero
-        xs[1:g] = zero(eltype(xs))
-        xs[end - g:end] = zero(eltype(xs))
-    end
-    return
-end
-
 # ╔═╡ 131bc319-530d-451c-9dce-8f2f59bb72e8
 flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt / 2Δx)
 
 # ╔═╡ 336edc74-81c2-4e09-9389-1e400e882d73
 # array views, broadcasting
-@views function smolarkiewicz!(ψ, u, Δt, Δx, g)
+@views function smolarkiewicz!(ψ, u, Δt, Δx)
 	@assert maximum(u) * Δt <= Δx
-    ψc = ψ[g + 1:end - g] # ψ_i
-    ψr = ψ[(g + 1) + 1:end - g + 1] # ψ_{i + 1}
-    ψl = ψ[(g + 1) - 1:end - g - 1] # ψ_{i - 1}
-    uc = u[g + 1:end - g] # u_{i + 1/2}
-    ul = u[(g + 1) - 1:end - g - 1] # u_{i - 1/2}
-    @. ψc -= flux(ψc, ψr, uc, Δt, Δx) - flux(ψl, ψc, ul, Δt, Δx)
-	fixboundary!(ψ, g)
+    @. ψ[2:end - 1] -= 
+		flux(ψ[2:end - 1], ψ[3:end], u[2:end], Δt, Δx) - 
+		flux(ψ[1:end - 2], ψ[2:end - 1], u[1:end - 1], Δt, Δx)
+	ψ[1] = ψ[end - 2]
+	ψ[end] = ψ[2]
     return
 end
 
 # ╔═╡ 5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
-@views function effvelocity!(u, ψ, Δt, Δx, ϵ, g)
-    ψr = ψ[(g + 1) + 1:end - g + 1]
-    ψc = ψ[g + 1:end - g]
-    uc = u[(g + 1):end - g]
-    @. u[g + 1:end - g] = ((ψr - ψc) / (ψc + ψr + ϵ)) * (abs(uc) - (Δt / Δx) * uc ^ 2)
-    fixboundary!(u, g)
+@views function effvelocity!(u, ψ, Δt, Δx, ϵ, sc)
+    ψr = ψ[3:end] # ψ_{i + 1}
+    ψc = ψ[2:end - 1] # ψ_i
+    uc = u[1:end - 1] # u_{i + 1/2}
+    @. uc = sc * ((ψr - ψc) / (ψc + ψr + ϵ)) * (abs(uc) - (Δt / Δx) * uc ^ 2)
+    u[end - 1] = u[1]
     return
 end
 
 # ╔═╡ 7db74a32-7e4d-4db7-bd48-246231bcbf6a
-function smolarkiewiczstep!(ψ, u, Δt, Δx, sc, n=2, ϵ=1e-15, g=1)
+function smolarkiewiczstep!(ψ, u, Δt, Δx, sc, n=2, ϵ=1e-15)
     if n < 1
         return
     else
         u_eff = copy(u)
         for k = 1:n
 			if k > 1
-            	effvelocity!(u_eff, ψ, Δt, Δx, ϵ, g)
-				u_eff .*= sc
+            	effvelocity!(u_eff, ψ, Δt, Δx, ϵ, sc)
             end
-			smolarkiewicz!(ψ, u_eff, Δt, Δx, g)
+			smolarkiewicz!(ψ, u_eff, Δt, Δx)
         end
     end
     return
@@ -129,8 +109,9 @@ end
 
 # ╔═╡ 84a511c4-2ac3-4629-950a-1163e4b1e3b1
 function naivestep!(ψ, u, Δt, Δx)
-	ψ[2:end] .-= diff(u .* ψ) * Δt / Δx
-	fixboundary!(ψ, 1)
+	ψ[2:end-1] .-= diff(u .* ψ[1:end-1]) * Δt / Δx
+	ψ[end] = ψ[2]
+	ψ[1] = ψ[end - 1]
 end
 
 # ╔═╡ 90f415ee-8736-4ac6-8c65-4257f264323a
@@ -139,7 +120,7 @@ Lattice points (2x): $(@bind N Slider(50:250, default=100, show_value=true))
 
 Speed: $(@bind speed Slider(range(0., 5., step=0.1), default=1.0, show_value=true))
 
-Time steps: $(@bind T Slider(50:500, default=100, show_value=true))
+Time steps: $(@bind T Slider(50:1000, default=500, show_value=true))
 
 Δx: $(@bind Δx Slider(range(0.0, 0.02, step=0.001), default=0.015, show_value=true))
 
@@ -149,7 +130,7 @@ Smolarkiewicz iterations : $(@bind n Slider(1:4, default=2, show_value=true))
 
 Smolarkiewicz compensation factor: $(@bind sc Slider(range(1.0, 1.1, step=0.005), default=1.05, show_value=true))
 
-Density shape: $(@bind ψ_shape Select(["sin", "flat"], default="flat"))
+Density shape: $(@bind ψ_shape Select(["sin", "flat"], default="sin"))
 
 Velocity shape: $(@bind u_shape Select(["linear", "flat"], default="flat"))
 """
@@ -166,23 +147,23 @@ plot(ψ, label="ψ")
 
 # ╔═╡ 96572796-5c54-4056-acb8-593ef8627a71
 if u_shape == "linear"
-	u = [0; range(0, speed, length=2N); 0]
+	u = [range(0, speed, length=2N); 0]
 elseif u_shape == "flat"
-	u = fill(speed, 2N + 2)
+	u = fill(speed, 2N + 1)
 end
 
 # ╔═╡ b39a2ff1-552c-49ed-9e2d-1df0a9f17d30
 plot(u, label="velocity")
 
 # ╔═╡ b6c5b06d-4357-4f87-84fb-bbbbb3f0ed45
-let ψ_smol = copy(ψ), ψ_naive = copy(ψ), M = sum(ψ)
+let ψ_smol = copy(ψ), ψ_naive = copy(ψ), xs = range(0.0, step=Δx, length=2N)
 	@gif for k in 1:T
-		smolarkiewiczstep!(ψ_smol, u, Δt, Δx, sc, n)
+		smolarkiewiczstep!(ψ_smol, u, Δt, Δx, sc, n)	
 		naivestep!(ψ_naive, u, Δt, Δx)
-		title = @sprintf "t = %.3f \\quad (M_{smol} = %.1f \\%%, M_{naive} = %.1f \\%%)" k * Δt (100sum(ψ_smol) / M) (100sum(ψ_naive) / M)
-		plt = plot(xrange=(0, 2N * Δx), yrange=(-2, 2), title=latexstring(title))
-		plot!(plt, range(0.0, step=Δx, length=2N), ψ_smol[2:end - 1], label="Smolarkiewicz")
-		plot!(plt, range(0.0, step=Δx, length=2N), ψ_naive[2:end - 1], label="Naive")
+		title = @sprintf "t = %.3f" k * Δt
+		plt = plot(;xrange=(0, 2N * Δx), yrange=(-0.2, 1.2), title)
+		plot!(plt, xs, ψ_smol[2:end - 1], label="Smolarkiewicz")
+		plot!(plt, xs, ψ_naive[2:end - 1], label="Naive")
 		plt
 	end
 end
@@ -190,13 +171,11 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-LaTeXStrings = "~1.3.0"
 Plots = "~1.38.4"
 PlutoUI = "~0.7.49"
 """
@@ -207,7 +186,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "122dfedc4e64a24bff8e436c6549ff0627bc1c94"
+project_hash = "6e6f24f202eeb5781783968f2963f74e969f266c"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1169,7 +1148,6 @@ version = "1.4.1+0"
 
 # ╔═╡ Cell order:
 # ╟─3aadba74-a333-11ed-23fc-c9ada278e6dc
-# ╠═a12e1ef4-ad61-4235-9fc2-45d4f43c810a
 # ╠═131bc319-530d-451c-9dce-8f2f59bb72e8
 # ╠═336edc74-81c2-4e09-9389-1e400e882d73
 # ╠═5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
@@ -1178,7 +1156,6 @@ version = "1.4.1+0"
 # ╠═a2acb4b2-ef71-4f67-8c63-5a1edb764e53
 # ╠═9f9c51b3-4169-4f2c-b486-ee4883a6cdc7
 # ╠═b9c2939f-b499-4588-985e-d81df8f7c3e1
-# ╠═dcd81260-be8b-48fb-b5ce-bbb3737ad184
 # ╟─90f415ee-8736-4ac6-8c65-4257f264323a
 # ╠═78bb87e2-18f6-49d8-9e0f-772d8c6c37b1
 # ╠═c652b94e-7a59-4f1d-820e-e84d360a1292
