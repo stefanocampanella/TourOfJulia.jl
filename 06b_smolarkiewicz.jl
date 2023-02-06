@@ -42,6 +42,15 @@ On a staggered grid, the values of the tracer at the timestep ``N + 1`` are give
 ```
 where
 ```math
+F(\psi_i, \psi_{i + 1}, u) = 
+\begin{cases} 
+\frac{\Delta t}{\Delta x} u \psi_i & u > 0 \\
+0 & u = 0 \\
+\frac{\Delta t}{\Delta x} u \psi_{i + 1} & u < 0
+\end{cases}
+```
+or, without branching,
+```math
 F(\psi_i, \psi_{i + 1}, u) = \frac{\Delta t}{2 \Delta x} \left( (u + \vert u \vert) \psi_i + (u - \vert u \vert) \psi_{i + 1} \right) \; .
 ```
 
@@ -61,7 +70,7 @@ Finally, it is possible to do more than one antidiffusion step, re-computing eac
 """
 
 # ╔═╡ a12e1ef4-ad61-4235-9fc2-45d4f43c810a
-function fixboundary!(xs, g, type=:periodic)
+@views function fixboundary!(xs, g, type=:periodic)
     if type == :periodic
         for i = 1:g
             xs[g + 1 - i] = xs[end - g - (i - 1)]
@@ -81,12 +90,12 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
 # array views, broadcasting
 @views function smolarkiewicz!(ψ, u, Δt, Δx, g)
 	@assert maximum(u) * Δt <= Δx
-    ψc = ψ[g + 1:end - g]
-    ψr = ψ[(g + 1) + 1:end - g + 1]
-    ψl = ψ[(g + 1) - 1:end - g - 1]
-    ur = u[(g + 1) + 1:end - g + 1]
-    ul = u[(g + 1) - 1:end - g - 1]
-    @. ψ[g + 1:end - g] -= flux(ψc, ψr, ul, Δt, Δx) - flux(ψl, ψc, ur, Δt, Δx)
+    ψc = ψ[g + 1:end - g] # ψ_i
+    ψr = ψ[(g + 1) + 1:end - g + 1] # ψ_{i + 1}
+    ψl = ψ[(g + 1) - 1:end - g - 1] # ψ_{i - 1}
+    uc = u[g + 1:end - g] # u_{i + 1/2}
+    ul = u[(g + 1) - 1:end - g - 1] # u_{i - 1/2}
+    @. ψc -= flux(ψc, ψr, uc, Δt, Δx) - flux(ψl, ψc, ul, Δt, Δx)
 	fixboundary!(ψ, g)
     return
 end
@@ -171,7 +180,7 @@ let ψ_smol = copy(ψ), ψ_naive = copy(ψ), M = sum(ψ)
 		smolarkiewiczstep!(ψ_smol, u, Δt, Δx, sc, n)
 		naivestep!(ψ_naive, u, Δt, Δx)
 		title = @sprintf "t = %.3f \\quad (M_{smol} = %.1f \\%%, M_{naive} = %.1f \\%%)" k * Δt (100sum(ψ_smol) / M) (100sum(ψ_naive) / M)
-		plt = plot(xrange=(0, 2N * Δx), yrange=(-0.05, 1.05), title=latexstring(title))
+		plt = plot(xrange=(0, 2N * Δx), yrange=(-2, 2), title=latexstring(title))
 		plot!(plt, range(0.0, step=Δx, length=2N), ψ_smol[2:end - 1], label="Smolarkiewicz")
 		plot!(plt, range(0.0, step=Δx, length=2N), ψ_naive[2:end - 1], label="Naive")
 		plt
