@@ -76,7 +76,7 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
     @. ψ[2:end - 1] -= 
 		flux(ψ[2:end - 1], ψ[3:end], u[2:end], Δt, Δx) - 
 		flux(ψ[1:end - 2], ψ[2:end - 1], u[1:end - 1], Δt, Δx)
-	ψ[1] = ψ[end - 2]
+	ψ[1] = ψ[end - 1]
 	ψ[end] = ψ[2]
     return
 end
@@ -87,7 +87,7 @@ end
     ψc = ψ[2:end - 1] # ψ_i
     uc = u[1:end - 1] # u_{i + 1/2}
     @. uc = sc * ((ψr - ψc) / (ψc + ψr + ϵ)) * (abs(uc) - (Δt / Δx) * uc ^ 2)
-    u[end - 1] = u[1]
+    u[end] = u[1]
     return
 end
 
@@ -110,8 +110,8 @@ end
 # ╔═╡ 84a511c4-2ac3-4629-950a-1163e4b1e3b1
 function naivestep!(ψ, u, Δt, Δx)
 	ψ[2:end-1] .-= diff(u .* ψ[1:end-1]) * Δt / Δx
-	ψ[end] = ψ[2]
 	ψ[1] = ψ[end - 1]
+	ψ[end] = ψ[2]
 end
 
 # ╔═╡ 90f415ee-8736-4ac6-8c65-4257f264323a
