@@ -12,6 +12,11 @@ md"""
 # Julia for HPC
 """
 
+# ╔═╡ e8817390-baaf-4504-99c0-0ab43e0bbdf8
+md"""
+## Performance tips (TODO)
+"""
+
 # ╔═╡ 43fbe5c2-d6ef-463a-a0a2-3ecb2b84be80
 md"""
 ## Concurrency (TODO)
@@ -65,16 +70,17 @@ DataFrames, Flux, DifferentialEquaitons, etc.
 
 # ╔═╡ 5c58788c-95f5-4bca-abcd-ab349cd782e9
 md"""
-## Calling C or Fortran (TODO)
+## Calling other software
+
+### C or Fortran (TODO)
+
+### Python (TODO)
+
+### Running commands (TODO)
 """
 
 # ╔═╡ ef28c791-d6f0-4256-81f4-259cfb5f432a
 ccall(:clock, Int32, ())
-
-# ╔═╡ e8817390-baaf-4504-99c0-0ab43e0bbdf8
-md"""
-## Performance tips (TODO)
-"""
 
 # ╔═╡ 78764c0e-73a8-4362-8468-f5b85c869785
 PlutoUI.TableOfContents()
@@ -94,7 +100,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "502a5e5263da26fcd619b7b7033f402a42a81ffc"
+project_hash = "08cc58b1fbde73292d848136b97991797e6c5429"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -346,6 +352,7 @@ version = "17.4.0+0"
 
 # ╔═╡ Cell order:
 # ╟─d03299f8-9cc5-11ed-0638-cf4fda433dad
+# ╟─e8817390-baaf-4504-99c0-0ab43e0bbdf8
 # ╟─43fbe5c2-d6ef-463a-a0a2-3ecb2b84be80
 # ╠═a24f6235-a5b9-451f-a93b-13016c0d6a2f
 # ╠═a9ab9708-49f6-4af5-a788-1e0175e436db
@@ -353,10 +360,9 @@ version = "17.4.0+0"
 # ╠═bcb9d8f7-8a43-450f-bdca-ee51d8ea3dc8
 # ╠═184e4d67-84c8-4bf8-9e98-a38e06a0725d
 # ╠═3fe25e94-1df8-4bca-a078-47666a53db52
-# ╟─133f126b-18c2-4d2d-be70-c4bf9b9395e6
 # ╟─5c58788c-95f5-4bca-abcd-ab349cd782e9
 # ╠═ef28c791-d6f0-4256-81f4-259cfb5f432a
-# ╟─e8817390-baaf-4504-99c0-0ab43e0bbdf8
+# ╟─133f126b-18c2-4d2d-be70-c4bf9b9395e6
 # ╟─052a413d-f282-457c-9f84-7c273c5c1b60
 # ╟─78764c0e-73a8-4362-8468-f5b85c869785
 # ╟─00000000-0000-0000-0000-000000000001

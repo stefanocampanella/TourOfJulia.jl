@@ -9,7 +9,7 @@ using InteractiveUtils
 Grid = Matrix{Union{Int, Missing}}
 
 # ╔═╡ 0b0fa9da-63c2-416d-991f-99f3a3abbbf0
-fortran_indexing = reshape(1:81, (9, 9))
+fortran_indexing = Grid(reshape(1:81, (9, 9)))
 
 # ╔═╡ a13ae96e-c81a-40f3-83f0-9a77e3a4dafc
 transp(x) = PermutedDimsArray(x, (2, 1))
@@ -17,13 +17,13 @@ transp(x) = PermutedDimsArray(x, (2, 1))
 # ╔═╡ d9665dd4-d496-4432-b865-79dd6aa5ffe4
 transposed_indexing = transp(fortran_indexing)
 
-# ╔═╡ 179a45fa-e7d7-4f8c-9ede-2c76f1ddaaaa
-# function objects
-islengthone = ==(1) ∘ length
-
 # ╔═╡ cd7092b3-31e3-4c63-bb8a-f1bf7e2d202d
 # lambda functions
 choices(g) = map(x -> ismissing(x) ? collect(1:9) : [x], g)
+
+# ╔═╡ 179a45fa-e7d7-4f8c-9ede-2c76f1ddaaaa
+# function objects
+islengthone = ==(1) ∘ length
 
 # ╔═╡ 80755e62-611e-40d3-b847-28de32981f93
 # deepcopy
@@ -93,9 +93,6 @@ boxs(A::AbstractMatrix) = Boxs(A, 3, 3)
 # boxs . boxs = id
 boxs(A::Boxs) = A.parent
 
-# ╔═╡ 4f1fbbd0-f52b-4500-887d-8e6aff488287
-boxing_indexing = boxs(fortran_indexing)
-
 # ╔═╡ 01ec92e8-7077-432d-bdc3-ccf9aa330c28
 # generators
 views(g) = (f(g) for f in (identity, transp, boxs))
@@ -113,12 +110,19 @@ views(g) = (f(g) for f in (identity, transp, boxs))
     end
 end
 
-# ╔═╡ 1d2d111f-9dd5-44d1-9dd4-3bcf06c2e1af
-# multiple dispatch
-Base.getindex(A::Boxs, z::Int) = A.parent[boxindx(A, z)]
+# ╔═╡ da1d9160-65e1-4b1a-9e30-29d35cda639b
+begin
+	import Base: getindex, size
 
-# ╔═╡ 45e8a15c-22b6-4a5b-96d7-9e3845b4aec2
-Base.getindex(A::Boxs, i::Int, j::Int) = Base.getindex(A, LinearIndices(A.parent)[i, j])
+	# multiple dispatch
+	getindex(A::Boxs, z::Int) = A.parent[boxindx(A, z)]
+	getindex(A::Boxs, i::Int, j::Int) = getindex(A, LinearIndices(A.parent)[i, j])
+
+	# stdlib function overload
+	size(A::Boxs) = size(A.parent)
+
+	boxing_indexing = boxs(fortran_indexing)
+end
 
 # ╔═╡ 8f22cc75-1ee6-47b3-bdd5-024d378122da
 md"""
@@ -126,10 +130,6 @@ md"""
 
 In this notebook I will code a sudoku solver in Julia. The implementation is based on the [Haskell one](http://www.cs.nott.ac.uk/~pszgmh/sudoku.lhs) provided by Graham Sutton in his course on advanced functional programming. This will be an excuse to illustrate with an example many of the features we encountered.
 """
-
-# ╔═╡ f1a81098-98f5-484f-86fb-f8f20ee0596d
-# stdlib function overload
-Base.size(A::Boxs) = size(A.parent)
 
 # ╔═╡ 5617c883-48dd-4f43-8d6f-dfe60a26f9c8
 # ternary operator (control flow), algorithms (reduce, foldl, folr)
@@ -246,20 +246,17 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 # ╔═╡ Cell order:
 # ╟─8f22cc75-1ee6-47b3-bdd5-024d378122da
 # ╠═b6f88cd9-4ce3-490f-a15f-b461b196b3be
+# ╠═0b0fa9da-63c2-416d-991f-99f3a3abbbf0
+# ╠═a13ae96e-c81a-40f3-83f0-9a77e3a4dafc
+# ╠═d9665dd4-d496-4432-b865-79dd6aa5ffe4
 # ╠═f1dca892-160a-4fa3-9c74-5ae285ca1d6a
 # ╠═ac386887-4111-4914-ba86-76e6ce04d8dc
 # ╠═fbecde76-b1ad-4db0-9ddf-8e1e764aa468
 # ╠═de33c856-ebb7-428e-b45f-dba5432ff6e2
-# ╠═1d2d111f-9dd5-44d1-9dd4-3bcf06c2e1af
-# ╠═45e8a15c-22b6-4a5b-96d7-9e3845b4aec2
-# ╠═f1a81098-98f5-484f-86fb-f8f20ee0596d
-# ╠═0b0fa9da-63c2-416d-991f-99f3a3abbbf0
-# ╠═4f1fbbd0-f52b-4500-887d-8e6aff488287
-# ╠═a13ae96e-c81a-40f3-83f0-9a77e3a4dafc
-# ╠═d9665dd4-d496-4432-b865-79dd6aa5ffe4
-# ╠═179a45fa-e7d7-4f8c-9ede-2c76f1ddaaaa
+# ╠═da1d9160-65e1-4b1a-9e30-29d35cda639b
 # ╠═01ec92e8-7077-432d-bdc3-ccf9aa330c28
 # ╠═cd7092b3-31e3-4c63-bb8a-f1bf7e2d202d
+# ╠═179a45fa-e7d7-4f8c-9ede-2c76f1ddaaaa
 # ╠═5617c883-48dd-4f43-8d6f-dfe60a26f9c8
 # ╠═0ec6b398-5c7c-4ec6-adde-50ddf9de4a3e
 # ╠═efd6086d-6d07-45ab-8e9b-4d847b93ab22

@@ -31,13 +31,27 @@ VS Code support editing Julia code (syntax highlighting, autocompletion, inline 
 Pluto and IJulia (the Julia kernel for Jupyter) can be installed via the Julia package manager, which will be discussed in a later section.
 """
 
+# ╔═╡ f8f75354-d5e5-4f7a-ad90-f6d1c3c05fce
+md"""
+## The CLI
+
+Notice that the Julia CLI has several options. The complete list is available from the documentation and via the usual `--help` switch. Here I list some examples.
+
+|Switch                                 |Description|
+|:---                                   |:---|
+|`--project[={<dir>\|@.}]`              |Set `<dir>` as the home project/environment. The default `@.` option will search through parent directories until a `Project.toml` or `JuliaProject.toml` file is found.|
+|`-e`, `--eval <expr>`                  |Evaluate `<expr>`|
+|`-L`, `--load <file>`                  |Load `<file>` immediately on all processors|
+|`-t`, `--threads {N\|auto`}            |Enable N threads; `auto` tries to infer a useful default number of threads to use but the exact behavior might change in the future.  Currently, `auto` uses the number of CPUs assigned to this julia process based on the OS-specific affinity assignment interface, if supported (Linux and Windows). If this is not supported (macOS) or process affinity is not configured, it uses the number of CPU threads.|
+|`--check-bounds={yes\|no\|auto*}`      |Emit bounds checks always, never, or respect `@inbounds` declarations ($)|
+|`--math-mode={ieee,fast}`              |Disallow or enable unsafe floating point optimizations (overrides `@fastmath` declaration)|
+"""
+
 # ╔═╡ 59aae636-769a-42f4-9403-d0f0f784f503
 md"""
 ## The REPL
 
-Once `juliaup` is installed, you should have also a functioning version of Julia in your PATH (the latest stable release). You can type `julia` in a terminal, hit enter and (right below a nice banner) a `julia>` prompt should show, you are now in the REPL.
-
-From here, you can write an expression (like `1 + 1` or `sort(["banana", "coconut", "apple"])`), which will be evaluated upon hitting enter (when in the REPL, the value of the last evaluated expression will be bound to a variable named `ans`). You can execute the code in `path/to/file.jl` (`jl` is the conventional extension of Julia code) calling the function 
+Once `juliaup` is installed, you should have also a functioning version of Julia in your PATH (the latest stable release). You can type `julia` in a terminal, hit enter and (right below a nice banner) a `julia>` prompt should show, you are now in the REPL. From here, you can write an expression (like `1 + 1` or `sort(["banana", "coconut", "apple"])`), which will be evaluated upon hitting enter (when in the REPL, the value of the last evaluated expression will be bound to a variable named `ans`). You can execute the code in `path/to/file.jl` (`jl` is the conventional extension of Julia code) calling the function 
 ```
 julia> include("path/to/file.jl")
 ```
@@ -444,6 +458,7 @@ version = "17.4.0+0"
 
 # ╔═╡ Cell order:
 # ╟─62113025-371c-4dec-9501-709f9d29612a
+# ╟─f8f75354-d5e5-4f7a-ad90-f6d1c3c05fce
 # ╟─59aae636-769a-42f4-9403-d0f0f784f503
 # ╟─93fefea7-6b0f-4803-9d4e-702f9abf3017
 # ╠═2c42712d-dfbb-42b7-8d81-b107893ba162

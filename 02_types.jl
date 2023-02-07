@@ -227,8 +227,20 @@ md"""
 
 ## Singleton types
 
-A singleton type is a type of which there is only one instance (in the category Set, a set containing only one element). Formally, `T` is a singleton type iff `a isa T && b isa T` implies `a === b` (they are identical). Such a type (there can be more than one, all isomorphic one another), are defined singleton types (the `void` type of C++ or `()`, the unit type, in Haskell). 
+A singleton type is a type of which there is only one instance (in the category Set, a set containing only one element). Formally, `T` is a singleton type iff `a isa T && b isa T` implies `a === b` (they are identical). Such a type (there can be more than one, all isomorphic one another), are defined singleton types (the `void` type of C++ or `()`, the unit type, in Haskell).
+
+Another singleton type is the value type `Val{T}`. Since a type parameter can a `isbits` or a `Symbol`, this singleton type hold such a value as a type parameter. It's constructor is defined as follows
+```julia
+Val(x) = Val{x}()
+```
+This type is used to pass some static informations to the compiler, which might be beneficial in certain situations.
 """
+
+# ╔═╡ cb78bfc8-a281-4bd9-86ad-527526783f72
+@code_typed ntuple(_ -> 1, Val(2))
+
+# ╔═╡ eac939fe-1961-40a7-be7e-fc50cbc02e7b
+@code_typed ntuple(_ -> 1, 2)
 
 # ╔═╡ 1ba15d0b-fda6-4f0c-b6fd-8f23f242b94d
 md"""
@@ -634,6 +646,8 @@ version = "17.4.0+0"
 # ╟─53441a57-0c64-4984-8700-fecdec03ffae
 # ╠═e6578476-5184-47bd-82da-d9aaac5eb397
 # ╟─25221458-20ab-4df7-808c-18f24be06bbe
+# ╠═cb78bfc8-a281-4bd9-86ad-527526783f72
+# ╠═eac939fe-1961-40a7-be7e-fc50cbc02e7b
 # ╟─1ba15d0b-fda6-4f0c-b6fd-8f23f242b94d
 # ╠═f81e6114-b046-4adf-bc8a-68f0624e91af
 # ╠═ce484dea-b7e2-4e08-9138-b24b004911a8
