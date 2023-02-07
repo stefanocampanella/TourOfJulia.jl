@@ -15,6 +15,18 @@ md"""
 # ╔═╡ e8817390-baaf-4504-99c0-0ab43e0bbdf8
 md"""
 ## Performance tips (TODO)
+
+* Avoid untyped global variables
+* Write _type stable_ functions
+* Measure performance and pay attention to allocation
+* Access arrays in memory order
+* Use views for slices
+* Pre-allocate outputs
+* Avoid containers with abstract type parameters
+* Separate kernel functions
+* Consider `StaticArrays.jl`
+* Consider performance annotations
+* Consider performance penalties due to captured variables
 """
 
 # ╔═╡ 43fbe5c2-d6ef-463a-a0a2-3ecb2b84be80
@@ -60,14 +72,6 @@ end
 # ╔═╡ 3fe25e94-1df8-4bca-a078-47666a53db52
 a
 
-# ╔═╡ 133f126b-18c2-4d2d-be70-c4bf9b9395e6
-md"""
-## Noteworthy libraries (TODO)
-
-DataFrames, Flux, DifferentialEquaitons, etc.
-
-"""
-
 # ╔═╡ 5c58788c-95f5-4bca-abcd-ab349cd782e9
 md"""
 ## Calling other software
@@ -81,6 +85,14 @@ md"""
 
 # ╔═╡ ef28c791-d6f0-4256-81f4-259cfb5f432a
 ccall(:clock, Int32, ())
+
+# ╔═╡ 133f126b-18c2-4d2d-be70-c4bf9b9395e6
+md"""
+## Noteworthy libraries (TODO)
+
+DataFrames, Flux, DifferentialEquaitons, etc.
+
+"""
 
 # ╔═╡ 78764c0e-73a8-4362-8468-f5b85c869785
 PlutoUI.TableOfContents()
