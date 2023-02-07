@@ -25,7 +25,7 @@ using Printf
 
 # ╔═╡ 3aadba74-a333-11ed-23fc-c9ada278e6dc
 md"""
-# A numerical scheme for 1D advection
+# A Simple Positive Definite Advection Scheme with Small Implicit Diffusion
 
 In this example we will the numerical scheme illustrated in [Smolarkiewicz, P. K. (1983)](https://doi.org/10.1175/1520-0493(1983)111%3C0479:ASPDAS%3E2.0.CO;2) for the integration of the 1-dimensional advection equation
 ```math
@@ -74,7 +74,9 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
 @views function smolarkiewicz!(ψ, u, Δt, Δx)
 	@assert maximum(u) * Δt <= Δx
     @. ψ[2:end - 1] -= 
+		#    ψ_i           ψ_{i+1}   u_{i + 1/2}
 		flux(ψ[2:end - 1], ψ[3:end], u[2:end], Δt, Δx) - 
+		#    ψ_{i-1}       ψ_i           u_{i - 1/2}
 		flux(ψ[1:end - 2], ψ[2:end - 1], u[1:end - 1], Δt, Δx)
 	ψ[1] = ψ[end - 1]
 	ψ[end] = ψ[2]
@@ -82,7 +84,7 @@ flux(ψ1, ψ2, u, Δt, Δx) = ((u + abs(u)) * ψ1 + (u - abs(u)) * ψ2) * (Δt /
 end
 
 # ╔═╡ 5e1f248e-6d6c-44c9-9ecd-c15d5e7aabf6
-@views function effvelocity!(u, ψ, Δt, Δx, ϵ, sc)
+@views function antidiffusive_velocity!(u, ψ, Δt, Δx, ϵ, sc)
     ψr = ψ[3:end] # ψ_{i + 1}
     ψc = ψ[2:end - 1] # ψ_i
     uc = u[1:end - 1] # u_{i + 1/2}
@@ -99,7 +101,7 @@ function smolarkiewiczstep!(ψ, u, Δt, Δx, sc, n=2, ϵ=1e-15)
         u_eff = copy(u)
         for k = 1:n
 			if k > 1
-            	effvelocity!(u_eff, ψ, Δt, Δx, ϵ, sc)
+            	antidiffusive_velocity!(u_eff, ψ, Δt, Δx, ϵ, sc)
             end
 			smolarkiewicz!(ψ, u_eff, Δt, Δx)
         end
@@ -108,8 +110,8 @@ function smolarkiewiczstep!(ψ, u, Δt, Δx, sc, n=2, ϵ=1e-15)
 end
 
 # ╔═╡ 84a511c4-2ac3-4629-950a-1163e4b1e3b1
-function naivestep!(ψ, u, Δt, Δx)
-	ψ[2:end-1] .-= diff(u .* ψ[1:end-1]) * Δt / Δx
+@views function naivestep!(ψ, u, Δt, Δx)
+	@. ψ[2:end-1] -= $diff(u * ψ[1:end-1]) * Δt / Δx
 	ψ[1] = ψ[end - 1]
 	ψ[end] = ψ[2]
 end
