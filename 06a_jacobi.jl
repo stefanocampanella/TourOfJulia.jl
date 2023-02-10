@@ -32,7 +32,7 @@ function makefield(N, M, bottomleftvalue)
 end
 
 # ╔═╡ 4110b2e7-0255-4b94-93b0-fa8e8fb5d35e
-@views function copyboundaries!(ψ′, ψ)
+@views function copyboundaries!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{T}}
 	ψ′[begin, begin:end] = ψ[begin, begin:end]
 	ψ′[end, begin:end] = ψ[end, begin:end]
 	ψ′[begin:end, begin] = ψ[begin:end, begin]
@@ -40,10 +40,10 @@ end
 end
 
 # ╔═╡ fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
-function jacobistep_loopy!(ψ′::Matrix{T}, ψ::Matrix{T}) where T <: Real
+function jacobistep_loopy!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{T}}
 	@assert size(ψ′) == size(ψ)
-	N, M = size(ψ′)
-	for j = 2:M - 1
+	N, K = size(ψ′)
+	for j = 2:K - 1
 		for i = 2:N - 1
 			@inbounds ψ′[i, j] = 0.25(ψ[i-1, j] + ψ[i + 1, j] + ψ[i, j - 1] + ψ[i, j + 1])
 		end
@@ -52,7 +52,7 @@ function jacobistep_loopy!(ψ′::Matrix{T}, ψ::Matrix{T}) where T <: Real
 end
 
 # ╔═╡ 1d64de9f-75a3-452b-ae83-dca42179a447
-@views function jacobistep_array!(ψ′::Matrix{T}, ψ::Matrix{T}) where T <: Real
+@views function jacobistep_array!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{T}}
 	@assert size(ψ′) == size(ψ)
 	@inbounds ψ′[2:end-1, 2:end-1] = @. 0.25(ψ[1:end-2, 2:end-1] + ψ[3:end, 2:end-1] + ψ[2:end-1, 3:end] + ψ[2:end-1, 1:end-2])
 end
@@ -64,6 +64,8 @@ Grid size: $(@bind N Slider(10:10:200, default=100, show_value=true))
 Number of iterations: $(@bind niter Slider(100:100:10_000, default=1000, show_value=true))
 
 Bottom left value: $(@bind x0 Slider(range(0., 200., step=5.), default=100., show_value=true))
+
+Plot every: $(@bind nframes Slider(10:10:200, default=50, show_value=true))
 """
 
 # ╔═╡ 1878215a-a7d0-11ed-09d4-e1a5490623a2
@@ -75,7 +77,7 @@ let
 		jacobistep_loopy!(ψ′, ψ)
 		ψ, ψ′ = ψ′, ψ
 		heatmap(ψ)
-	end every 10
+	end every nframes
 end
 
 # ╔═╡ 8e19a715-da3d-4f24-9773-31d1e9825120
