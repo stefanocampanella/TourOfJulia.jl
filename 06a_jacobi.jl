@@ -4,148 +4,100 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 1c804e69-f6c3-4a75-a075-9e185fceef2d
-using Plots
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
 
 # ╔═╡ 8e92d3d8-2f04-4559-aff6-f332183ad8c5
 using PlutoUI
 
+# ╔═╡ 1c804e69-f6c3-4a75-a075-9e185fceef2d
+using Plots
+
 # ╔═╡ 4c349984-1972-451b-b7cb-90aced9d378f
 using BenchmarkTools
 
+# ╔═╡ 9d64333e-1fd6-4839-b57d-65ec7fda16f3
+function makefield(N, M, (x1, x2))
+	field = zeros(N, M)
+	field[end:-1:1, begin] = range(x1, x2, length=N)
+	field[begin, 1:end] = range(x2, x1, length=M)
+	field
+end
+
+# ╔═╡ 4110b2e7-0255-4b94-93b0-fa8e8fb5d35e
+@views function copyboundaries!(ψ′, ψ)
+	ψ′[begin, begin:end] = ψ[begin, begin:end]
+	ψ′[end, begin:end] = ψ[end, begin:end]
+	ψ′[begin:end, begin] = ψ[begin:end, begin]
+	ψ′[begin:end, end] = ψ[begin:end, end]
+end
+
+# ╔═╡ fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
+function jacobistep_loopy!(ψ′::Matrix{T}, ψ::Matrix{T}) where T <: Real
+	@assert size(ψ′) == size(ψ)
+	N, M = size(ψ′)
+	for j = 2:M - 1
+		for i = 2:N - 1
+			@inbounds ψ′[i, j] = 0.25(ψ[i-1, j] + ψ[i + 1, j] + ψ[i, j - 1] + ψ[i, j + 1])
+		end
+	end
+	return
+end
+
+# ╔═╡ 1d64de9f-75a3-452b-ae83-dca42179a447
+@views function jacobistep_array!(ψ′::Matrix{T}, ψ::Matrix{T}) where T <: Real
+	@assert size(ψ′) == size(ψ)
+	@inbounds ψ′[2:end-1, 2:end-1] = @. 0.25(ψ[1:end-2, 2:end-1] + ψ[3:end, 2:end-1] + ψ[2:end-1, 3:end] + ψ[2:end-1, 1:end-2])
+end
+
 # ╔═╡ 160273c3-f0e2-4b3b-a445-a1a287e5b0b7
-# ╠═╡ disabled = true
-#=╠═╡
-md"Step number $(@bind niter Slider(100:100:10_000, show_value=true))"
-  ╠═╡ =#
+md"""
+Grid size: $(@bind N Slider(10:10:200, default=100, show_value=true))
+
+Number of iterations: $(@bind niter Slider(100:100:10_000, default=1000, show_value=true))
+
+X min: $(@bind xmin Slider(range(0., 200., step=5.), default=100., show_value=true))
+
+X max: $(@bind xmax Slider(range(0., 200., step=5.), default=100., show_value=true))
+"""
 
 # ╔═╡ 1878215a-a7d0-11ed-09d4-e1a5490623a2
-let 
-	N = 100
-	niter = 1000
-	x0 = 0.5
-	xmin, xmax = 0, 100
-	K = 20
-	
-	field = fill(x0, N, N)
-	tmpfield = similar(field)
-	field[:, 1] = range(xmin, xmax, length=N)
-	field[N, :] = range(xmax, xmin, length=N)
-	tmpfield[:, 1] = field[:, 1]
-	tmpfield[N, :] = field[N, :]
+let
+	ψ = makefield(N, N, (xmin, xmax))
+	ψ′ = similar(ψ)
+	copyboundaries!(ψ′, ψ)
 	@gif for n = 1:niter
-		@views begin
-		tmpfield[2:end-1, 2:end-1] .= 
-				0.25(field[1:end-2, 2:end-1] + field[3:end, 2:end-1] + field[2:end-1, 3:end] + field[2:end-1, 1:end-2])
-		end
-		field, tmpfield = tmpfield, field
-		heatmap(field)
+		jacobistep_loopy!(ψ′, ψ)
+		ψ, ψ′ = ψ′, ψ
+		heatmap(ψ)
 	end every 10
 end
 
-# ╔═╡ 86d8d30e-c624-4a30-aa46-47e303008e38
-# ╠═╡ disabled = true
-#=╠═╡
-function f_loop(field, niter)
-	tmpfield = similar(field)
-	tmpfield[:, 1] = field[:, 1]
-	tmpfield[end, :] = field[end, :]
-	N = size(field, 1)
-	for _ = 1:niter
-		for j = 2:N - 1
-			 for i = 2:N - 1
-			 	@inbounds tmpfield[i, j] = (field[i-1, j] + field[i + 1, j] + field[i, j - 1] + field[i, j + 1]) / 4
-			 end
-		end
-		field, tmpfield = tmpfield, field
-	end
-	field
-end
-  ╠═╡ =#
-
-# ╔═╡ d69cc0b1-de14-44a2-a225-c8b8da38965d
-function f_vectorized(field, niter)
-	tmpfield = similar(field)
-	tmpfield[:, 1] = field[:, 1]
-	tmpfield[end, :] = field[end, :]
-	N = size(field, 1)
-	for _ = 1:niter
-		@views begin
-		tmpfield[2:end-1, 2:end-1] .= 
-				0.25(field[1:end-2, 2:end-1] + field[3:end, 2:end-1] + field[2:end-1, 3:end] + field[2:end-1, 1:end-2])
-		end
-		field, tmpfield = tmpfield, field
-	end
-	field
-end
-
-# ╔═╡ 7c114d56-e178-4f08-9d4f-452b3db11d93
-begin
-	ψ = fill(0.5, 100, 100)
-	N = size(ψ, 1)
-	ψ[:, 1] = range(0., 100, length=N)
-	ψ[N, :] = range(100, 0., length=N)
-
-	f_vectorized(ψ, 1)
-end
-
 # ╔═╡ 8e19a715-da3d-4f24-9773-31d1e9825120
-#=╠═╡
-@benchmark f_loop($ψ, 100)
-  ╠═╡ =#
+@benchmark jacobistep_loopy!($rand(1000, 1000), $Matrix{Float64}(undef, 1000, 1000))
 
 # ╔═╡ 2d829f92-4709-4ec2-bd6b-d52532965c72
-@benchmark f_vectorized($ψ, 100)
+@benchmark jacobistep_array!($rand(1000, 1000), $Matrix{Float64}(undef, 1000, 1000))
 
-# ╔═╡ 1210c874-19dd-450c-8b74-fb3cdf07d76d
-m[:, 1] # getindex(m, :, 1)
-
-# ╔═╡ 0fac3b87-185f-49f9-b191-783951daf25f
-
-
-# ╔═╡ 64024b61-c639-4199-807a-fe93fcac5b2f
-struct Array{T, N}
-	ptr::Pointer
-	sizes::Tuple
-end
-
-# ╔═╡ ce3056b3-9311-44e8-9f90-5482af177d6e
-mykernel(x) = exp(1 + sin(x))
-
-# ╔═╡ 48e28000-2e4a-4834-a071-dc9ab7bd7943
-m .+ xs
-
-# ╔═╡ 638a6875-6d04-465f-8248-7655659bd5b3
-getindex(m, 1, 1)
-
-# ╔═╡ 3b73bcf4-69e1-4788-8612-65c374578d14
-(@view m[:, 1]) == view(m, :, 1)
-
-# ╔═╡ cd06badb-2654-4628-840b-96bea3ff7811
-pointer(m)
-
-# ╔═╡ fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
-function jacobi_step!(field)
-	N = size(field, 1)
-	for j = 2:N - 1
-		for i = 2:N - 1
-			field[i, j] = (field[i-1, j] + field[i + 1, j] + field[i, j - 1] + field[i, j + 1]) / 4
-		end
+# ╔═╡ d7a5355b-d94b-4c19-a43c-3271b5fa324f
+function jacobi!(ψ, niter)
+	ψ′ = similar(ψ)
+	copyboundaries!(ψ′, ψ)
+	for n = 1:niter
+		jacobistep_loopy!(ψ′, ψ)
+		ψ, ψ′ = ψ′, ψ
 	end
 end
 
-# ╔═╡ b1b4acb3-0443-436d-a104-8e5ab61483ba
-function jacobi(field, niterations) 
-	for n = 1:niterations
-		jacobi_step!(field)
-	end
-end
-
-# ╔═╡ 87975db0-0fd8-4cc2-a895-9b21324d0f0a
-@benchmark jacobi($rand(100, 100), $1000)
-
-# ╔═╡ f05b9601-d74c-4467-b5f2-ca9bc7612489
-
+# ╔═╡ 4c684fa1-8a73-4d34-861c-2a1158c9663e
+@benchmark jacobi!($rand(100, 100), 1000)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1137,27 +1089,18 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
+# ╠═9d64333e-1fd6-4839-b57d-65ec7fda16f3
+# ╠═4110b2e7-0255-4b94-93b0-fa8e8fb5d35e
+# ╠═fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
+# ╠═1d64de9f-75a3-452b-ae83-dca42179a447
+# ╠═8e92d3d8-2f04-4559-aff6-f332183ad8c5
+# ╟─160273c3-f0e2-4b3b-a445-a1a287e5b0b7
 # ╠═1c804e69-f6c3-4a75-a075-9e185fceef2d
-# ╠═160273c3-f0e2-4b3b-a445-a1a287e5b0b7
 # ╠═1878215a-a7d0-11ed-09d4-e1a5490623a2
-# ╠═86d8d30e-c624-4a30-aa46-47e303008e38
-# ╠═d69cc0b1-de14-44a2-a225-c8b8da38965d
-# ╠═7c114d56-e178-4f08-9d4f-452b3db11d93
+# ╠═4c349984-1972-451b-b7cb-90aced9d378f
 # ╠═8e19a715-da3d-4f24-9773-31d1e9825120
 # ╠═2d829f92-4709-4ec2-bd6b-d52532965c72
-# ╠═1210c874-19dd-450c-8b74-fb3cdf07d76d
-# ╠═0fac3b87-185f-49f9-b191-783951daf25f
-# ╠═64024b61-c639-4199-807a-fe93fcac5b2f
-# ╠═ce3056b3-9311-44e8-9f90-5482af177d6e
-# ╠═48e28000-2e4a-4834-a071-dc9ab7bd7943
-# ╠═638a6875-6d04-465f-8248-7655659bd5b3
-# ╠═3b73bcf4-69e1-4788-8612-65c374578d14
-# ╠═cd06badb-2654-4628-840b-96bea3ff7811
-# ╠═8e92d3d8-2f04-4559-aff6-f332183ad8c5
-# ╠═fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
-# ╠═b1b4acb3-0443-436d-a104-8e5ab61483ba
-# ╠═4c349984-1972-451b-b7cb-90aced9d378f
-# ╠═87975db0-0fd8-4cc2-a895-9b21324d0f0a
-# ╠═f05b9601-d74c-4467-b5f2-ca9bc7612489
+# ╠═d7a5355b-d94b-4c19-a43c-3271b5fa324f
+# ╠═4c684fa1-8a73-4d34-861c-2a1158c9663e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
