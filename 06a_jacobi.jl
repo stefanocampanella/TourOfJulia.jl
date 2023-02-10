@@ -24,10 +24,10 @@ using Plots
 using BenchmarkTools
 
 # ╔═╡ 9d64333e-1fd6-4839-b57d-65ec7fda16f3
-function makefield(N, M, (x1, x2))
+function makefield(N, M, bottomleftvalue)
 	field = zeros(N, M)
-	field[end:-1:1, begin] = range(x1, x2, length=N)
-	field[begin, 1:end] = range(x2, x1, length=M)
+	field[end:-1:1, begin] = range(0., bottomleftvalue, length=N)
+	field[begin, 1:end] = range(bottomleftvalue, 0., length=M)
 	field
 end
 
@@ -63,14 +63,12 @@ Grid size: $(@bind N Slider(10:10:200, default=100, show_value=true))
 
 Number of iterations: $(@bind niter Slider(100:100:10_000, default=1000, show_value=true))
 
-X min: $(@bind xmin Slider(range(0., 200., step=5.), default=100., show_value=true))
-
-X max: $(@bind xmax Slider(range(0., 200., step=5.), default=100., show_value=true))
+Bottom left value: $(@bind x0 Slider(range(0., 200., step=5.), default=100., show_value=true))
 """
 
 # ╔═╡ 1878215a-a7d0-11ed-09d4-e1a5490623a2
 let
-	ψ = makefield(N, N, (xmin, xmax))
+	ψ = makefield(N, N, x0)
 	ψ′ = similar(ψ)
 	copyboundaries!(ψ′, ψ)
 	@gif for n = 1:niter
