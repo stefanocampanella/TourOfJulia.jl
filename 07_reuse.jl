@@ -11,6 +11,8 @@ using Test
 using PlutoUI
 
 # ╔═╡ 112089a6-9cc5-11ed-2723-53e7aa71e6c5
+#TODO: how to organize, test and distribute Julia code
+
 md"""
 # Code reuse
 
@@ -128,7 +130,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "b33abc2fd4c65e33c89dfcbc078cb794bd39326a"
+project_hash = "ae3072e77f8169ac679342cd78358d5c1cb0250a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]

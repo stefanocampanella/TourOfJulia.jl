@@ -62,10 +62,8 @@ Here there are the core topics that I would like to touch in this short series o
 3. [Building abstractions with procedures]($(root * "03_procedures" * extension))
 4. [Building abstractions with data]($(root * "04_data" * extension))
 5. [Multidimensional arrays]($(root * "05_arrays" * extension))
-6. [Code reuse]($(root * "07_reuse" * extension)) (how to organize, test and distribute Julia code)
-7. [HPC related topics]($(root * "08_hpc" * extension)) (concurrency, noteworthy packages, etc.)
 
-Finally, we will see a simple examples featuring the [Jacobi method]($(root * "06a_jacobi" * extension)), how to solve the [one-dimensional advection equation]($(root * "06b_smolarkiewicz" * extension)) or a [sudoku puzzle]($(root * "06c_sudoku" * extension)) or using Julia, and putting together a few thing seen along the way.
+Finally, we will see a simple examples showing how to solve the [two-dimensional Laplace equation]($(root * "06a_jacobi" * extension)), the [one-dimensional advection equation]($(root * "06b_smolarkiewicz" * extension)) or a [sudoku puzzle]($(root * "06c_sudoku" * extension)) using Julia, and putting together a few thing seen along the way.
 
 Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 """)

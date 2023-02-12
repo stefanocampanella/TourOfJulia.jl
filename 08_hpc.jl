@@ -8,13 +8,15 @@ using InteractiveUtils
 using PlutoUI
 
 # ╔═╡ d03299f8-9cc5-11ed-0638-cf4fda433dad
+#TODO: concurrency, noteworthy packages, etc.
+
 md"""
 # Julia for HPC
 """
 
 # ╔═╡ e8817390-baaf-4504-99c0-0ab43e0bbdf8
 md"""
-## Performance tips (TODO)
+## Performance tips
 
 * Avoid untyped global variables
 * Write _type stable_ functions
@@ -31,7 +33,7 @@ md"""
 
 # ╔═╡ 43fbe5c2-d6ef-463a-a0a2-3ecb2b84be80
 md"""
-## Concurrency (TODO)
+## Concurrency
 
 ### Asynchronous programming
 
@@ -76,11 +78,11 @@ a
 md"""
 ## Calling other software
 
-### C or Fortran (TODO)
+### C or Fortran
 
-### Python (TODO)
+### Python
 
-### Running commands (TODO)
+### Running commands
 """
 
 # ╔═╡ ef28c791-d6f0-4256-81f4-259cfb5f432a
@@ -88,7 +90,7 @@ ccall(:clock, Int32, ())
 
 # ╔═╡ 133f126b-18c2-4d2d-be70-c4bf9b9395e6
 md"""
-## Noteworthy libraries (TODO)
+## Noteworthy libraries
 
 DataFrames, Flux, DifferentialEquaitons, etc.
 

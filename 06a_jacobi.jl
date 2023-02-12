@@ -23,6 +23,41 @@ using Plots
 # ╔═╡ 4c349984-1972-451b-b7cb-90aced9d378f
 using BenchmarkTools
 
+# ╔═╡ 13bc5bf5-0d31-49a3-aea9-e2998f925548
+md"""
+# Solution of the Laplace equation using relaxation methods
+
+The Laplace equation is a partial differential equation found in many areas of physics and has the following form
+
+```math
+\nabla^2 \psi = 0 \, .
+```
+
+## Jacobi method
+
+Its discretized finite-difference version in two dimensions is
+
+```math
+\frac{\psi_{i + 1, j} - 2 \psi_{i, j} + \psi_{i - 1, j}}{\Delta x} + 
+\frac{\psi_{i, j + 1} - 2 \psi_{i, j} + \psi_{i, j - 1}}{\Delta y} = 0 \, ,
+```
+
+if grid of points is equally spaced in along each dimensions, i.e. ``\Delta x = \Delta y``, then the previous simplifies to
+
+```math
+\psi_{i, j} = \frac{\psi_{i + 1, j} + \psi_{i - 1, j} + \psi_{i, j - 1} + \psi_{i, j + 1}}{4} \, ,
+```
+
+which can be solved with using relaxation methods. One of these iterative methods is called the Jacobi method and approximate the true solution `\psi` using the sequence
+```math
+\psi^{n}_{i, j} = \frac{\psi^{n - 1}_{i + 1, j} + \psi^{n - 1}_{i - 1, j} + \psi^{n - 1}_{i, j - 1} + \psi^{n - 1}_{i, j + 1}}{4} \, ,
+```
+
+where ``\psi^0`` is some initial guess. 
+
+During the whole procedure the boundaries stay fixed.
+"""
+
 # ╔═╡ 9d64333e-1fd6-4839-b57d-65ec7fda16f3
 function makefield(N, M, bottomleftvalue)
 	field = zeros(N, M)
@@ -40,6 +75,7 @@ end
 end
 
 # ╔═╡ fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
+# Jacobi method implemented using loops, as you would avoid doing in NumPy/MatLab
 function jacobistep_loopy!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{T}}
 	@assert size(ψ′) == size(ψ)
 	N, K = size(ψ′)
@@ -52,6 +88,7 @@ function jacobistep_loopy!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{
 end
 
 # ╔═╡ 1d64de9f-75a3-452b-ae83-dca42179a447
+# Jacobi method implemented using array programming style, as you would do in NumPy
 @views function jacobistep_array!(ψ′::M, ψ::M) where {T<:Number, M<:AbstractMatrix{T}}
 	@assert size(ψ′) == size(ψ)
 	@inbounds ψ′[2:end-1, 2:end-1] = @. 0.25(ψ[1:end-2, 2:end-1] + ψ[3:end, 2:end-1] + ψ[2:end-1, 3:end] + ψ[2:end-1, 1:end-2])
@@ -80,11 +117,34 @@ let
 	end every nframes
 end
 
-# ╔═╡ 8e19a715-da3d-4f24-9773-31d1e9825120
-@benchmark jacobistep_loopy!($rand(1000, 1000), $Matrix{Float64}(undef, 1000, 1000))
+# ╔═╡ f90cdd1f-e979-4d86-ba44-f6726780f32d
+md"""
+
+## Gauss-Seidel method
+
+If we compute the value of ``\psi^n_{i, j}`` using the just computed values of ``\psi^n_{i - 1, j}`` and ``\psi^n_{i, j - 1}`` instead of ``\psi^{n - 1}_{i - 1, j}`` and ``\psi^{n - 1}_{i, j - 1}`` then the sequence still converges to the solution and actually it does faster. 
+
+This is called the Gauss-Seidel method and can be implemented in terms of the previous `jacobi_loopy!(ψ′, ψ)` function and using just one field (no need for swapping).
+"""
+
+# ╔═╡ bc8fd6cb-5538-48b0-8c7d-ff76add1da8e
+gauss_seidel!(ψ) = jacobistep_loopy!(ψ, ψ)
+
+# ╔═╡ 03309ee8-29ad-47e3-8e08-03fb61085c6e
+let
+	ψ = makefield(N, N, x0)
+	@gif for n = 1:niter
+		gauss_seidel!(ψ)
+		heatmap(ψ)
+	end every nframes
+end
 
 # ╔═╡ 2d829f92-4709-4ec2-bd6b-d52532965c72
 @benchmark jacobistep_array!($rand(1000, 1000), $Matrix{Float64}(undef, 1000, 1000))
+
+# ╔═╡ 8e19a715-da3d-4f24-9773-31d1e9825120
+# Contrary to NumPy or MatLab, the implementation using loops is faster!
+@benchmark jacobistep_loopy!($rand(1000, 1000), $Matrix{Float64}(undef, 1000, 1000))
 
 # ╔═╡ d7a5355b-d94b-4c19-a43c-3271b5fa324f
 function jacobi!(ψ, niter)
@@ -98,6 +158,21 @@ end
 
 # ╔═╡ 4c684fa1-8a73-4d34-861c-2a1158c9663e
 @benchmark jacobi!($rand(100, 100), 1000)
+
+# ╔═╡ e77f5d22-7c52-426f-9037-d0df8734e0ef
+md"""
+
+## Jacobi on GPU
+
+This same simple program can be easily ported to GPU[^1] thanks to [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl).
+
+Thanks to the Julia type system and sophisticated compiler, it is simply necessary to port convert `ψ` to a `CuArray` (an array residing on GPU memory, and eventually moving it back to the CPU memory before plotting). 
+
+You can find an example notebook [here](https://stefanocampanella.github.io/TourOfJulia.jl/06a_jacobi_m100.html), which was executed on [Marconi 100](https://www.hpc.cineca.it/hardware/marconi100). In this case, there is an approximately twentyfold speedup: not bad for a diff of just one line of code!
+
+[^1]:
+	This is a really simple demonstration and "_ports_" from the `jacobistep_array!` procedure to GPU. More advanced GPU programming can be done in Julia if needed.
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1089,6 +1164,7 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
+# ╟─13bc5bf5-0d31-49a3-aea9-e2998f925548
 # ╠═9d64333e-1fd6-4839-b57d-65ec7fda16f3
 # ╠═4110b2e7-0255-4b94-93b0-fa8e8fb5d35e
 # ╠═fd1cc3bf-01e0-488c-acf6-0392d0e7b62e
@@ -1097,10 +1173,14 @@ version = "1.4.1+0"
 # ╟─160273c3-f0e2-4b3b-a445-a1a287e5b0b7
 # ╠═1c804e69-f6c3-4a75-a075-9e185fceef2d
 # ╠═1878215a-a7d0-11ed-09d4-e1a5490623a2
+# ╟─f90cdd1f-e979-4d86-ba44-f6726780f32d
+# ╠═bc8fd6cb-5538-48b0-8c7d-ff76add1da8e
+# ╠═03309ee8-29ad-47e3-8e08-03fb61085c6e
 # ╠═4c349984-1972-451b-b7cb-90aced9d378f
-# ╠═8e19a715-da3d-4f24-9773-31d1e9825120
 # ╠═2d829f92-4709-4ec2-bd6b-d52532965c72
+# ╠═8e19a715-da3d-4f24-9773-31d1e9825120
 # ╠═d7a5355b-d94b-4c19-a43c-3271b5fa324f
 # ╠═4c684fa1-8a73-4d34-861c-2a1158c9663e
+# ╟─e77f5d22-7c52-426f-9037-d0df8734e0ef
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
