@@ -27,7 +27,7 @@ using BenchmarkTools
 md"""
 # Solution of the Laplace equation using relaxation methods
 
-The Laplace equation is a partial differential equation found in many areas of physics and has the following form
+The Laplace equation is a partial differential equation that arises frequently in physics, and has the following form
 
 ```math
 \nabla^2 \psi = 0 \, .
@@ -35,20 +35,22 @@ The Laplace equation is a partial differential equation found in many areas of p
 
 ## Jacobi method
 
-Its discretized finite-difference version in two dimensions is
+Its finite-difference discretized version in two dimensions is
 
 ```math
 \frac{\psi_{i + 1, j} - 2 \psi_{i, j} + \psi_{i - 1, j}}{\Delta x} + 
 \frac{\psi_{i, j + 1} - 2 \psi_{i, j} + \psi_{i, j - 1}}{\Delta y} = 0 \, ,
 ```
 
-if grid of points is equally spaced in along each dimensions, i.e. ``\Delta x = \Delta y``, then the previous simplifies to
+and if the points of the grid are equally spaced along the two dimensions, i.e. ``\Delta x = \Delta y``, then it simplifies to
 
 ```math
 \psi_{i, j} = \frac{\psi_{i + 1, j} + \psi_{i - 1, j} + \psi_{i, j - 1} + \psi_{i, j + 1}}{4} \, ,
 ```
 
-which can be solved with using relaxation methods. One of these iterative methods is called the Jacobi method and approximate the true solution `\psi` using the sequence
+which can be solved, for example, using relaxation methods. 
+
+One of these iterative methods is called the Jacobi method, and approximate better and better the true solution ``\psi`` using the sequence
 ```math
 \psi^{n}_{i, j} = \frac{\psi^{n - 1}_{i + 1, j} + \psi^{n - 1}_{i - 1, j} + \psi^{n - 1}_{i, j - 1} + \psi^{n - 1}_{i, j + 1}}{4} \, ,
 ```
@@ -122,9 +124,9 @@ md"""
 
 ## Gauss-Seidel method
 
-If we compute the value of ``\psi^n_{i, j}`` using the just computed values of ``\psi^n_{i - 1, j}`` and ``\psi^n_{i, j - 1}`` instead of ``\psi^{n - 1}_{i - 1, j}`` and ``\psi^{n - 1}_{i, j - 1}`` then the sequence still converges to the solution and actually it does faster. 
+If we compute the value of ``\psi^n_{i, j}`` using the just computed values of ``\psi^n_{i - 1, j}`` and ``\psi^n_{i, j - 1}`` instead of ``\psi^{n - 1}_{i - 1, j}`` and ``\psi^{n - 1}_{i, j - 1}`` then the sequence still converges to the solution, and actually it does faster. 
 
-This is called the Gauss-Seidel method and can be implemented in terms of the previous `jacobi_loopy!(ψ′, ψ)` function and using just one field (no need for swapping).
+This is called the Gauss-Seidel method and can be implemented in terms of the previous `jacobistep_loopy!(ψ′, ψ)` function, using just one field (no need for swapping).
 """
 
 # ╔═╡ bc8fd6cb-5538-48b0-8c7d-ff76add1da8e
@@ -164,11 +166,11 @@ md"""
 
 ## Jacobi on GPU
 
-This same simple program can be easily ported to GPU[^1] thanks to [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl).
+The simple program above can be easily ported to GPU[^1] thanks to [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl).
 
-Thanks to the Julia type system and sophisticated compiler, it is simply necessary to port convert `ψ` to a `CuArray` (an array residing on GPU memory, and eventually moving it back to the CPU memory before plotting). 
+Thanks to the Julia type system and sophisticated compiler, it is simply necessary to convert `ψ` to a `CuArray` (an array residing on GPU memory), and eventually moving it back to the CPU memory before plotting. 
 
-You can find an example notebook [here](https://stefanocampanella.github.io/TourOfJulia.jl/06a_jacobi_m100.html), which was executed on [Marconi 100](https://www.hpc.cineca.it/hardware/marconi100). In this case, there is an approximately twentyfold speedup: not bad for a diff of just one line of code!
+In this [example notebook](https://stefanocampanella.github.io/TourOfJulia.jl/06a_jacobi_m100.html), which was executed on [Marconi 100](https://www.hpc.cineca.it/hardware/marconi100), there is an approximately twenty-fold speedup: not bad for a diff of just one line of code!
 
 [^1]:
 	This is a really simple demonstration of "_porting_" `jacobistep_array!` to GPU. More advanced GPU programming can be done in Julia if needed.

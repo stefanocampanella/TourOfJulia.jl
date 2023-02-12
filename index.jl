@@ -43,7 +43,7 @@ end;
 Markdown.parse("""
 # A tour of Julia
 
-Julia is a general programming language suited for scientific computing applications. It is a dynamic, high-level language: executing a program written in Julia does not require the user to compile it beforehand, as for C or Fortran, and its syntax is similar to MATLAB or Python. Nonetheless, its performance is close to that of statically compiled languages. This is possible thanks to Just In Time (JIT) compilation (as JavaScript/TypeScript in your browser or Python when using Numba).
+Julia is a general purpose programming language suited for technical computing. It is a dynamic, high-level language, which means that executing a program written in Julia does not require the user to compile it beforehand, as for C or Fortran, and its syntax is similar to MATLAB or Python. Nonetheless, its performance is close to that of statically compiled languages. This is possible thanks to clever design, and Just In Time (JIT) compilation (as JavaScript/TypeScript in your browser or Python when using Numba).
 
 ## Prelude, about the author
 
