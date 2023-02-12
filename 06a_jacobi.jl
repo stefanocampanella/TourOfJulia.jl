@@ -171,7 +171,7 @@ Thanks to the Julia type system and sophisticated compiler, it is simply necessa
 You can find an example notebook [here](https://stefanocampanella.github.io/TourOfJulia.jl/06a_jacobi_m100.html), which was executed on [Marconi 100](https://www.hpc.cineca.it/hardware/marconi100). In this case, there is an approximately twentyfold speedup: not bad for a diff of just one line of code!
 
 [^1]:
-	This is a really simple demonstration and "_ports_" from the `jacobistep_array!` procedure to GPU. More advanced GPU programming can be done in Julia if needed.
+	This is a really simple demonstration of "_porting_" `jacobistep_array!` to GPU. More advanced GPU programming can be done in Julia if needed.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
