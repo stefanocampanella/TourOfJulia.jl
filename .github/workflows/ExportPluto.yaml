@@ -64,4 +64,5 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   branch: gh-pages
                   folder: .
+                  clean: false
                   single-commit: false
