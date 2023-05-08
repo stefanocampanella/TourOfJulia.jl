@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.19.25
 
 #> [frontmatter]
 #> title = "A tour of Julia"
@@ -63,7 +63,7 @@ Here there are the core topics that I would like to touch in this short series o
 4. [Building abstractions with data]($(root * "04_data" * extension))
 5. [Multidimensional arrays]($(root * "05_arrays" * extension))
 
-Finally, we will see a simple examples showing how to solve the [two-dimensional Laplace equation]($(root * "06a_jacobi" * extension)), the [one-dimensional advection equation]($(root * "06b_smolarkiewicz" * extension)) or a [sudoku puzzle]($(root * "06c_sudoku" * extension)) using Julia, and putting together a few thing seen along the way.
+Finally, we will see how to solve a [sudoku puzzle]($(root * "06a_sudoku" * extension)), how to solve the [one-dimensional advection equation]($(root * "06b_smolarkiewicz" * extension)), or how to compress a message with [Huffman coding]($(root * "06c_huffman" * extension)) using Julia.
 
 Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 """)
