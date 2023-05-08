@@ -11,11 +11,15 @@ md"# Huffman Encoding"
 message = Vector{Char}("Stately, plump Buck Mulligan came from the stairhead, bearing a bowl of lather on which a mirror and a razor lay crossed.")
 
 # ╔═╡ a7934f5c-e9a9-11ed-056b-897201423671
-struct HuffmanTree{T}
-	symbols::Set{T}
-	weight::Int
-	left::Union{HuffmanTree{T}, Nothing}
-	right::Union{HuffmanTree{T}, Nothing}
+begin
+	struct HuffmanTree{T}
+		symbols::Set{T}
+		weight::Int
+		left::Union{HuffmanTree{T}, Nothing}
+		right::Union{HuffmanTree{T}, Nothing}
+	end
+
+	HuffmanTree(symbols::Set{T}, weight::Int) where T = HuffmanTree{T}(symbols, weight, nothing, nothing)
 end
 
 # ╔═╡ 05ec711f-7858-400a-8bdf-597d586aa366
@@ -37,7 +41,7 @@ end
 
 # ╔═╡ dafdeb64-4031-4078-b5d3-8aa6a8d94b95
 function maketree(message::AbstractVector{T}) where T
-	trees = [HuffmanTree{T}(Set(key), count(==(key), message), nothing, nothing) for key in Set(message)]
+	trees = [HuffmanTree(Set(key), count(==(key), message)) for key in Set(message)]
 	mergetrees!(trees)
 	only(trees)
 end

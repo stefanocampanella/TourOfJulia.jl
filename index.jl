@@ -69,6 +69,6 @@ Let's begin with a digression and answer the question _why should I learn progra
 """)
 
 # ╔═╡ Cell order:
-# ╟─8d964530-9e3d-11ed-301f-43882004bcd5
+# ╠═8d964530-9e3d-11ed-301f-43882004bcd5
 # ╟─98a176d7-5140-4492-8a18-b42ca3c3e87d
 # ╟─6d206f7c-6015-4aec-93dd-4cf56643a455
