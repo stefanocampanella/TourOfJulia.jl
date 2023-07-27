@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.25
+# v0.19.27
 
 #> [frontmatter]
 #> title = "A tour of Julia"
@@ -17,7 +17,7 @@ The great pyramid of Giza resisted the forces of nature, the winds, the sun, and
 
 There are practical reasons why **Julia it's a good choice**: it's a language that allows to easily write code that is correct[^1], maintainable, and sufficiently fast to shortcircuit prototipation and production cycle (the so-called _two language problem_).
 
-To put it more colorfully, Julia provides you the tools to write code that comply with the virtues proposed by Italo Calvino in "Six Memos for the Next Millennium": lightness, quickness, exactitude, visibility, multiplicity, and consistency--code is literature, and Calvino's lectures are an unrecognized treatise about software engineering. These tools (abstractions and facilities) are missing from the venerable FORTRAN 77, for example.
+To put it more colorfully, Julia provides you the tools to write code that comply with the virtues proposed by Italo Calvino in "Six Memos for the Next Millennium": lightness, quickness, exactitude, visibility, multiplicity, and consistency--at the end, code is literature, and Calvino's lectures are an unrecognized treatise about software engineering. These tools (abstractions and facilities) are missing from the venerable FORTRAN 77, for example.
 
 On a less technical level, and this is my favourite answer, Julia is a good choice because **writing Julia code is fun**. This is a perfectly reasonable argument to choose a programming language, as long as you have freedom of choice.
 
@@ -69,6 +69,6 @@ Let's begin with a digression and answer the question _why should I learn progra
 """)
 
 # ╔═╡ Cell order:
-# ╠═8d964530-9e3d-11ed-301f-43882004bcd5
+# ╟─8d964530-9e3d-11ed-301f-43882004bcd5
 # ╟─98a176d7-5140-4492-8a18-b42ca3c3e87d
 # ╟─6d206f7c-6015-4aec-93dd-4cf56643a455
