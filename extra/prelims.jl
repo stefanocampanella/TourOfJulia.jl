@@ -72,14 +72,13 @@ should print the content of your directory, plus a file named "My awesome text f
 md"""
 ## Pluto
 
-Pluto, the software that is rendering the text you are reading, is a Julia library for writing notebooks similar (but better in many respect) to Jupyter notebooks. The current document is a Pluto notebook.
+Pluto, the software that is rendering the text you are reading, is a Julia library for writing notebooks similar to Jupyter notebooks (but better in many respect). The current document is a Pluto notebook.
 
 A Pluto notebook is a sequence of cells. Each cell contain some Julia code, which can be executed. In Julia, every statement is an expression and hence evaluates to a value. Pluto converts that value to an HTML element and shows it. What you are reading is the output of a cell containing just a string, which returns the string itself [^1]. Pluto is able to parse the content of cells and detect dependencies between one cell and another. When the user evaluates a cell, for example changing the value of a variable, Pluto will re-evaluate all the cells that depend on that one and in the right order.
 
-
 Notice that Pluto requires one statement per cell, hence if you want to put more than one statement in a single cell you need to wrap them between the keywords `begin` and `end`, which are used to chain statements. The resulting block will evaluate to the value of the last statement.
 
-For example:
+For example the following evaluates to 4.
 
 [^1]: Actually, the value that is rendered as the piece of text you are reading is not a string, but an object whose type is defined in the Markdown module of the standard library. You can create these object prefixing the string literals with `md`. In this way, the content will be formatted using Markdown. Otherwise you can use plain strings.
 """
@@ -94,13 +93,12 @@ end
 
 # ╔═╡ 08a9435a-7ce0-485f-b182-90cdc6e6e309
 md"""
-evaluates to 4.
 
 Up to this point, the similarities between Pluto and Jupyter should be clear. Moreover, in case you are wondering, there exist a Julia kernel for Jupyter. Why one might prefer to work with Pluto instead of Jupyter? 
 
 The main motivation is that Jupyter notebooks execution is stateful: the same notebook can be executed twice by the same kernel and obtain different results, because the kernel’s internal state can change between executions. Indeed, for this reason, users often need to restart the kernel and re-evaluate code cells. The hidden state problem has been criticized, and other implementations of _reactive notebooks_ exist. One of them is Pluto for Julia.
 
-Pluto parse the code to find the dependencies between cells and evaluates them. It watches for changes in cells and evaluate only the ones that need to, and in the right order.
+Pluto parse the code to find the dependencies between cells and evaluates them. It watches for changes in cells and evaluate only the ones that need to, and in the right order. For these reasons, there are some limitations to what you can do with Pluto.
 """
 
 # ╔═╡ 1c3c8d1d-9177-4c51-9c38-25b36c20841b
@@ -119,7 +117,7 @@ md"""This mechanic allows for interactive visualizations and other forms of inte
 md"""
 ## About Julia syntax
 
-As noted above, Julia syntax closely resembles the one of other scripting languages such as Python or Matlab. For this reason, elementary statements (such as assignment, control flow or expressions containing aritmetic operators) will not be introduced systematically and will be considered self explanatory.
+As noted above, Julia syntax closely resembles the one of other scripting languages such as Python or Matlab. Elementary statements (such as assignment, control flow or expressions containing aritmetic operators) will be introduced systematically in track 1.
 
 However, I will list here some differences from Python (taken from [here](https://docs.julialang.org/en/v1/manual/noteworthy-differences/)).
 
