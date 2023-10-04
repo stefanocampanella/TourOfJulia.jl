@@ -99,7 +99,7 @@ bitstring(0.0)
 bitstring(-0.0)
 
 # ╔═╡ 263e7e27-23cc-45db-aa6b-ac510ea0741a
-# The `===` operator can be used to compare bit representations
+# The `===` operator can be used to compare bit representations and mutable objects (similarly to `is` in Python)
 0.0 === -0.0
 
 # ╔═╡ 4ce8404c-7634-49b9-93e7-52459c109e73
