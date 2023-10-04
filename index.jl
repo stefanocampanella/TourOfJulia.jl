@@ -52,8 +52,6 @@ begin
 	
 	1. [Built-in numerical types]($(root * "track 1/built-ins" * extension))
 	1. [Variables]($(root * "track 1/variables" * extension))
-	1. [Strings]($(root * "track 1/strings" * extension))
-	1. [Containers]($(root * "track 1/containers" * extension))
 	1. [Control flow]($(root * "track 1/controlflow" * extension))
 	1. [Multidimensional arrays]($(root * "track 1/arrays" * extension))
 		
@@ -148,7 +146,7 @@ xs = rand(10_000_000)
 xs_sorted_numpy = @btime np.sort(xs)
 
 # ╔═╡ 05ff3195-a071-4d0b-80e5-82395652ceae
-# Perform the same operations in Julia (you should observe a speedup)
+# Perform the same operations in Julia (the Julia implementation is as fast as, if not faster than, the low-level language implementation used by NumPy).
 xs_sorted_julia = @btime sort(xs)
 
 # ╔═╡ 1e03fa5f-966a-443e-a488-987457887776
