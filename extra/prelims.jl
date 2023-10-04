@@ -66,6 +66,8 @@ shell> touch $filename
 julia> ls
 ```
 should print the content of your directory, plus a file named "My awesome text file.txt".
+
+Julia focuses on interactivity and you are encouraged to play with the REPL. Unlike statically compiled languages, it is possible and often recommended to develop your code by experimenting on the REPL.
 """
 
 # ╔═╡ 93fefea7-6b0f-4803-9d4e-702f9abf3017
@@ -113,39 +115,6 @@ area = π * radius^2
 # ╔═╡ 29736cc4-f8a3-4c85-9896-29a4e9a1b8e3
 md"""This mechanic allows for interactive visualizations and other forms of interactivity within Pluto. The documentation of Pluto and other useful links can be found at the [GitHub repository of the project](https://github.com/fonsp/Pluto.jl)"""
 
-# ╔═╡ 1ece9654-2e9e-4a77-be20-bf18bb754c64
-md"""
-## About Julia syntax
-
-As noted above, Julia syntax closely resembles the one of other scripting languages such as Python or Matlab. Elementary statements (such as assignment, control flow or expressions containing aritmetic operators) will be introduced systematically in track 1.
-
-However, I will list here some differences from Python (taken from [here](https://docs.julialang.org/en/v1/manual/noteworthy-differences/)).
-
-### General syntax
-
-* Julia's `for`, `if`, `while`, etc. blocks are terminated by the `end` keyword and do not make use of `:`. Indentation level is not significant as it is in Python. Unlike Python, Julia has no `pass` keyword.
-* In Python, the majority of values can be used in logical contexts (e.g. `if "a":` means the following block is executed, and `if "":` means it is not). In Julia, you need explicit conversion to Bool (e.g. `if "a"` throws an exception). If you want to test for a non-empty string in Julia, you would explicitly write `if !isempty("")`. 
-* Strings are denoted by double quotation marks (`"text"`) in Julia (with three double quotation marks for multi-line strings), whereas in Python they can be denoted either by single (`'text'`) or double quotation marks (`"text"`). Single quotation marks are used for characters in Julia (`'c'`).
-* String concatenation is done with `*` in Julia, not `+` like in Python. Analogously, string repetition is done with `^`, not `*`. Implicit string concatenation of string literals like in Python (e.g. `'ab' 'cd' == 'abcd'`) is not done in Julia.
-* Julia has no line continuation syntax: if, at the end of a line, the input so far is a complete expression, it is considered done; otherwise the input continues. One way to force an expression to continue is to wrap it in parentheses.
-
-### Math notation
-* In Julia, the exponentiation operator is `^`, not `**` as in Python.
-* The imaginary unit `sqrt(-1)` is represented in Julia as `im`, not `j` as in Python.
-
-
-### Arrays
-
-* Python Lists—flexible but slow—correspond to the Julia `Vector{Any}` type or more generally `Vector{T}` where `T` is some non-concrete element type. "Fast" arrays like NumPy arrays that store elements in-place can be represented by `Array{T}` where `T` is a concrete, immutable element type. This includes built-in types like `Float64`, `Int32`, `Int64` but also more complex types like `Tuple{UInt64,Float64}` and many user-defined types as well.
-* Julia arrays are column-major (Fortran-ordered) whereas NumPy arrays are row-major (C-ordered) by default. To get optimal performance when looping over arrays, the order of the loops should be reversed in Julia relative to NumPy
-* In Julia, indexing of arrays, strings, etc. is 1-based not 0-based.
-* Julia's slice indexing includes the last element, unlike in Python. `a[2:3]` in Julia is `a[1:3]` in Python.
-* Python's special interpretation of negative indexing, `a[-1]` and `a[-2]`, should be written `a[end]` and `a[end-1]` in Julia.
-* Julia requires end for indexing until the last element. `x[1:]` in Python is equivalent to `x[2:end]` in Julia.
-* Julia's range indexing has the format of `x[start:step:stop]`, whereas Python's format is `x[start:(stop+1):step]`. Hence, `x[0:10:2]` in Python is equivalent to `x[1:2:10]` in Julia. Similarly, `x[::-1]` in Python, which refers to the reversed array, is equivalent to `x[end:-1:1]` in Julia.
-* In Julia, the standard operators over a matrix type are matrix operations, whereas, in Python, the standard operators are element-wise operations. When both `A` and `B` are matrices, `A * B` in Julia performs matrix multiplication, not element-wise multiplication as in Python. `A * B` in Julia is equivalent with `A @ B` in Python, whereas `A * B` in Python is equivalent with `A .* B` in Julia.
-"""
-
 # ╔═╡ a63fe8aa-19f4-48f1-990f-be41fc253e8f
 md"""
 ## The Julia package manager
@@ -184,6 +153,39 @@ More importantly, the time spent by the Julia runtime upon the first invocation 
 Julia includes a statistical profiler in the standard library but external tools can be used (as before, look at the documentation).
 
 Finally, a debugger is available as a separate package.
+"""
+
+# ╔═╡ 1ece9654-2e9e-4a77-be20-bf18bb754c64
+md"""
+## About Julia syntax
+
+As noted above, Julia syntax closely resembles the one of other scripting languages such as Python or Matlab. Elementary statements (such as assignment, control flow or expressions containing aritmetic operators) will be introduced systematically in track 1.
+
+However, I will list here some differences from Python (taken from [here](https://docs.julialang.org/en/v1/manual/noteworthy-differences/)).
+
+### General syntax
+
+* Julia's `for`, `if`, `while`, etc. blocks are terminated by the `end` keyword and do not make use of `:`. Indentation level is not significant as it is in Python. Unlike Python, Julia has no `pass` keyword.
+* In Python, the majority of values can be used in logical contexts (e.g. `if "a":` means the following block is executed, and `if "":` means it is not). In Julia, you need explicit conversion to Bool (e.g. `if "a"` throws an exception). If you want to test for a non-empty string in Julia, you would explicitly write `if !isempty("")`. 
+* Strings are denoted by double quotation marks (`"text"`) in Julia (with three double quotation marks for multi-line strings), whereas in Python they can be denoted either by single (`'text'`) or double quotation marks (`"text"`). Single quotation marks are used for characters in Julia (`'c'`).
+* String concatenation is done with `*` in Julia, not `+` like in Python. Analogously, string repetition is done with `^`, not `*`. Implicit string concatenation of string literals like in Python (e.g. `'ab' 'cd' == 'abcd'`) is not done in Julia.
+* Julia has no line continuation syntax: if, at the end of a line, the input so far is a complete expression, it is considered done; otherwise the input continues. One way to force an expression to continue is to wrap it in parentheses.
+
+### Math notation
+* In Julia, the exponentiation operator is `^`, not `**` as in Python.
+* The imaginary unit `sqrt(-1)` is represented in Julia as `im`, not `j` as in Python.
+
+
+### Arrays
+
+* Python Lists—flexible but slow—correspond to the Julia `Vector{Any}` type or more generally `Vector{T}` where `T` is some non-concrete element type. "Fast" arrays like NumPy arrays that store elements in-place can be represented by `Array{T}` where `T` is a concrete, immutable element type. This includes built-in types like `Float64`, `Int32`, `Int64` but also more complex types like `Tuple{UInt64,Float64}` and many user-defined types as well.
+* Julia arrays are column-major (Fortran-ordered) whereas NumPy arrays are row-major (C-ordered) by default. To get optimal performance when looping over arrays, the order of the loops should be reversed in Julia relative to NumPy
+* In Julia, indexing of arrays, strings, etc. is 1-based not 0-based.
+* Julia's slice indexing includes the last element, unlike in Python. `a[2:3]` in Julia is `a[1:3]` in Python.
+* Python's special interpretation of negative indexing, `a[-1]` and `a[-2]`, should be written `a[end]` and `a[end-1]` in Julia.
+* Julia requires end for indexing until the last element. `x[1:]` in Python is equivalent to `x[2:end]` in Julia.
+* Julia's range indexing has the format of `x[start:step:stop]`, whereas Python's format is `x[start:(stop+1):step]`. Hence, `x[0:10:2]` in Python is equivalent to `x[1:2:10]` in Julia. Similarly, `x[::-1]` in Python, which refers to the reversed array, is equivalent to `x[end:-1:1]` in Julia.
+* In Julia, the standard operators over a matrix type are matrix operations, whereas, in Python, the standard operators are element-wise operations. When both `A` and `B` are matrices, `A * B` in Julia performs matrix multiplication, not element-wise multiplication as in Python. `A * B` in Julia is equivalent with `A @ B` in Python, whereas `A * B` in Python is equivalent with `A .* B` in Julia.
 """
 
 # ╔═╡ 7f5d4c23-19ef-436d-94e4-83a2cf5b0cd9
@@ -471,9 +473,9 @@ version = "17.4.0+0"
 # ╠═cc18596a-63c8-4228-a7f8-ee22b28fc496
 # ╠═44ed2314-3601-476c-b849-9190cf17f236
 # ╟─29736cc4-f8a3-4c85-9896-29a4e9a1b8e3
-# ╟─1ece9654-2e9e-4a77-be20-bf18bb754c64
 # ╟─a63fe8aa-19f4-48f1-990f-be41fc253e8f
 # ╟─2d5c9202-fd66-4584-82ea-7c48e9efbe6d
+# ╟─1ece9654-2e9e-4a77-be20-bf18bb754c64
 # ╟─005d8679-5e59-4259-8971-30e50a40c1d6
 # ╟─7f5d4c23-19ef-436d-94e4-83a2cf5b0cd9
 # ╟─00000000-0000-0000-0000-000000000001

@@ -18,7 +18,7 @@ Julia is a general purpose programming language suited for technical computing. 
 
 # ╔═╡ b26ee80f-d113-4c31-80ff-903d6f1b947b
 md"""
-## Prelude, about the author
+## About the author
 
 Hi! My name is Stefano Campanella, I work at [OGS](https://www.ogs.it/), I like Julia.
 
@@ -40,18 +40,15 @@ begin
 		
 	The material covered in this seminar is hardly original. It is mostly a reworking of the [official Julia documentation](https://docs.julialang.org/en/v1/), which is extensive and well written, and which I will refer to on several occasions. 
 		
-	I will begin with some [preliminary stuff]($(root * "extra/prelims" * extension)) (installation, package management, editors and IDE support). After that, we will touch some topics from one of two tracks. We will see simple examples and applications showing features and putting together a few thing seen along the way.
+	I will begin with some [preliminary stuff]($(root * "extra/prelims" * extension)) (installation, package management, editors and IDE support). After that, we will touch some topics from two tracks. Finally, we will see simple examples and applications showing features and putting together a few things seen along the way.
 		
 	### Track 1
 	
 	The first track contains a more gentle introduction to programming in Julia, and requires only a limited coding experience.
 	
-	1. Printing things
-	1. Numerical types
-	1. Variables
-	1. Branches and loops
-	1. Strings, arrays, and other containers
-	1. Functions
+	1. [Built-in data types and variables]($(root * "track 1/built-ins" * extension))
+	1. [Control flow]($(root * "track 1/controlflow" * extension))
+	1. [Multidimensional arrays]($(root * "track 1/arrays" * extension))
 		
 	### Track 2
 	
@@ -60,17 +57,15 @@ begin
 	1. [The Julia type system]($(root * "track 2/types" * extension))
 	1. [Building abstractions with procedures]($(root * "track 2/procedures" * extension))
 	1. [Building abstractions with data]($(root * "track 2/data" * extension))
-	1. [Multidimensional arrays]($(root * "track 2/arrays" * extension))
-		
-		
+	
 	### Examples
 	
-	The examples have a varied degree of difficulty and present simple algorithms, from numerical analysis and other fields.
+	The examples have a varied degree of complexity and present the implementation of algorithms from numerical analysis and other fields.
 	
-	1. [Compress a message with Huffman coding]($(root * "examples/huffman" * extension))
-	1. [Solve the two-dimensional Laplace equation]($(root * "examples/jacobi" * extension))
-	1. [Solve the one-dimensional advection equation]($(root * "examples/smolarkiewicz" * extension))
-	1. [Solve a sudoku puzzle]($(root * "examples/sudoku" * extension))
+	1. [Huffman coding]($(root * "examples/huffman" * extension))
+	1. [Two-dimensional Laplace equation]($(root * "examples/jacobi" * extension))
+	1. [One-dimensional advection equation]($(root * "examples/smolarkiewicz" * extension))
+	1. [Sudoku puzzles]($(root * "examples/sudoku" * extension))
 		
 	### Applications
 
@@ -91,7 +86,7 @@ The great pyramid of Giza resisted the forces of nature, the winds, the sun, and
 
 Julia is a language that allows to easily write code that is correct[^1], maintainable, and sufficiently fast to shortcircuit prototipation and production cycle (the so-called _two language problem_).[^2]
 
-On a less technical level, **writing Julia code is fun**, and, as long as you have freedom of choice, this is a perfectly reasonable argument[^3].
+On a less technical level, **writing Julia code is fun**[^3] (as long as you have freedom of choice, this is a perfectly reasonable argument).
 
 Before moving on, I'll add a few words about expectations on Julia.
 
@@ -122,7 +117,7 @@ So in when Julia is a good choice?
 
 One example is when you have to write **new algorithms from scratch**, when they cannot be written as array operations (i.e. with loops), and you want to avoid the clumsiness of verbose, low-level languages without loosing efficiency. 
 
-Another scenario might be **data-model integration**: there will exist more feature-complete models written in Fortran, and the de facto standard for machine learning and artificial intelligence is Python (PyTorch and TensorFlow being unbeatable), but writing an interface between the two is non-trivial. Julia solves the issue by having a single language for the two purposes.
+Another scenario might be **data-model integration using machine learning**: there will exist more feature-complete models written in Fortran, and the de facto standard for ML is Python, but writing an interface between the two is non-trivial. Julia solves the issue by having a single language for the two purposes.
 """
 
 # ╔═╡ Cell order:
