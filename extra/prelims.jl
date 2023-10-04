@@ -76,13 +76,33 @@ md"""
 
 Pluto, the software that is rendering the text you are reading, is a Julia library for writing notebooks similar to Jupyter notebooks (but better in many respect). The current document is a Pluto notebook.
 
-A Pluto notebook is a sequence of cells. Each cell contain some Julia code, which can be executed. In Julia, every statement is an expression and hence evaluates to a value. Pluto converts that value to an HTML element and shows it. What you are reading is the output of a cell containing just a string, which returns the string itself [^1]. Pluto is able to parse the content of cells and detect dependencies between one cell and another. When the user evaluates a cell, for example changing the value of a variable, Pluto will re-evaluate all the cells that depend on that one and in the right order.
+A Pluto notebook is a sequence of cells. Each cell contain some Julia code, which can be executed. In Julia, every statement is an expression and hence evaluates to a value. Pluto converts that value to an HTML element and shows it. What you are reading is the output of a cell containing just a string, which returns the string itself [^1].
+
+Printing to the standard output is allowed in recent versions of Pluto, but the outputs are represented differently.
+
+[^1]: Actually, the value that is rendered as the piece of text you are reading is not a string, but an object whose type is defined in the Markdown module of the standard library. You can create these object prefixing the string literals with `md`. In this way, the content will be formatted using Markdown. Otherwise you can use plain strings.
+
+"""
+
+# ╔═╡ bad1c982-9c46-41d2-aff9-6c4644a99c2e
+# To print a line, use `println`
+println("Hello world!")
+
+# ╔═╡ 5b79c7e6-41d2-40b2-9d15-37fef547f803
+# Or `print` with a trailing `\n`
+print("Hello world!\n")
+
+# ╔═╡ af917653-5820-4c83-85c0-d68b295bc157
+# Notice the difference between printing and returning a string
+"Hello world!"
+
+# ╔═╡ 956e6a24-2d45-4a0a-97ce-f61fd6558e69
+md"""
+Pluto is able to parse the content of cells and detect dependencies between one cell and another. When the user evaluates a cell, for example changing the value of a variable, Pluto will re-evaluate all the cells that depend on that one and in the right order.
 
 Notice that Pluto requires one statement per cell, hence if you want to put more than one statement in a single cell you need to wrap them between the keywords `begin` and `end`, which are used to chain statements. The resulting block will evaluate to the value of the last statement.
 
 For example the following evaluates to 4.
-
-[^1]: Actually, the value that is rendered as the piece of text you are reading is not a string, but an object whose type is defined in the Markdown module of the standard library. You can create these object prefixing the string literals with `md`. In this way, the content will be formatted using Markdown. Otherwise you can use plain strings.
 """
 
 # ╔═╡ 2c42712d-dfbb-42b7-8d81-b107893ba162
@@ -467,6 +487,10 @@ version = "17.4.0+0"
 # ╟─f8f75354-d5e5-4f7a-ad90-f6d1c3c05fce
 # ╟─59aae636-769a-42f4-9403-d0f0f784f503
 # ╟─93fefea7-6b0f-4803-9d4e-702f9abf3017
+# ╠═bad1c982-9c46-41d2-aff9-6c4644a99c2e
+# ╠═5b79c7e6-41d2-40b2-9d15-37fef547f803
+# ╠═af917653-5820-4c83-85c0-d68b295bc157
+# ╟─956e6a24-2d45-4a0a-97ce-f61fd6558e69
 # ╠═2c42712d-dfbb-42b7-8d81-b107893ba162
 # ╟─08a9435a-7ce0-485f-b182-90cdc6e6e309
 # ╟─1c3c8d1d-9177-4c51-9c38-25b36c20841b
