@@ -16,6 +16,9 @@ At its most basic level, Julia is a calculator (overkill). To evaluate an arithm
 In Julia, numeric literals follows common conventions adopted by other languages.
 """
 
+# ╔═╡ 211a7ce3-7722-456b-8d56-63236aab4f15
+md"## Integers"
+
 # ╔═╡ 108badde-6d75-46d2-a008-a6c3f8126b7d
 # Integer literals: a sequence of digits is parsed as an integer
 1 + 1
@@ -78,6 +81,9 @@ The bit representation of integer and floating point numbers are called _numeric
 # ╔═╡ 7369cf00-2b76-488f-afdb-59514a517c98
 # For Python users: boolean literals begin with a lower case and are promoted to integers in arithmetic operations and comparisons
 true == false + 1 && true > false
+
+# ╔═╡ 25bf1d02-9448-4ad0-9d51-16765a9dbf7f
+md"## Floating point numbers"
 
 # ╔═╡ f5917cc6-d0b8-4f4f-8dd7-c6a01fa1028d
 # Floating point arithmetic: the dot signal that the numeric literal is a floating point
@@ -163,6 +169,15 @@ bitstring(NaN)
 # The function `isequal` ignores these differences
 isequal(0 / 0, NaN)
 
+# ╔═╡ b558d311-a5fc-49ae-a934-b738bba1a748
+# Also, in most architectures, the mantissa is irrelevant. 
+# If you are so inclined, you can use the not-a-number of the beast (especially useful for Iron Maiden fans).
+let
+	n = reinterpret(Int, NaN) | 666
+	evil_nan = reinterpret(Float64, n)
+	evil_nan, bitstring(evil_nan)
+end
+
 # ╔═╡ c1e6e0fa-8d03-4248-84cc-9cf22ae513e7
 @test all(isequal(NaN), [0/0, Inf - Inf, Inf / Inf, 0 * Inf])
 
@@ -190,6 +205,87 @@ eps(0.1)
 
 # ╔═╡ d0a9c61c-d2aa-49b9-b8a8-8aa06dcb1a1b
 prevfloat(0.1) + eps(prevfloat(0.1)) == 0.1
+
+# ╔═╡ 18a9b640-eeac-4483-b348-00576ff59671
+md"""
+## Missing values
+
+NaNs are sometimes used to represent missing values, but they might not work as intended. 
+
+For this reason, Julia implements the `missing` value, which behaves similarly to `NA` in R.
+"""
+
+# ╔═╡ 0a022203-e586-43a1-b7ea-56dc6dc25d54
+1 + NaN # Ok
+
+# ╔═╡ 7cb1f647-2df5-4790-8986-d04204d5f3f3
+0 < NaN # Information loss
+
+# ╔═╡ 0d0c5637-a9ba-49cd-a4fd-e5b159be5baa
+1 + missing # Still ok
+
+# ╔═╡ 6085a50f-50de-4109-83dd-05c49e7a5991
+0 < missing # As intended
+
+# ╔═╡ 6eb7ce56-392c-4975-b59e-ada4a1b59a40
+# Missing propagates also in the `==` comparison operator, hence you cannot use it to check if a value is missing
+missing == missing
+
+# ╔═╡ 3c905d54-16e6-4a5b-8f94-26e2d10fbac4
+# However, the `isequal` function and the bitwise comparison `===` do not propagate
+isequal(missing, missing) && missing === missing
+
+# ╔═╡ 403fb416-1f22-4c58-a6a3-3d9b592d1d5f
+# Also, Julia implements the three-valued logic on `missing`, `true` and `false
+true || missing
+
+# ╔═╡ 879324ca-b15e-4275-a2ad-3c6879611537
+# The recommended way of testing for missing values is the `ismissing` function
+let
+	sum = 0.0
+	for x in [1.0, missing, 3.0]
+		if !ismissing(x)
+			sum += x
+		end
+	end
+	sum
+end
+
+# ╔═╡ 35031575-fa94-4b2c-862c-9175c2d2c079
+# Arrays (which will be introduced later) can contain missing values
+xs = [1.0, missing, 3.0]
+
+# ╔═╡ 75e78554-c6d5-49a4-9db5-e95a2e3e5346
+sum(xs)
+
+# ╔═╡ 00f0fda7-fc44-48c5-a425-d1a639d30957
+# Note that the `isless` function evaluates to true
+isless(0, missing)
+
+# ╔═╡ 23a39643-eed6-409d-b6ea-accf93227cb1
+# So that a sorted array will have missing values at the end
+sort(xs)
+
+# ╔═╡ 12b974d2-a94a-463c-b29c-1f1d80d03e82
+ys = skipmissing(xs)
+
+# ╔═╡ 1d670adf-5b7b-4075-9635-b9273eeb28b9
+sum(ys)
+
+# ╔═╡ 84780473-db82-47c7-97c5-0ea74dda8087
+md"Arrays containing missing values are as memory efficient as they can be"
+
+# ╔═╡ 0d859212-74b1-4905-9ecb-0634cbcc7bb7
+Base.summarysize(1.0) # in bytes
+
+# ╔═╡ f8c46877-07dc-4dec-9e85-14f54a17d09f
+Base.summarysize(Float64[])
+
+# ╔═╡ e58b709b-467b-42a7-a59a-509bd3737f6e
+Base.summarysize([1.0, 2.0, 3.0, 4.0])
+
+# ╔═╡ 90ce096e-451b-4708-90f1-d32ed530948d
+Base.summarysize([1.0, 2.0, 3.0, missing])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -237,6 +333,7 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 # ╔═╡ Cell order:
 # ╟─ef71c963-5319-4402-94e1-33de2cc99a30
+# ╟─211a7ce3-7722-456b-8d56-63236aab4f15
 # ╠═108badde-6d75-46d2-a008-a6c3f8126b7d
 # ╠═7c536ab4-06ca-4ce6-a3ea-721ec0a7b7d5
 # ╠═42c3a7b3-a511-4723-9472-c5e25daf8922
@@ -248,6 +345,7 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═f622935b-1255-42d6-8174-de5e6b6d8a4a
 # ╟─8ba4f052-7a40-43fb-8897-b672c9990ace
 # ╠═7369cf00-2b76-488f-afdb-59514a517c98
+# ╟─25bf1d02-9448-4ad0-9d51-16765a9dbf7f
 # ╠═f5917cc6-d0b8-4f4f-8dd7-c6a01fa1028d
 # ╠═4c732919-65f0-49f5-a0dc-db7eba4029b7
 # ╠═74f94d41-4016-49ee-ab74-4ae23ca8019a
@@ -268,6 +366,7 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═4ab88acf-d369-4497-8365-b24bd5581485
 # ╠═f5b56bfa-f211-47d7-b256-a1fdf871ae83
 # ╠═fb091f60-92a6-4666-b2e9-86944c00ba13
+# ╠═b558d311-a5fc-49ae-a934-b738bba1a748
 # ╠═c1e6e0fa-8d03-4248-84cc-9cf22ae513e7
 # ╟─b95b8c5f-9bce-4107-936b-4d269a3cf591
 # ╠═80d2636e-27f9-4117-adcb-b3e1ad76f0e3
@@ -276,5 +375,25 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═cf037e98-caa4-42e4-aa1a-2e2d8ff5b34d
 # ╠═d5d5313a-7486-4769-b898-271f5fb61710
 # ╠═d0a9c61c-d2aa-49b9-b8a8-8aa06dcb1a1b
+# ╟─18a9b640-eeac-4483-b348-00576ff59671
+# ╠═0a022203-e586-43a1-b7ea-56dc6dc25d54
+# ╠═7cb1f647-2df5-4790-8986-d04204d5f3f3
+# ╠═0d0c5637-a9ba-49cd-a4fd-e5b159be5baa
+# ╠═6085a50f-50de-4109-83dd-05c49e7a5991
+# ╠═6eb7ce56-392c-4975-b59e-ada4a1b59a40
+# ╠═3c905d54-16e6-4a5b-8f94-26e2d10fbac4
+# ╠═403fb416-1f22-4c58-a6a3-3d9b592d1d5f
+# ╠═879324ca-b15e-4275-a2ad-3c6879611537
+# ╠═35031575-fa94-4b2c-862c-9175c2d2c079
+# ╠═75e78554-c6d5-49a4-9db5-e95a2e3e5346
+# ╠═00f0fda7-fc44-48c5-a425-d1a639d30957
+# ╠═23a39643-eed6-409d-b6ea-accf93227cb1
+# ╠═12b974d2-a94a-463c-b29c-1f1d80d03e82
+# ╠═1d670adf-5b7b-4075-9635-b9273eeb28b9
+# ╟─84780473-db82-47c7-97c5-0ea74dda8087
+# ╠═0d859212-74b1-4905-9ecb-0634cbcc7bb7
+# ╠═f8c46877-07dc-4dec-9e85-14f54a17d09f
+# ╠═e58b709b-467b-42a7-a59a-509bd3737f6e
+# ╠═90ce096e-451b-4708-90f1-d32ed530948d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
