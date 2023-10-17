@@ -9,7 +9,7 @@ using Test
 
 # ╔═╡ ef71c963-5319-4402-94e1-33de2cc99a30
 md"""
-# Built-in numerical types
+# Built-in numerical types and the Missing type
 
 At its most basic level, Julia is a calculator (overkill). To evaluate an arithmetic expression in Julia (in the REPL, in a script, or in a Jupyter/Pluto notebook), you first have to somehow type the numbers on your keyboard. The representations of numbers as strings in code are called _numeric literals_. 
 
@@ -267,10 +267,20 @@ isless(0, missing)
 sort(xs)
 
 # ╔═╡ 12b974d2-a94a-463c-b29c-1f1d80d03e82
-ys = skipmissing(xs)
+# If you want to exclude missing values from your calculations, you can create a new special array with `skipmissing`
+xs_nomissings = skipmissing(xs)
 
 # ╔═╡ 1d670adf-5b7b-4075-9635-b9273eeb28b9
-sum(ys)
+# Functions that iterate over the array will skip missing values
+sum(xs_nomissings)
+
+# ╔═╡ f8f3aed6-8332-4651-b4d4-d86e362def99
+# And indexing is the same as the parent array
+findall(>(0), xs_nomissings)
+
+# ╔═╡ 2b5ef054-697f-4933-b582-ff22883504ce
+# However, accessing the array on a missing value index will throw an error
+xs_nomissings[2]
 
 # ╔═╡ 84780473-db82-47c7-97c5-0ea74dda8087
 md"Arrays containing missing values are as memory efficient as they can be."
@@ -401,6 +411,8 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═23a39643-eed6-409d-b6ea-accf93227cb1
 # ╠═12b974d2-a94a-463c-b29c-1f1d80d03e82
 # ╠═1d670adf-5b7b-4075-9635-b9273eeb28b9
+# ╠═f8f3aed6-8332-4651-b4d4-d86e362def99
+# ╠═2b5ef054-697f-4933-b582-ff22883504ce
 # ╟─84780473-db82-47c7-97c5-0ea74dda8087
 # ╠═0d859212-74b1-4905-9ecb-0634cbcc7bb7
 # ╠═f8c46877-07dc-4dec-9e85-14f54a17d09f
