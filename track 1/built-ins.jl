@@ -259,7 +259,7 @@ xs = [1.0, missing, 3.0]
 sum(xs)
 
 # ╔═╡ 00f0fda7-fc44-48c5-a425-d1a639d30957
-# Note that the `isless` function evaluates to true
+# Note that the `isless` function here evaluates to true
 isless(0, missing)
 
 # ╔═╡ 23a39643-eed6-409d-b6ea-accf93227cb1
@@ -273,7 +273,7 @@ ys = skipmissing(xs)
 sum(ys)
 
 # ╔═╡ 84780473-db82-47c7-97c5-0ea74dda8087
-md"Arrays containing missing values are as memory efficient as they can be"
+md"Arrays containing missing values are as memory efficient as they can be."
 
 # ╔═╡ 0d859212-74b1-4905-9ecb-0634cbcc7bb7
 Base.summarysize(1.0) # in bytes
@@ -282,10 +282,21 @@ Base.summarysize(1.0) # in bytes
 Base.summarysize(Float64[])
 
 # ╔═╡ e58b709b-467b-42a7-a59a-509bd3737f6e
-Base.summarysize([1.0, 2.0, 3.0, 4.0])
+Base.summarysize([1.0, 2.0, 3.0, 4.0]) # size of `Float64[]` + 4 × 8 bytes
 
 # ╔═╡ 90ce096e-451b-4708-90f1-d32ed530948d
-Base.summarysize([1.0, 2.0, 3.0, missing])
+Base.summarysize([1.0, 2.0, 3.0, missing]) # size of `Float64[]` + 4 × (8 + 1) bytes
+
+# ╔═╡ da532865-ce7e-435d-a5c8-861404d325c4
+# Notice that the actual implementation uses a SoA instead of an AoS,
+# hence there are no cache related issues
+pointer(xs, 2) - pointer(xs, 1) == sizeof(Float64)
+
+# ╔═╡ 00664936-4635-4b4e-8794-74cb841ac1ae
+md"Finally, you should be aware that Julia contemplates both `missing` and `nothing`, _but that's a story for another time..._"
+
+# ╔═╡ 1ec7df3f-0235-4bb2-98df-04b8386aeada
+html"""<iframe src="https://giphy.com/embed/mx9fVEF08tyne" width="480" height="334" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/80s-neverending-story-falkor-mx9fVEF08tyne">via GIPHY</a></p>"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -395,5 +406,8 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═f8c46877-07dc-4dec-9e85-14f54a17d09f
 # ╠═e58b709b-467b-42a7-a59a-509bd3737f6e
 # ╠═90ce096e-451b-4708-90f1-d32ed530948d
+# ╠═da532865-ce7e-435d-a5c8-861404d325c4
+# ╟─00664936-4635-4b4e-8794-74cb841ac1ae
+# ╟─1ec7df3f-0235-4bb2-98df-04b8386aeada
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
