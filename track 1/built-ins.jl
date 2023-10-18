@@ -9,7 +9,7 @@ using Test
 
 # ╔═╡ ef71c963-5319-4402-94e1-33de2cc99a30
 md"""
-# Built-in numerical types and the Missing type
+# Built-in numerical types and missing values
 
 At its most basic level, Julia is a calculator (overkill). To evaluate an arithmetic expression in Julia (in the REPL, in a script, or in a Jupyter/Pluto notebook), you first have to somehow type the numbers on your keyboard. The representations of numbers as strings in code are called _numeric literals_. 
 
