@@ -94,7 +94,9 @@ end
 md"""
 ## Motivation
 
-The great pyramid of Giza resisted the forces of nature, the winds, the sun, and the movements of the Earth, serving its purpose for more than four thousands years. Its thick walls might even provide good insulation, but nobody would ever immagine to make new buildings using the same solutions adopted in the ancient Egypt. This analogy illustrate why, in the opinion of the author, you should **stop writing scientific code in Fortran 77 _whenever possible_**. Which language one might use then? 
+The great pyramid of Giza resisted the forces of nature, almost intact, serving its purpose for more than four thousands years. It's one of the seven wonders and a testimony of the terrific efforts and engineering of the people that lived in ancient Egypt. However, nowadays nobody would ever immagine to make new buildings the same way. 
+
+The analogy illustrates why a great deal of scientific code development has moved from **writing code in Fortran 77 to other languages, _whenever possible_**.
 
 Julia is a language that allows to easily write code that is correct[^1], maintainable, and sufficiently fast to shortcircuit prototipation and production cycle (the so-called _two language problem_).[^2]
 
