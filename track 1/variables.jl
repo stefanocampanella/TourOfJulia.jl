@@ -93,7 +93,7 @@ md"""
 
 The scope of a variable is the region of code where that variable is accessible, that is the region of code where, unless there is an assignment, the same name refers to the same object.
 
-Scopes are a conceptual tool to manage things with the same name and give precise meaning to assignment.
+Scopes are a conceptual tool to manage things with the same name and give precise meaning to assignment. The concept is used in all programming languages, but it is crucial in languages like Scheme or Julia, with an emphasis on functions.
 
 Scopes are organized in blocks, which can be nested or chained. In Julia, different constructs correspond to different types of scopes. There are the global scope, the soft local scope, and the hard local scope. Local scopes can be nested: a variable defined in an outer scope is accessible in all the inner scopes. The difference between hard and soft scopes is in the way shadowing (assignment to an already defined variable) of global variables works.
 
@@ -112,7 +112,7 @@ The constructs introducing scope blocks are:
 	
 	Consider the common pattern of initializing a variable with a different value depending on some condition using an `if` block. In Julia, usually, a variable is declared implicitly with assignment. Having `if` blocks introducing new scopes would have required to initialize the variable with a default value outside, which is ugly and error prone. As a consequence, it is possible to have code paths where a variable is not defined. The Julia compiler is able to detect them and generate machine code that will eventually throw an error without performance penalty.
 
-Notice that you can define a module within another module, but the scopes will not be nested (the variables defined in the outer module will not be accessible in the inner one).
+Notice that you can define a module within another module, but the scopes will not be nested: the variables defined in the outer module will not accessible in the inner one only via qualified access. 
 """
 
 # ╔═╡ 64ea16be-71c4-4b25-b560-9e0cebc51e87
@@ -143,7 +143,11 @@ end
 md"""
 ### Shadowing
 
-Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In case of shadowing, in Julia there are some rules to determine whether a new variable using the same name is defined or if the outer variable is assigned. These rules involve the type of scopes in which assignment occurs and the variable is defined. Corner cases have been introduced to exploit to the best interactive environments (REPL, notebooks, etc.).
+Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In case of shadowing, in Julia there is a single, universally valid rule, to determine whether a new variable using the same name is defined or if the outer variable is assigned. A rule with a lot of exceptions...
+
+The rule is "If a variable is defined in an outer scope, assign a new value to that variable, if it's not, define a new variable".
+
+The exceptions involve the type of scopes in which assignment occurs and the variable is defined. Corner cases have been introduced to exploit to the best interactive environments (REPL, notebooks, etc.).
 
 !!! note
 	In non-interactive contexts the hard and soft scope behaviors are identical except that a warning is printed.
