@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.30
+# v0.19.32
 
 using Markdown
 using InteractiveUtils
@@ -93,7 +93,7 @@ md"""
 
 The scope of a variable is the region of code where that variable is accessible, that is the region of code where, unless there is an assignment, the same name refers to the same object.
 
-Scopes are a conceptual tool to manage things with the same name and give precise meaning to assignment. The concept is used in all programming languages, but it is crucial in languages like Scheme or Julia, with an emphasis on functions.
+Scopes are a conceptual tool to referring to multiple things using the same name, and to give precise meaning to assignment.
 
 Scopes are organized in blocks, which can be nested or chained. In Julia, different constructs correspond to different types of scopes. There are the global scope, the soft local scope, and the hard local scope. Local scopes can be nested: a variable defined in an outer scope is accessible in all the inner scopes. The difference between hard and soft scopes is in the way shadowing (assignment to an already defined variable) of global variables works.
 
@@ -143,11 +143,13 @@ end
 md"""
 ### Shadowing
 
-Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In case of shadowing, in Julia there is a single, universally valid rule, to determine whether a new variable using the same name is defined or if the outer variable is assigned. A rule with a lot of exceptions...
+Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In this case, one could either define a new variable using the same name or assigne to the outer variable.
 
-The rule is "If a variable is defined in an outer scope, assign a new value to that variable, if it's not, define a new variable".
+Julia adopts the following rule is: "if a variable is defined in an outer scope, assign a new value to that variable, if not, define a new variable". However, the rule has been a few exceptions.
 
-The exceptions involve the type of scopes in which assignment occurs and the variable is defined. Corner cases have been introduced to exploit to the best interactive environments (REPL, notebooks, etc.).
+These exceptions entail the type of scopes in which assignment occurs and the variable is defined. Corner cases have been introduced to exploit to the best interactive environments (REPL, notebooks, etc.).
+
+The following diagram illustrates the logic.
 
 !!! note
 	In non-interactive contexts the hard and soft scope behaviors are identical except that a warning is printed.
@@ -155,6 +157,39 @@ The exceptions involve the type of scopes in which assignment occurs and the var
 
 # ╔═╡ 5a0d7143-3f68-41e4-84e9-08c110cc9fcf
 html"""<iframe frameborder="0" style="width:100%;height:933px;" src="https://viewer.diagrams.net/?highlight=0000ff&nav=1&title=scope.svg#R7VrbVts4FP2aPIble5JH7mWGUmbRGaAvXcIWsQbZCrJCkvn6ObIl36GG4jppm5dER1efs%2FfWkZyRfRitTzlahB9ZgOnIMoL1yD4aWfCZufAlLRtlMd1JZplzEmQ2szBckf%2BwMhrKuiQBTioNBWNUkEXV6LM4xr6o2BDnbFVtds9oddYFmuOG4cpHtGm9JoEIM%2BvUmhT2D5jMQz2z6c2ymgjpxupJkhAFbFUy2ccj%2B5AzJrJf0foQU%2Bk97Zfrs801PX%2FwTv%2F4K3lEfx%2F8%2Bfnin3E22MlruuSPwHEs3jz0py9fROCd0ZswhEg9Gsuv4aexOc3GfkJ0qRx2wdTjio32IQ7AparIuAjZnMWIHhfWA86WcYDlTAaUijbnjC3AaILxXyzERuEDLQUDUygiqmrhyfjmRvbfc3XxVg2XFo7WldJGlSi6w%2FSSJUQQFoPNh2rMoeIJc0EABue1BhEJgnTJiJJ5a499VZG3zPwhnVCD1DfiodolbMl9%2FEI7T9EC8Tl%2BcbwCdcBXzCIMnoCOHFMkyFN1dUjxZp63K7ABPxQ8XoFCr4GU4zVJBInnYKUMHDeyTxrQ4SGL7pawloNVSAS%2BWqDUFStQmyoAcnbJqN6zWJygiFAZ5g%2BYPmEZGVWhMGS6bUFMBGcPOdPTgWFKuUj7yCtKn1NYjh09pFqw8brISsTgdcntzdhoIdVEUzI6Ud5cFZJkap0Jy3Kkjd8Tzlbma5yU4nkLOr1D1MdrIm70GPD7thgCSkUnWdB9%2Bqay3vXKXG4X3iGprFdZiv0VuxfjxGcLvJss7ou47mxvNqtQN89sBuTuZGu4OywHn6dWBwpa3g%2Fi4EurLIXwlLI7lGbf%2BJ7EMiq7S8QGwbrG91kimjOvzkTbHZyJ5mSXdszemWd1zGSHZZ7VoN7I8iis9yAgT5Vgeo9Lebo7oMDHsUbUPjQxDUCUm7rUkCQaJ2ms0ip3sU4rdGf4NVff6STAmbh1ljvkP8xTcIx9RhnPxiMxHF1kci3nSlk%2FTjLay9qY8UhXdl3IGirTieEZPBRJ5UgXljlEmyprBkdny64%2Byh1vfZDXegRGTz2vrTVGVUXIagidzFmOovVc3mDs3VO28kPExV4CMBRfrWe0si595WOA%2BZJm9iVwlmXUBW48bRE4024ROLM3gXMaZDlPz3pyrgR2C9Cxd4oX7DgRiZGQwH9DyHoKi%2B3alZjAPtSMiduy6Xi9hcTdmuzvrSc3WbrEnIBDZJrxM9%2FkvMCqwTbAWQNAF3iV3%2BIUCehPTWwQ1z3DmJU%2B1eSyTXvbksveeO7YW8PzLTzlWV25Zk%2BG5JrVvDY9kyqF%2FGzu30e80lZr2%2FUMyOnKwv6OeHbzsiU%2Fqf8aKZDjTetx8douwZwfqY5uk1g7pI6yUE%2BA%2BlZMx%2BmomK47pGI6zRPHGcTV%2BIhI3KaXTf3qRLUA%2ByRJE8lOROuLW5bRuNZq5ZbRpnlGb6lH84gx0GthxS3jNdx6z1PJ1qQxzqBHBrcJiGvE4%2FTl7%2FtsfQFJFhRtBqajbTboOLE60rG3rc77zcb3Z%2BN3vr6dDclGr5n77CAgzAocCnRskzx3fZc4MB6aR5QdwkNLKvycaJjbiJHOefXAIJkOiogcBbelmrcgYgdUQ2dL%2FSMi7brPOdqUGiwYiUVSGvlSGkpJjtYLleFMndo%2FR2vtx%2Fnlyls7OKZRw2%2B25gLN%2BcO3ARyKxd9ss%2BbFv5Xt4%2F8B"></iframe>"""
+
+# ╔═╡ 0db3aa04-356f-42a2-8538-603a7a6452e2
+md"""
+How do you shadow a local variable in a local scope? How do you assign to a global variable from a hard local scope? The `local` and `global` keywords exist for that.
+"""
+
+# ╔═╡ e52fc50d-0a61-465c-8d07-2e1982fbbf24
+module globalscope
+
+n = 0 # defined in global scope, hence is a global variable
+
+function counter() # functions introduce a hard local scope
+	global n # subsequent assignments will be visible from the global scope
+	n = n + 1
+end
+
+for _ = 1:10
+	@show counter()
+end
+
+end
+
+# ╔═╡ 5d089849-2515-46a3-be31-d73c80f9badc
+let
+	greetings = "I'm a local variable"
+
+	function shadowing()
+		local greetings
+		greetings = "I'm an example of shadowing"
+	end
+
+	@show shadowing(), greetings
+end
 
 # ╔═╡ 6974f0e7-a029-4d72-97a8-78c93903571c
 function sum_to_def_closure(n)
@@ -173,7 +208,7 @@ function sum_to_def_closure(n)
 end
 
 # ╔═╡ 29592c11-9093-468b-9fce-d78e0cb4ecce
-sum_to_def_closure(10)
+sum_to_def_closure(10) == sum(1:10)
 
 # ╔═╡ 2b502881-a145-4575-b9b1-1a950fadb545
 code = """
@@ -190,12 +225,16 @@ code = """
 include_string(Main, code)
 
 # ╔═╡ 386450e8-322f-4ec9-a22a-6d7a756dd5b9
-md"""In a scope, each variable can only have one meaning, and that meaning is determined regardless of the order of expressions. The presence of the expression s = t in the loop causes s to be local to the loop, which means that it is also local when it appears on the right hand side of t = s + i, even though that expression appears first and is evaluated first. One might imagine that the s on the first line of the loop could be global while the s on the second line of the loop is local, but that's not possible since the two lines are in the same scope block and each variable can only mean one thing in a given scope."""
+md"""
+The previous example has been taken verbatim from the manual. Notice the following crucial point.
+
+>[...] in a scope, each variable can only have one meaning, and that meaning is determined regardless of the order of expressions. The presence of the expression `s = t` in the loop causes s to be local to the loop, which means that it is also local when it appears on the right hand side of `t = s + i`, even though that expression appears first and is evaluated first. One might imagine that the `s` on the first line of the loop could be global while the s on the second line of the loop is local, but that's not possible since the two lines are in the same scope block and each variable can only mean one thing in a given scope.
+"""
 
 # ╔═╡ 756539c8-61f5-4e3f-8008-a18dde94e0dd
 md"""
 
-## `begin` and `let` blocks
+## The `let` blocks
 
 
 
@@ -308,12 +347,15 @@ Modules automatically contain `using Core`, `using Base` and definitions of `eva
 # ╠═64ea16be-71c4-4b25-b560-9e0cebc51e87
 # ╟─b64c7042-099f-460c-8546-de72106d2112
 # ╟─5a0d7143-3f68-41e4-84e9-08c110cc9fcf
+# ╟─0db3aa04-356f-42a2-8538-603a7a6452e2
+# ╠═e52fc50d-0a61-465c-8d07-2e1982fbbf24
+# ╠═5d089849-2515-46a3-be31-d73c80f9badc
 # ╠═6974f0e7-a029-4d72-97a8-78c93903571c
 # ╠═29592c11-9093-468b-9fce-d78e0cb4ecce
 # ╠═2b502881-a145-4575-b9b1-1a950fadb545
 # ╠═81420b57-a395-4071-9daf-6526d1509bff
 # ╟─386450e8-322f-4ec9-a22a-6d7a756dd5b9
-# ╠═756539c8-61f5-4e3f-8008-a18dde94e0dd
+# ╟─756539c8-61f5-4e3f-8008-a18dde94e0dd
 # ╠═ff18ee24-a610-406c-9e50-4b9412f3dacd
 # ╠═157ac882-2fe3-4818-83d0-39d829b28c94
 # ╠═b7cb512a-bef2-4e68-91e5-a990057bb07a
