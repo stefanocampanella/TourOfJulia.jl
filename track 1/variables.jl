@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.32
+# v0.19.36
 
 using Markdown
 using InteractiveUtils
@@ -36,11 +36,11 @@ end
 pi
 
 # ╔═╡ 5fe70ca9-1b02-475e-bbc7-873c76fcb262
-2pi
+4pi
 
 # ╔═╡ 16004b13-0425-420d-88dc-edb30386d370
 # The same rule applies to parenthesised expressions
-2(1 + pi)
+2(pi + pi)
 
 # ╔═╡ eb35275a-285b-4253-97e1-850b5d9739b4
 x = true
@@ -147,11 +147,9 @@ end
 md"""
 ### Shadowing
 
-Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In this case, one could either define a new variable using the same name or assign to the outer variable.
+Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In this case, one could either define a new variable using the same name or assign to the outer variable. Generally, Julia adopts the second option (assignment to the variable defined in the outer scope). However, the rule has a few exceptions.
 
-Julia adopts the following rule is: "if a variable is defined in an outer scope, assign a new value to that variable, if not, define a new variable". However, the rule has been a few exceptions.
-
-These exceptions entail the type of scope in which assignment occurs and the fact that the variable is defined or not. Corner cases have been introduced to exploit interactive environments (REPL, notebooks, etc.) to the best.
+These exceptions entail the type of scope in which assignment occurs, and corner cases have been introduced to exploit interactive environments (REPL, notebooks, etc.) to the best.
 
 The following diagram illustrates the logic.
 
@@ -186,13 +184,17 @@ end
 # ╔═╡ 5d089849-2515-46a3-be31-d73c80f9badc
 let
 	greetings = "I'm a local variable"
-
+		
 	function shadowing()
 		local greetings
 		greetings = "I'm an example of shadowing"
 	end
 
-	@show shadowing(), greetings
+	function nonshadowing()
+		greetings = "I'm not an example of shadowing"
+	end
+
+	greetings, shadowing(), greetings, nonshadowing(), greetings
 end
 
 # ╔═╡ 6974f0e7-a029-4d72-97a8-78c93903571c
