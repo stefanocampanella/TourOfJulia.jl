@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.30
+# v0.19.32
 
 using Markdown
 using InteractiveUtils
@@ -13,7 +13,7 @@ md"""
 
 At its most basic level, Julia is a calculator (overkill). To evaluate an arithmetic expression in Julia (in the REPL, in a script, or in a Jupyter/Pluto notebook), you first have to somehow type the numbers on your keyboard. The representations of numbers as strings in code are called _numeric literals_. 
 
-In Julia, numeric literals follows common conventions adopted by other languages.
+In Julia, numeric literals follows common conventions adopted by most languages.
 """
 
 # ╔═╡ 211a7ce3-7722-456b-8d56-63236aab4f15
@@ -138,7 +138,7 @@ Floating point numbers includes also `Inf`, `-Inf` and `NaN` and their algebra i
 end
 
 # ╔═╡ 136f111a-14e8-4df8-972d-0133e2fb0fc2
-0/0
+0 / 0
 
 # ╔═╡ bbe2a733-8d95-4e79-a664-330a03e3551c
 # NaN is not "semantically" equal to NaN
@@ -189,6 +189,9 @@ md"""
 
 # ╔═╡ 80d2636e-27f9-4117-adcb-b3e1ad76f0e3
 0.1 + 0.2 - 0.3
+
+# ╔═╡ 844bdc3f-f385-4023-8713-d6c6b22196d4
+0.1 + 0.2 ≈ 0.3
 
 # ╔═╡ 2344493c-13c6-46d9-9202-c4356a6033a3
 # Machine epsilon
@@ -317,7 +320,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.3"
+julia_version = "1.9.4"
 manifest_format = "2.0"
 project_hash = "71d91126b5a1fb1020e1098d9d492de2a4438fd2"
 
@@ -390,6 +393,7 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 # ╠═c1e6e0fa-8d03-4248-84cc-9cf22ae513e7
 # ╟─b95b8c5f-9bce-4107-936b-4d269a3cf591
 # ╠═80d2636e-27f9-4117-adcb-b3e1ad76f0e3
+# ╠═844bdc3f-f385-4023-8713-d6c6b22196d4
 # ╠═2344493c-13c6-46d9-9202-c4356a6033a3
 # ╠═14542f07-f224-4625-8654-98ac3d61414f
 # ╠═cf037e98-caa4-42e4-aa1a-2e2d8ff5b34d

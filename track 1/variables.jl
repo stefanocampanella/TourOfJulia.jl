@@ -38,6 +38,10 @@ pi
 # ╔═╡ 5fe70ca9-1b02-475e-bbc7-873c76fcb262
 2pi
 
+# ╔═╡ 16004b13-0425-420d-88dc-edb30386d370
+# The same rule applies to parenthesised expressions
+2(1 + pi)
+
 # ╔═╡ eb35275a-285b-4253-97e1-850b5d9739b4
 x = true
 
@@ -108,7 +112,7 @@ The constructs introducing scope blocks are:
 | functions, `do` blocks, `let` blocks, comprehensions, generators | local (hard) | global, local |
 
 !!! note
-	`begin` blocks and `if` blocks which do *not* introduce new scopes.
+	`begin` blocks and `if` blocks which do *not* introduce new scopes. Here's the rationale.
 	
 	Consider the common pattern of initializing a variable with a different value depending on some condition using an `if` block. In Julia, usually, a variable is declared implicitly with assignment. Having `if` blocks introducing new scopes would have required to initialize the variable with a default value outside, which is ugly and error prone. As a consequence, it is possible to have code paths where a variable is not defined. The Julia compiler is able to detect them and generate machine code that will eventually throw an error without performance penalty.
 
@@ -143,11 +147,11 @@ end
 md"""
 ### Shadowing
 
-Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In this case, one could either define a new variable using the same name or assigne to the outer variable.
+Since local scopes can be nested, there might be assignments within inner scopes using the same name of a variable defined in an outer scope, which called shadowing. In this case, one could either define a new variable using the same name or assign to the outer variable.
 
 Julia adopts the following rule is: "if a variable is defined in an outer scope, assign a new value to that variable, if not, define a new variable". However, the rule has been a few exceptions.
 
-These exceptions entail the type of scopes in which assignment occurs and the variable is defined. Corner cases have been introduced to exploit to the best interactive environments (REPL, notebooks, etc.).
+These exceptions entail the type of scope in which assignment occurs and the fact that the variable is defined or not. Corner cases have been introduced to exploit interactive environments (REPL, notebooks, etc.) to the best.
 
 The following diagram illustrates the logic.
 
@@ -336,6 +340,7 @@ Modules automatically contain `using Core`, `using Base` and definitions of `eva
 # ╠═f6d768a6-42a4-4502-ad36-709a70032752
 # ╠═eb1b8eb9-18e7-4ca1-978c-a6883d9b578a
 # ╠═5fe70ca9-1b02-475e-bbc7-873c76fcb262
+# ╠═16004b13-0425-420d-88dc-edb30386d370
 # ╠═eb35275a-285b-4253-97e1-850b5d9739b4
 # ╠═4fac80eb-2e83-49c9-b3ce-ece520027d39
 # ╠═eefa4b20-a589-4379-b66c-934aeec512f3

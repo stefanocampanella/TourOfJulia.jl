@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.30
+# v0.19.32
 
 #> [frontmatter]
 #> title = "A tour of Julia"
@@ -20,9 +20,9 @@ using PyCall, BenchmarkTools
 md"""
 # A tour of Julia
 
-Julia is a general purpose programming language suited for technical and scientific computing. 
+Julia is a general purpose programming language designed with technical and scientific computing in mind. 
 
-It is a dynamic, high-level language, with performance close to statically compiled languages, like C or Fortran, while having a syntax similar to other interpreted languages, like MATLAB or Python. This is possible thanks to a clever design, and Just In Time (JIT) compilation.
+It is a dynamic, high-level language, and its syntax is similar to other interpreted languages, like MATLAB or Python. The performance of Julia programs can match programs written using statically compiled languages, like C or Fortran. This is possible thanks to a clever design and Just In Time (JIT) compilation.
 
 In the following I will introduce the language, its syntax and main features.
 """
@@ -195,7 +195,7 @@ PyCall = "~1.96.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.3"
+julia_version = "1.9.4"
 manifest_format = "2.0"
 project_hash = "b6cddb3f2b91667ae3febe97e27f2e3761e4d57c"
 
@@ -251,12 +251,12 @@ version = "0.21.4"
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
@@ -265,7 +265,7 @@ uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -412,7 +412,7 @@ version = "5.8.0+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
