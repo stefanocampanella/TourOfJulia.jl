@@ -43,10 +43,10 @@ pi
 2(pi + pi)
 
 # ╔═╡ eb35275a-285b-4253-97e1-850b5d9739b4
-x = true
+truth = true
 
 # ╔═╡ 4fac80eb-2e83-49c9-b3ce-ece520027d39
-!x
+!truth
 
 # ╔═╡ eefa4b20-a589-4379-b66c-934aeec512f3
 # Unicode characters are allowed, to enter them use \[extended name]<tab>, such as \delta<tab> here
@@ -239,17 +239,13 @@ The previous example has been taken verbatim from the manual. Notice the followi
 
 # ╔═╡ 756539c8-61f5-4e3f-8008-a18dde94e0dd
 md"""
+## The `let` block
 
-## The `let` blocks
-
-
-
-!!! note
-	To shadow local variables use `let` blocks.
+Let's start with reviewing the `begin` block.
 """
 
-# ╔═╡ ff18ee24-a610-406c-9e50-4b9412f3dacd
-let x, y, z
+# ╔═╡ da7c3418-ec3c-4edd-92d1-7225f58097cc
+module beginblock
 	begin
 		# statements can be chained using a `begin ... end` block
 		z = begin
@@ -263,26 +259,124 @@ let x, y, z
 	
 		# or the following
 		z = (x = 1; y = 2; x + y)
+
+		# But do not introduce a new local scope, indeed `x` is visible here
+		@show x
 	end
 end
+
+# ╔═╡ 59275e3d-7390-4c68-b6d3-53abbf7ff14d
+md"""
+We've seen that `begin` blocks do not enclose a new local scope, how do you introduce a new one in your code? Looping constructs (eg. `for` and `while`, which will be discussed in another notebook) introduce a new local soft scope, hence might be used for this purpose.
+"""
+
+# ╔═╡ b59ec260-b4e1-4739-9634-4f667f68b795
+for _ = 1:1
+	x = 1
+	for _ = 1:1
+		x = x + 1
+	end
+	# We need to print `x` to the standard output since for blocks return nothing.
+	@show x
+end
+
+# ╔═╡ 6f65ebc5-3930-4d52-b6c1-9cc4b5b885c5
+md"""
+However, this is obviously cumbersome, and the `let` block exist for that.
+"""
+
+# ╔═╡ ea119384-8f68-43b5-959a-a17221251059
+let
+	x = 1
+	let
+		x = x + 1
+	end
+	# Instead, here the `@show` macro is pleonastic.
+	@show x
+end
+
+# ╔═╡ b00af10a-812a-437e-bcb1-1b3dc85f2b5a
+md"""
+The `let` block accept comma separated optional arguments, which introduce new bindigs. This is usually unobservable, apart from closures (discussed in track 2).
+"""
 
 # ╔═╡ 157ac882-2fe3-4818-83d0-39d829b28c94
 let
 	x = 1
+	# `x` is a local variable defined in the outer local scope, hence is referenced every time the closure is run.
 	f = () -> let 
 		x = x + 1
 		x
 	end
-	[f() for _ = 1:3]
+	[f() for _ = 1:3], x
 end
 
 # ╔═╡ b7cb512a-bef2-4e68-91e5-a990057bb07a
 let
 	x = 1
+	# A new variable binding is introduced each time `f` is evaluated
 	f = () -> let x = x + 1
 		x
 	end
-	[f() for _ = 1:3]
+	# Hence `x` does not change its value
+	[f() for _ = 1:3], x
+end
+
+# ╔═╡ 760dad2d-ea9a-4fa0-bf17-1159f9acedfb
+md"""
+## Loops and comprehensions
+
+As listed in the table above, looping construct (which will be the subject of the next notebook in track 1), introduce a new soft local scope. However, there is a caveat. Consider the following.
+"""
+
+# ╔═╡ a14b2f44-e6ed-44c7-982d-e4c677d6797d
+let
+	# `i` and `j` are local variables
+	i, j = 0, 0
+	for i = 1:10
+		# Being in an inner local scope, assignment should change their value
+		j = i
+		i = 42
+	end
+	# However, `i` does not change. How come?
+	i, j
+end
+
+# ╔═╡ 4f59f693-9c8c-47c0-b144-36d42052ee59
+md"""
+The previous statement of looping constructs introducing a new local (soft) scope is referred to their body.
+
+```julia
+for x = iterator
+	#= for body =#
+end
+```
+
+Indeed, the name `x` in the previous code listing is bounded to a new object at each loop iteration, and effectively shadows any previous local definition. 
+
+The same is true for comprehensions.
+"""
+
+# ╔═╡ 7f78e0f2-bdd1-4f8d-a866-40f8484d511b
+let
+	fs = [() -> i for i = 1:3]
+
+	fs[1](), fs[2](), fs[3]()
+end
+
+# ╔═╡ 76c3771f-a4ec-4d49-9715-049d4c90df50
+md"""
+However, there are cases where it is useful to assign the values yield by the iterator in the looping construct to an existing local variable. The `outer` keyword exist for that (but only for `for` loops).
+"""
+
+# ╔═╡ b96dc659-843a-4df4-b53c-f3c0b9a4cc29
+let
+	i, j = 0, 0
+	for outer i = 1:10
+		j = i
+		i = 42
+	end
+	i, j
 end
 
 # ╔═╡ edd23354-2973-4995-ba6a-4d15fda97f43
@@ -312,7 +406,7 @@ All names in Julia are defined inside a module. To get the name of the parent mo
 The `export` keyword in a module introduce a statement which lists the names in the current module that one want to make visible outside. Module namespaces are imported with the keyword `import` or `using`. The former will import into the current namespace only the name of the module, the latter also all the names in the export list. One can specified using `:` which names want to import in the current namespace. This makes the two form almost equivalent. Indeed, if one want to add methods to a function defined in another module, he has to use its fully qualified name or use `import`, but not `using`. Finally, you can rename imported names using `as`, like you would do in Python. 
 
 !!! warning
-	You can extend or redefine functions for types that you have not defined. This is usually called _type piracy_ and should be avoided.
+	You can extend or redefine functions for types that you have not defined. This is usually called _type piracy_ and should be avoided, more on that in track 2.
 """
 
 # ╔═╡ 8e5fd692-8a5a-4b9a-89c7-4b569af4ed63
@@ -363,9 +457,20 @@ Modules automatically contain `using Core`, `using Base` and definitions of `eva
 # ╠═81420b57-a395-4071-9daf-6526d1509bff
 # ╟─386450e8-322f-4ec9-a22a-6d7a756dd5b9
 # ╟─756539c8-61f5-4e3f-8008-a18dde94e0dd
-# ╠═ff18ee24-a610-406c-9e50-4b9412f3dacd
+# ╠═da7c3418-ec3c-4edd-92d1-7225f58097cc
+# ╟─59275e3d-7390-4c68-b6d3-53abbf7ff14d
+# ╠═b59ec260-b4e1-4739-9634-4f667f68b795
+# ╟─6f65ebc5-3930-4d52-b6c1-9cc4b5b885c5
+# ╠═ea119384-8f68-43b5-959a-a17221251059
+# ╟─b00af10a-812a-437e-bcb1-1b3dc85f2b5a
 # ╠═157ac882-2fe3-4818-83d0-39d829b28c94
 # ╠═b7cb512a-bef2-4e68-91e5-a990057bb07a
+# ╟─760dad2d-ea9a-4fa0-bf17-1159f9acedfb
+# ╠═a14b2f44-e6ed-44c7-982d-e4c677d6797d
+# ╟─4f59f693-9c8c-47c0-b144-36d42052ee59
+# ╠═7f78e0f2-bdd1-4f8d-a866-40f8484d511b
+# ╟─76c3771f-a4ec-4d49-9715-049d4c90df50
+# ╠═b96dc659-843a-4df4-b53c-f3c0b9a4cc29
 # ╟─edd23354-2973-4995-ba6a-4d15fda97f43
 # ╠═8e5fd692-8a5a-4b9a-89c7-4b569af4ed63
 # ╟─ceb559d1-1156-4064-852d-f61222505ead
