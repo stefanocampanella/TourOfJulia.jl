@@ -15,17 +15,93 @@ using PlutoUI
 
 # ╔═╡ 3e1a5e86-9cc8-11ed-35da-5f21a6e28fb6
 md"""
-# Multi-dimensional arrays
+# Strings and Arrays
 
 Being a programming language designed for technical computing, Julia has a comprehensive support for multi-dimensional arrays. Furthermore, since the implementation of arrays is written in Julia, the array interface is easily extendible to data structures that exibhit similar behavior. 
 
 The crucial point is that the performance comes from Julia design and, in contrast to other languages like Matlab of Python, there is no need to use vectorized operations. Although array-programming might make more readable certain implementation (and more easily portable to accelerators, for example), you can write loops and use scalar indexing in Julia obtaining good performance.
 """
 
+# ╔═╡ c538dd82-0b4f-4978-bc45-61c25c568ff6
+md"""
+## String basics
+
+Strings are sequences of symbols, and the most widely adopted standard for defining the set of these symbols (including, for example, non-English alphabets) is Unicode. 
+
+Unicode does not specify the encoding of these symbols: a problem which is handled by other standards, such as UTF8, which, as Unicode, is the most commonly used.
+
+Julia complies with Unicode and implements by default the UTF8 encoding (though others are supported). UTF8 is a variable length encoding, and each symbol might require one to four bytes for its representation. Henche the `Char` type in Julia, which represents a single character, is a primitive type using 32 bits of memory, enough to store any Unicode character.
+
+However, for storage efficiency reasons, within a string a single symbol will take the minimum required memory for its representation. Still, in Julia strings use byte indexing, as in C. Therefore, a string is **not** an array of 32 bit `Chars`s, but instead should be considered, conceptually, a partial function from byte indices to `Char`s: when an index is not valid, accessing a symbol at that location will throw an exception. Since the ASCII characters requires just one byte for their representation, indexing an ASCIII string will work as intended.
+
+Also, in Julia, as in Java, strings are immutable objects, and changing a string object requires the creation of a new string.
+"""
+
+# ╔═╡ 947c63a5-dc39-4162-99a2-8b82c6c3fb22
+# The Char primitive data type will take 4 bytes, ASCII chars in a string just 1 byte
+sizeof('G'), sizeof("GSIC")
+
+# ╔═╡ 2ba93c2a-d45f-4c12-aacc-4069c4d650b6
+codeunits("GSIC")
+
+# ╔═╡ b93f7062-7ee7-4f36-a8c1-9299aeaaa566
+let
+	# Char literals are represented in code using single quotes
+	c :: Char = '∈'
+	# The Char type implements limited arithmetics and comparison operators
+	c + 1, 'a' < 'b' < 'c'
+end
+
+# ╔═╡ 031e7a2d-8ffd-4d7e-bd18-bd56925dcfd4
+# Strings can be entered using double quotes, newlines and indentation are preserved
+dickinson = "A sepal, petal, and a thorn 
+    Upon a common summer's morn — 
+	A flask of Dew — A Bee or two — 
+	A Breeze — a caper in the trees — 
+	And I'm a Rose!"
+
+# ╔═╡ 8365ae73-40bd-48dc-9104-2f22439091c6
+# Double quotes can be escaped using triple double quotes, newlines can be escaped using the backslash \
+berra = """
+"In theory there is no difference \
+between theory and practice \
+- in practice there is" \
+(Yogi Berra)
+"""
+
+# ╔═╡ 28f7bf47-d382-4085-83ad-3eb7a268dfe6
+# Concatenation is obtained using the `*` operator
+berra[1:42] * dickinson[1:27] * berra[62:85]
+
+# ╔═╡ 278c15fb-3e2e-4eb7-a1e1-8aeffbf623c2
+let
+	frac(n, N) = n < N ? n + n / frac(n + 1, N) : n
+	
+	euler = 2 + 1 / frac(1, 16) 
+
+	# Strings can be interpolated as in Perl, with `$`
+	"e is approximately $euler"
+end
+
+# ╔═╡ 7022ee54-1fd7-443b-a71b-722b6f5386df
+let
+	# Strings are immutable
+	str = "this is a string"
+	str[1] = 'T'
+end
+
+# ╔═╡ e0412099-a75a-4af1-b718-e393875e9744
+let
+	str = "this is a string"
+	# Therefore it is necesssary to create a new string
+	new_str = "T" * str[2:end]
+	new_str, uppercasefirst(str)
+end
+
 # ╔═╡ 890b8096-972b-4c88-bf35-5d2fc54a3aeb
 md"""
 
-## Construction, initialization and basic functions
+## Array construction, initialization and basic functions
  
 The array type `Array{T, N}` is a parametric type having two parameters, the rank (number of dimensions) of the array and the type of the elements of the array. The elements can be any object and will be stored in contigous memory locations. Notice that the size of the array along each dimension is not a parameter of the array type. Indeed, arrays can be resized without changing their type and are mutable objects. However, if you have to deal with small arrays of known size you might consider using [`StaticArrays`](https://github.com/JuliaArrays/StaticArrays.jl), which have fixed lenght and, in certain algorithms, can show a considerable speedup.
 
@@ -33,7 +109,7 @@ Arrays can be constructed using the `Array{T}(initializer, sizes...)` constructo
 
 If you want to create an array containing elements you can use `fill(value, sizes...)`, or the convenience functions `zeros(T, sizes...)`, `ones(T, sizes...)`, `rand(T, sizes...)`, `randn(T, sizes...)` and `trues` and `falses` (the type of the element `T` defaults to `Float64` when the argument is omitted). You can also `copy` or `deepcopy` an array or crate a new empty un-initialized array with `similar`.
 
-Many useful functions are available to inquire the element type, the number of dimensions, the size, the stride and the index ranges along each dimension. Probably the most important one is `eachindex`, which return an iterator yielding a linear index for accessing and writing to the array with best performance. 
+Many useful functions are available to inquire the element type, the number of dimensions, the size, the stride and the index ranges along each dimension. An example is `eachindex`, which return an iterator yielding a linear index for accessing and writing to the array with best performance. 
 """
 
 # ╔═╡ e38c43ca-7d90-40ec-88b4-86102527e585
@@ -46,7 +122,7 @@ xs = Array{Float32}(undef, 3, 3, 3)
 ts = trues(10)
 
 # ╔═╡ 0dc39f83-ece7-4e35-b48b-2c809f16ba39
-rs = randn(100, 100)
+rs = randn(512, 512, 512)
 
 # ╔═╡ 80b326c0-90e4-4c10-bd13-baaa8063947b
 stride(xs, 2)
@@ -58,27 +134,32 @@ let
 end
 
 # ╔═╡ 2bd2cebc-d8cc-411a-8df8-2adb9aaf6778
-function slowfunc(matrix::Matrix{T}) where T
-	acc = zero(T)
-	@simd for i in axes(matrix, 1)
-		@simd for j in axes(matrix, 2)
-			@inbounds acc += matrix[i, j]
+function slowfunc(m)
+	acc = zero(eltype(m))
+	for i in axes(m, 1)
+		for j in axes(m, 2)
+			for k in axes(m, 3)
+				acc += m[i, j, k]
+			end
 		end
 	end
 	acc
 end
 
 # ╔═╡ ffbf1dd4-153c-4a1f-8a72-e5f5f86c927b
-function fastfunc(matrix::Matrix{T}) where T
-	acc = zero(T)
-	@simd for n in eachindex(matrix)
-		@inbounds acc += matrix[n]
+function fastfunc(m)
+	acc = zero(eltype(m))
+	for n in eachindex(m)
+		acc += m[n]
 	end
 	acc
 end
 
-# ╔═╡ 21b33680-694a-438e-b093-31b32e651091
+# ╔═╡ 33354841-47ac-4cee-95f7-be4473ecab77
 # Notice: in floating point addition the order of the operads matter
+slowfunc(rs) == fastfunc(rs) == sum(rs)
+
+# ╔═╡ 21b33680-694a-438e-b093-31b32e651091
 slowfunc(rs) ≈ fastfunc(rs) ≈ sum(rs)
 
 # ╔═╡ 67561d62-0a27-43f1-9c0e-e122b1306eec
@@ -156,12 +237,14 @@ Arithmetic operators and comparisons are also vectorized for convenience (they a
 """
 
 # ╔═╡ f87638dd-4961-4352-8fd3-0a4dccab2309
-let ϕ = (1 + √5) / 2
+let 
+	ϕ = (1 + √5) / 2
 	round.(Int, (ϕ^n/ √5 for n = 1:20))
 end
 
 # ╔═╡ 2b1d4cba-f6e0-491d-903a-e7cf61ae6c59
-let N = 100_000_000
+let 
+	N = 100_000_000
 	4count(<(1.0), rand(N).^2 + rand(N).^2) / N
 end
 
@@ -268,16 +351,6 @@ deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "c6d890a52d2c4d55d326439580c3b8d0875a77d9"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 version = "1.15.7"
-
-[[deps.ChangesOfVariables]]
-deps = ["LinearAlgebra", "Test"]
-git-tree-sha1 = "844b061c104c408b24537482469400af6075aae4"
-uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.5"
-weakdeps = ["ChainRulesCore"]
-
-    [deps.ChangesOfVariables.extensions]
-    ChainRulesCoreExt = "ChainRulesCore"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -494,12 +567,6 @@ version = "0.5.1"
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
-[[deps.InverseFunctions]]
-deps = ["Test"]
-git-tree-sha1 = "49510dfcb407e572524ba94aeae2fced1f3feb0f"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.8"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "7fd44fd4ff43fc60815f8e764c0f352b83c49151"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
@@ -637,12 +704,16 @@ deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
 git-tree-sha1 = "45b288af6956e67e621c5cbb2d75a261ab58300b"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 version = "0.3.20"
-weakdeps = ["ChainRulesCore", "ChangesOfVariables", "InverseFunctions"]
 
     [deps.LogExpFunctions.extensions]
     ChainRulesCoreExt = "ChainRulesCore"
     ChangesOfVariablesExt = "ChangesOfVariables"
     InverseFunctionsExt = "InverseFunctions"
+
+    [deps.LogExpFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -1218,6 +1289,16 @@ version = "1.4.1+0"
 
 # ╔═╡ Cell order:
 # ╟─3e1a5e86-9cc8-11ed-35da-5f21a6e28fb6
+# ╟─c538dd82-0b4f-4978-bc45-61c25c568ff6
+# ╠═947c63a5-dc39-4162-99a2-8b82c6c3fb22
+# ╠═2ba93c2a-d45f-4c12-aacc-4069c4d650b6
+# ╠═b93f7062-7ee7-4f36-a8c1-9299aeaaa566
+# ╠═031e7a2d-8ffd-4d7e-bd18-bd56925dcfd4
+# ╠═8365ae73-40bd-48dc-9104-2f22439091c6
+# ╠═28f7bf47-d382-4085-83ad-3eb7a268dfe6
+# ╠═278c15fb-3e2e-4eb7-a1e1-8aeffbf623c2
+# ╠═7022ee54-1fd7-443b-a71b-722b6f5386df
+# ╠═e0412099-a75a-4af1-b718-e393875e9744
 # ╟─890b8096-972b-4c88-bf35-5d2fc54a3aeb
 # ╠═e38c43ca-7d90-40ec-88b4-86102527e585
 # ╠═1680ace1-3ea2-46ed-8310-599f4a0cd85a
@@ -1227,6 +1308,7 @@ version = "1.4.1+0"
 # ╠═15202463-4d62-4e37-a50a-9275292e4097
 # ╠═2bd2cebc-d8cc-411a-8df8-2adb9aaf6778
 # ╠═ffbf1dd4-153c-4a1f-8a72-e5f5f86c927b
+# ╠═33354841-47ac-4cee-95f7-be4473ecab77
 # ╠═21b33680-694a-438e-b093-31b32e651091
 # ╠═aa3574f9-5ff4-4244-857e-79ab7cbbfd23
 # ╠═67561d62-0a27-43f1-9c0e-e122b1306eec

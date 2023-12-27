@@ -102,7 +102,7 @@ end
 
 # ╔═╡ 89797c0a-b03a-4f23-9bfa-f6e32fc26456
 md"""
-## Short-circuit evalution
+## Short-circuit operators
 
 The `&&` and `||` operators have the usual meaning found in other programming languages, like C or Bash, respectively of boolean multiplication and addition. These are special operators: cannot be overloaded, short-cuircuit (are a special form), and the latest expression in a chain might be of non-boolean type. The latest property is useful for using them for control flow, evaluating an expression only if all or at least one of the previous expressions evaluates to `true`.
 
@@ -126,7 +126,7 @@ isempty([71, 105, 110, 101, 118, 114, 97]) || sin(1) && "Aloha!"
 
 # ╔═╡ 20881b2d-afba-434b-a2ea-20cf2317051e
 md"""
-## Looping
+## Loops
 
 Julia has two constructs for looping, `while` and `for`, the second being (almost) syntactic sugar for the second. Indeed, the follwing
 
