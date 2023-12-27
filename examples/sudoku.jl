@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.22
+# v0.19.36
 
 using Markdown
 using InteractiveUtils
@@ -16,6 +16,19 @@ transp(x) = PermutedDimsArray(x, (2, 1))
 
 # ╔═╡ d9665dd4-d496-4432-b865-79dd6aa5ffe4
 transposed_indexing = transp(fortran_indexing)
+
+# ╔═╡ de33c856-ebb7-428e-b45f-dba5432ff6e2
+# metaprogramming, generated functions
+@generated function boxindx(::Boxs{S, T, L, R}, z) where {S, T, L, R}
+    quote
+        b, l = divrem(z - 1, $L^2)
+        bc, br = divrem(b, $R)
+        lc, lr = divrem(l, $L)
+        j = bc * $R + lc
+        i = br * $R + lr
+        j * L * R + i + 1
+    end
+end
 
 # ╔═╡ cd7092b3-31e3-4c63-bb8a-f1bf7e2d202d
 # lambda functions
@@ -96,19 +109,6 @@ boxs(A::Boxs) = A.parent
 # ╔═╡ 01ec92e8-7077-432d-bdc3-ccf9aa330c28
 # generators
 views(g) = (f(g) for f in (identity, transp, boxs))
-
-# ╔═╡ de33c856-ebb7-428e-b45f-dba5432ff6e2
-# metaprogramming, generated functions
-@generated function boxindx(::Boxs{S, T, L, R}, z) where {S, T, L, R}
-    quote
-        b, l = divrem(z - 1, $L^2)
-        bc, br = divrem(b, $R)
-        lc, lr = divrem(l, $L)
-        j = bc * $R + lc
-        i = br * $R + lr
-        j * L * R + i + 1
-    end
-end
 
 # ╔═╡ da1d9160-65e1-4b1a-9e30-29d35cda639b
 begin
