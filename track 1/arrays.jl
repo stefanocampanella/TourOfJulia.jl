@@ -98,6 +98,18 @@ let
 	new_str, uppercasefirst(str)
 end
 
+# ╔═╡ 87c0b3d4-acc5-4fe6-9b7b-dafe3ddbe1d8
+md"""
+!!! exercise
+	Implement a function (predicate) to check if a string is a palindrome.
+
+!!! hint
+	You can write an admittedly inefficient one-liner using the function of the standard library
+	```julia
+	ispalindrome(s) = s == reverse(s)
+	```
+"""
+
 # ╔═╡ 890b8096-972b-4c88-bf35-5d2fc54a3aeb
 md"""
 
@@ -1484,6 +1496,7 @@ version = "1.4.1+1"
 # ╠═278c15fb-3e2e-4eb7-a1e1-8aeffbf623c2
 # ╠═7022ee54-1fd7-443b-a71b-722b6f5386df
 # ╠═e0412099-a75a-4af1-b718-e393875e9744
+# ╟─87c0b3d4-acc5-4fe6-9b7b-dafe3ddbe1d8
 # ╟─890b8096-972b-4c88-bf35-5d2fc54a3aeb
 # ╠═e38c43ca-7d90-40ec-88b4-86102527e585
 # ╠═1680ace1-3ea2-46ed-8310-599f4a0cd85a
