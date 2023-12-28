@@ -94,6 +94,25 @@ let
 	@show x y
 end
 
+# ╔═╡ 00e00121-70b9-434e-ab2b-2afc5b3a596f
+md"""
+!!! exercise
+	The following cell evaluates a random polinomial 
+	```math
+	P(x) = c_1 + c_2 x + c_3 x^2 + c_4 x^3
+	```
+	in ``x = -0.1``. Rewrite the same expression using the [Horner's method](https://en.wikipedia.org/wiki/Horner%27s_method) and check that the results are the same.
+
+!!! hint
+	You can write a more readable expression by using the implied multiplication. 
+"""
+
+# ╔═╡ 570395c2-f5b8-45cf-a5e7-b0415049f4a3
+let
+	cs = rand(4)
+	cs[1] + cs[2] * (-0.1) + cs[3] * (-0.1)^2 + cs[4] * (-0.1)^3
+end
+
 # ╔═╡ 3a5fa678-85fd-4726-9051-36e53fa88b77
 md"""
 ## Variables scope
@@ -219,25 +238,29 @@ end
 # ╔═╡ 29592c11-9093-468b-9fce-d78e0cb4ecce
 sum_to_def_closure(10) == sum(1:10)
 
-# ╔═╡ 2b502881-a145-4575-b9b1-1a950fadb545
-code = """
-       s = 0 # global
-       for i = 1:10
-           t = s + i # new local `t`
-           s = t # new local `s` with warning
-       end
-       s, # global
-       @isdefined(t) # global
-       """
+# ╔═╡ 5212de4f-c337-4ba6-80a8-dc37bc5b514f
+md"""
+!!! exercise
 
-# ╔═╡ 81420b57-a395-4071-9daf-6526d1509bff
-include_string(Main, code)
+	Evaluate the following code snippet in a file and in the REPL and explain the results.
+
+	```julia
+	s = 0
+    for i = 1:10
+    	t = s + i
+        s = t
+    end
+    s, @isdefined(t)
+	```
+"""
 
 # ╔═╡ 386450e8-322f-4ec9-a22a-6d7a756dd5b9
 md"""
-The previous example has been taken verbatim from the manual. Notice the following crucial point.
 
->[...] in a scope, each variable can only have one meaning, and that meaning is determined regardless of the order of expressions. The presence of the expression `s = t` in the loop causes s to be local to the loop, which means that it is also local when it appears on the right hand side of `t = s + i`, even though that expression appears first and is evaluated first. One might imagine that the `s` on the first line of the loop could be global while the s on the second line of the loop is local, but that's not possible since the two lines are in the same scope block and each variable can only mean one thing in a given scope.
+!!! hint
+	The previous example has been taken verbatim from the manual. Notice the following crucial point.
+	
+	>[...] in a scope, each variable can only have one meaning, and that meaning is determined regardless of the order of expressions. The presence of the expression `s = t` in the loop causes s to be local to the loop, which means that it is also local when it appears on the right hand side of `t = s + i`, even though that expression appears first and is evaluated first. One might imagine that the `s` on the first line of the loop could be global while the s on the second line of the loop is local, but that's not possible since the two lines are in the same scope block and each variable can only mean one thing in a given scope.
 """
 
 # ╔═╡ 387521a3-f7c1-48b6-8c90-fcd89a23f146
@@ -290,6 +313,26 @@ f() = e
 theanswer() = x
 
 @show Base.return_types(f), Base.return_types(theanswer)
+end
+
+# ╔═╡ 8e6d8cdd-495a-47d3-bee2-e0936cf560b4
+md"""
+!!! exercise
+	Retype the code within the `RedefiningConstantsUndefinedBehaviour` module in your REPL and inspect the emitted code and intermediate representations for `p` using the `@code_lowered`, `@code_llvm` and `@code_native` macros. What can you deduce from the results?
+"""
+
+# ╔═╡ 12775ef5-bf7d-48d7-b397-ef7f2328635f
+module RedefiningConstantsUndefinedBehaviour
+
+const x = 1
+p() = isodd(x) ? 42 : 24
+
+@show p()
+
+x = 2
+
+@show p()
+
 end
 
 # ╔═╡ 756539c8-61f5-4e3f-8008-a18dde94e0dd
@@ -502,7 +545,7 @@ PlutoUI = "~0.7.54"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.4"
+julia_version = "1.10.0"
 manifest_format = "2.0"
 project_hash = "3c61004d0ad425a97856dfe604920e9ff261614a"
 
@@ -531,7 +574,7 @@ version = "0.11.4"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.5+0"
+version = "1.0.5+1"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -590,8 +633,13 @@ uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
 version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -620,14 +668,14 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+0"
+version = "2.28.2+1"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.10.11"
+version = "2023.1.10"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -636,7 +684,7 @@ version = "1.2.0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.21+4"
+version = "0.3.23+2"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -647,7 +695,7 @@ version = "2.8.1"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.2"
+version = "1.10.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -676,7 +724,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.Reexport]]
@@ -697,16 +745,17 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.9.0"
+version = "1.10.0"
 
 [[deps.SuiteSparse_jll]]
-deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "5.10.1+6"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -742,12 +791,12 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.13+0"
+version = "1.2.13+1"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.8.0+0"
+version = "5.8.0+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -757,7 +806,7 @@ version = "1.52.0+1"
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
@@ -773,6 +822,8 @@ version = "17.4.0+0"
 # ╠═f2a24699-2442-4111-a0ec-8e3df55a836a
 # ╠═12be6882-3c11-4dca-81d2-4cd8e297654c
 # ╠═612851d7-0e77-4cee-9cac-f795613dd926
+# ╟─00e00121-70b9-434e-ab2b-2afc5b3a596f
+# ╠═570395c2-f5b8-45cf-a5e7-b0415049f4a3
 # ╟─3a5fa678-85fd-4726-9051-36e53fa88b77
 # ╠═64ea16be-71c4-4b25-b560-9e0cebc51e87
 # ╟─b64c7042-099f-460c-8546-de72106d2112
@@ -782,8 +833,7 @@ version = "17.4.0+0"
 # ╠═5d089849-2515-46a3-be31-d73c80f9badc
 # ╠═6974f0e7-a029-4d72-97a8-78c93903571c
 # ╠═29592c11-9093-468b-9fce-d78e0cb4ecce
-# ╠═2b502881-a145-4575-b9b1-1a950fadb545
-# ╠═81420b57-a395-4071-9daf-6526d1509bff
+# ╟─5212de4f-c337-4ba6-80a8-dc37bc5b514f
 # ╟─386450e8-322f-4ec9-a22a-6d7a756dd5b9
 # ╟─387521a3-f7c1-48b6-8c90-fcd89a23f146
 # ╠═7b26a226-87ed-49e1-9143-a7fc1c196157
@@ -791,6 +841,8 @@ version = "17.4.0+0"
 # ╠═15fee563-3574-45f9-9f67-541926586ec8
 # ╟─01081ece-fb98-44cd-ab99-c3ad65ef860b
 # ╠═95ef309c-8fb5-4e6a-9cef-1c6f5f8d6112
+# ╟─8e6d8cdd-495a-47d3-bee2-e0936cf560b4
+# ╠═12775ef5-bf7d-48d7-b397-ef7f2328635f
 # ╟─756539c8-61f5-4e3f-8008-a18dde94e0dd
 # ╠═da7c3418-ec3c-4edd-92d1-7225f58097cc
 # ╟─59275e3d-7390-4c68-b6d3-53abbf7ff14d
