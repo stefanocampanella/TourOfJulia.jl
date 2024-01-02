@@ -43,7 +43,7 @@ Notice that functions in Julia are first class objects, and can be assigned and 
 
 Anonymous functions can be defined using the arrow syntax `(argument_list) -> function_body`.
 
-[^1]: Julia has a strong legacy from Lisp (Scheme, in particular), and the more one dives into the programming language the more it becomes evident. Indeed, part of the implementation (parsing) is in Femtolisp (a scheme-like language) and an interpreter is hidden within each Julia installation (you can  try it with `julia --lisp`). 
+[^1]: Julia has a strong legacy from Lisp (Scheme, in particular), and the more one dives into the programming language the more it becomes evident. Indeed, part of the implementation (as of Julia 1.10, bootstrapping the parser) is in Femtolisp (a scheme-like language) and an interpreter is hidden within each Julia installation (you can  try it with `julia --lisp`). 
 """
 
 # ╔═╡ 76cdb0f0-a8c4-42df-825a-aebaf0fc919d
@@ -175,7 +175,9 @@ f_keyword(α, x; y=0.0) = α * x + y
 f_keyword(2.0, 1.0; y=2.0) # or f_keyword(2.0, 1.0, y=2.0)
 
 # ╔═╡ 9db44048-e7ae-45b3-9a9f-de67bbb6bd23
-let y = 2.0, named_tuple = (; x=1.0, y=2.0)
+let 
+	y = 2.0
+	named_tuple = (; x=1.0, y=2.0)
 	f_keyword(2.0, 1.0; y) == f_keyword(2.0, 1.0; named_tuple.y) ==  4.0
 end
 
@@ -212,9 +214,18 @@ unzip(itr) = map(f -> map(f, itr), [((x, y),) -> x, ((x, y),) -> y])
 # ╔═╡ 0b775977-f314-47ed-bf49-7938def8be10
 unzip(zip(rand(3), split("Seek & Destroy!")))
 
+# ╔═╡ a545b40f-98c0-4e47-bde0-9275a348e3cd
+md"""
+
+!!! exercise
+	The following cell contains invalid Julia code, explain why.
+
+!!! hint
+	Take a look at [this issue on GitHub](https://github.com/JuliaLang/julia/issues/32727)
+"""
+
 # ╔═╡ 7e0e1bbc-b81b-4382-b65d-e056e0829ecc
-# Question: Julia will complain about the following input, why?
-# https://github.com/JuliaLang/julia/issues/32727
+# Julia is complaining, why?
 f(_, x=1) = x
 
 # ╔═╡ fc71f0ba-968f-43ef-9ad2-e67589689152
@@ -932,6 +943,7 @@ version = "17.4.0+2"
 # ╠═9dc83fbf-be99-495c-a0f6-10ed1ec40498
 # ╠═9b1f8de5-0781-4a3c-83cd-200e1783249e
 # ╠═0b775977-f314-47ed-bf49-7938def8be10
+# ╟─a545b40f-98c0-4e47-bde0-9275a348e3cd
 # ╠═7e0e1bbc-b81b-4382-b65d-e056e0829ecc
 # ╟─fc71f0ba-968f-43ef-9ad2-e67589689152
 # ╠═0b18e138-ca0f-4dcc-b01c-43ae01c0aaae

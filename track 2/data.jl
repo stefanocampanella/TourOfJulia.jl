@@ -130,9 +130,6 @@ begin
 	EmbellishedInt(n) = EmbellishedInt(n, "String representation of $n")
 end
 
-# ╔═╡ b18eac39-f75d-4a51-9627-aead7a9bee24
-EmbellishedInt(13)
-
 # ╔═╡ 885c3368-c7cb-43a3-a973-9ff495f27b4b
 EmbellishedInt(13)
 
@@ -377,6 +374,22 @@ end
 
 # ╔═╡ 7e3cda18-a6d9-479b-8dfd-6a95bd68598f
 @myassert 1 == 2
+
+# ╔═╡ 6d4fc1f0-8cc3-48ce-b90a-efc59f078a04
+md"""
+!!! exercise
+	Write a `@horner` macro for evaluating a polynomial using the Horner's method, given the coefficients. As an example the following expression
+
+	```julia
+	@horner x a b c d
+	```
+
+	should generate the following code
+
+	```julia
+	a + x * (b + x * (c + x * d))
+	```
+"""
 
 # ╔═╡ 4a68ec6c-5838-4bc4-b9e6-e0b047854c05
 md"""
@@ -696,7 +709,6 @@ version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
-# ╠═b18eac39-f75d-4a51-9627-aead7a9bee24
 # ╟─f10d73fa-9676-11ed-0fa8-0dbdd750d8b4
 # ╟─0d7b7787-1ae8-45a8-a04d-be5a54ffd43e
 # ╠═e1ea848f-259a-45c4-85c0-b38ef700d601
@@ -766,6 +778,7 @@ version = "17.4.0+2"
 # ╠═f021a15d-f0ab-4c47-a38c-a8aeb1c7fa7e
 # ╠═f0e9dbfc-1e22-48b1-aa87-64542a87537d
 # ╠═7e3cda18-a6d9-479b-8dfd-6a95bd68598f
+# ╟─6d4fc1f0-8cc3-48ce-b90a-efc59f078a04
 # ╟─4a68ec6c-5838-4bc4-b9e6-e0b047854c05
 # ╠═3e9c6041-6dd4-4f8c-83b7-6dd0ea01aeb6
 # ╠═e95601f6-139b-42e3-a182-aec0abe4a8e9

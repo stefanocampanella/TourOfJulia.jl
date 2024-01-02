@@ -9,9 +9,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ f2ce55d8-64da-11ed-3294-3b3ff9b2b364
-using BenchmarkTools
-
 # ╔═╡ 69058b15-d1ea-4b6b-84df-0c9250379e6f
 using PlutoUI
 
@@ -26,7 +23,7 @@ It is possible to write simple Julia programs while being unaware of the type sy
 # ╔═╡ e19cfce3-e223-4f10-a8b4-d090098dc0e1
 md"""
 
-According to Pierce, _"a type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute"_. Without being too formal, I will call program phrases (like `y` or `1 + 1` or `sort(xs)`) expressions or combinations. In order to evaluate an expression, Julia must know its type, which is inferred at runtime from the type of the parts of which it is composed. This is called dynamic typing, as opposed to static typing. In Julia the concept of "static type" does not exist. 
+According to Pierce (Types and Programming Languages), _"a type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute"_. Without being too formal, I will call program phrases (like `y` or `1 + 1` or `sort(xs)`) expressions or combinations. In order to evaluate an expression, Julia must know its type, which is inferred at runtime from the type of the parts of which it is composed. This is called dynamic typing, as opposed to static typing. In Julia the concept of "static type" does not exist. 
 
 In Julia, you have the primitive types you are familiar with from other programming languages (ex. numerical types). You can ask Julia about the type of literals and objects using the function `typeof`. If you ask for the type of an expressions in the REPL or in Pluto, it is evaluated and the result assigned to a temporary object. Notice that it is customary to name types using camel case, as with classes in Python or C++ (at least, according to most common style guides).
 """
@@ -312,17 +309,17 @@ activation_stable(x) = x < 0 ? zero(x) : x
 # ╔═╡ 4b46c105-a632-45b7-9783-2e0a308b960d
 md"""Writing type stable functions is one of the most important points to look after to write performant Julia code, and many other revolves around type issues."""
 
-# ╔═╡ fda8f33f-7846-41fa-92fd-97fd350a0565
-silly(f, xs) = sum(2 ^ f(x) for x in xs) # A silly function designed to prove a point.
+# ╔═╡ 33286632-4d78-4871-ba5f-c76f24c5b9c9
+md"""
+!!! exercise
+	Write the type `MyType{N}` of multidimensional arrays which might contain either strings or vectors of characters, some of which might be missing. 
 
-# ╔═╡ 796d4c9c-b177-44f2-b83c-48a76139d3fd
-@benchmark silly(activation_unstable, 1:10.)
+	Then check that your definition works by creating an object of this type and setting a few elements.
 
-# ╔═╡ 3bd09960-0320-4f7e-bcb4-767b63ccf6bc
-@benchmark silly(activation_stable, 1:10.)
+	Is a vector of strings a subtype of `MyType{1}`? Check the answer by asking Julia.
 
-# ╔═╡ 7c9db2a9-2fec-4bcc-a48a-fb80e9cad4e9
-silly(activation_unstable, 1:10.) ≈ silly(activation_stable, 1:10.)
+	Finally, write a function that, given an object of type `MyType{1}`, return a vector of vectors of characters, skipping missing values if present. Check that the compiler is able to infer the return type of the function you just wrote.
+"""
 
 # ╔═╡ 55a5f32c-f859-4eae-97ab-2f5612f435f3
 PlutoUI.TableOfContents()
@@ -330,11 +327,9 @@ PlutoUI.TableOfContents()
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-BenchmarkTools = "~1.4.0"
 PlutoUI = "~0.7.54"
 """
 
@@ -344,7 +339,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "8231a5cfe210cfe9e46488eb0dce34333907ced3"
+project_hash = "3c61004d0ad425a97856dfe604920e9ff261614a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -361,12 +356,6 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-
-[[deps.BenchmarkTools]]
-deps = ["JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
-git-tree-sha1 = "f1f03a9fa24271160ed7e73051fba3c1a759b53f"
-uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-version = "1.4.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -521,10 +510,6 @@ version = "1.4.1"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-
-[[deps.Profile]]
-deps = ["Printf"]
-uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -686,11 +671,7 @@ version = "17.4.0+2"
 # ╠═9116aa9c-f368-4a2d-8452-cb495e7c7ea0
 # ╠═e809ece1-2156-409a-a7bc-81e8631bc69e
 # ╟─4b46c105-a632-45b7-9783-2e0a308b960d
-# ╠═f2ce55d8-64da-11ed-3294-3b3ff9b2b364
-# ╠═fda8f33f-7846-41fa-92fd-97fd350a0565
-# ╠═796d4c9c-b177-44f2-b83c-48a76139d3fd
-# ╠═3bd09960-0320-4f7e-bcb4-767b63ccf6bc
-# ╠═7c9db2a9-2fec-4bcc-a48a-fb80e9cad4e9
+# ╟─33286632-4d78-4871-ba5f-c76f24c5b9c9
 # ╟─69058b15-d1ea-4b6b-84df-0c9250379e6f
 # ╟─55a5f32c-f859-4eae-97ab-2f5612f435f3
 # ╟─00000000-0000-0000-0000-000000000001
