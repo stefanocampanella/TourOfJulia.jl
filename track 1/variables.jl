@@ -420,6 +420,48 @@ let
 	[f() for _ = 1:3], x
 end
 
+# ╔═╡ 4a2a9a03-c10a-44b4-9fd4-35c117075707
+md"""
+!!! exercise
+	The Collatz sequence, given ``a_0`` has the following recursive definition
+
+	```math
+	a_{n + 1} = 
+	\begin{cases}
+		a_n / 2 & a_n = 0 \mod 2 \\
+		3 a_n + 1 & \text{otherwise}
+	\end{cases}
+	```
+
+	An algorithm to count the elements of the Collatz sequences starting at ``a_0 = 1, 2, \cdots`` has been implemented in the next cell. It should stop when the length of the sequence exceeds 100, and print the associated `a_0`. 
+
+	The innermost `let` contains a bug. Fix it!
+"""
+
+# ╔═╡ 1781168b-da7c-43cd-a7d8-b192c08e93b7
+let
+	n = 1
+	counter = 1
+
+	while true
+		let # Fix me!
+			while n != 1
+				if isodd(n)
+					n = 3n + 1
+				else
+					n = n ÷ 2
+				end
+				counter += 1
+			end
+			if counter > 100
+				break
+			end
+		end
+		n += 1
+	end
+	n
+end
+
 # ╔═╡ 760dad2d-ea9a-4fa0-bf17-1159f9acedfb
 md"""
 ## Loops and comprehensions
@@ -852,6 +894,8 @@ version = "17.4.0+2"
 # ╟─b00af10a-812a-437e-bcb1-1b3dc85f2b5a
 # ╠═157ac882-2fe3-4818-83d0-39d829b28c94
 # ╠═b7cb512a-bef2-4e68-91e5-a990057bb07a
+# ╟─4a2a9a03-c10a-44b4-9fd4-35c117075707
+# ╠═1781168b-da7c-43cd-a7d8-b192c08e93b7
 # ╟─760dad2d-ea9a-4fa0-bf17-1159f9acedfb
 # ╠═a14b2f44-e6ed-44c7-982d-e4c677d6797d
 # ╟─4f59f693-9c8c-47c0-b144-36d42052ee59
