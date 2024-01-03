@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ c71d41f5-45d0-4cec-92d1-62dc5d8660fc
 using Images
 
@@ -237,6 +247,19 @@ md"""
 	```
 """
 
+# ╔═╡ 2b1fbf71-e1d3-4513-9521-018e526dd3d3
+md"""
+
+### Julia set in Julia
+
+Implementation in the cell below. We will consider functions ``f_c`` with
+
+```math
+f_c(z) = z^2 + c
+```
+
+where ``c =`` $(@bind creal Scrubbable(-1.:0.01:1., default=-0.8, format=".2f")) + $(@bind cim Scrubbable(-1.:0.01:1., default=0.16, format=".2f")) i"""
+
 # ╔═╡ 566ce162-5369-4df7-bec0-465672da750d
 let	
 	R = 2.0
@@ -252,7 +275,7 @@ let
 	img = Array{Gray{Float64}}(undef, height, width)
 	for j = 1:width, i = 1:height
 		z = rescale(i, height) + rescale(j, width) * im
-		img[i, j] = isjuliaset(z, z -> z^2 + (-0.8 + 0.156im))
+		img[i, j] = isjuliaset(z, z -> z^2 + (creal + cim * im))
 	end
 	img
 end
@@ -1476,6 +1499,7 @@ version = "17.4.0+2"
 # ╠═c5a7d45c-192b-4707-92b2-aa3c3caf9621
 # ╠═c71d41f5-45d0-4cec-92d1-62dc5d8660fc
 # ╟─5fc7546c-89af-4e6b-83cc-f37f2d38c7a1
+# ╟─2b1fbf71-e1d3-4513-9521-018e526dd3d3
 # ╠═566ce162-5369-4df7-bec0-465672da750d
 # ╟─21e8952c-0192-4ce8-947f-33a5e969a15b
 # ╠═fcc9b741-711d-4b43-ab11-877ab2d47454

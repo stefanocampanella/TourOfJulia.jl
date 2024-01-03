@@ -9,6 +9,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 5fc42c82-937e-4848-89b1-5296444d3d08
+using LinearAlgebra
+
 # ╔═╡ 7d9504c8-1bd0-4325-a122-e50c965ad8b2
 using Statistics
 
@@ -104,8 +107,61 @@ In Julia there is neither passing by reference nor by value. In Julia, as in Pyt
 
 When a function `f(x, y) = α * x + y` is called with `f(u, v)`, the variables in lexical scoping of the function body which are also arguments of `f` (that is `x` and `y`) will be bound to the same objects bound to variables `u` and `v` in the caller (as if there was an assignment `x, y = u, v` right before the function body). After that, the function is evaluated. If there is an assignment in the function body, local variables will reference a new object, and the information of that outside of the callee is lost. However, in case of mutations, the mutating part of the function definition will operate on the initial object and the change of state will be visible outside. In order to mutate, an object must be an instance of a _mutable_ `DataType`, and the mutating part, somewhere in the call-stack, will call some low-level function acting directly on memory (usually via `setindex!` or `setfield!`).
 
+Effectively, you can mentally model function calls in the following way.
+
+```julia
+function f(x, y, z...)
+	# function body
+end
+
+f(a, b, c, ...) = 
+	let x = a, y = b, z = c, ...
+		# function body
+	end
+```
+
+
+
 [^1]: In this sense, Julia (or Python) variables looks like references in C++. However, as we will see, because of automatic memory management, they behave also like smart pointers, and `std::shared_ptr` in particular.
 """
+
+# ╔═╡ 07d0cf5d-66f9-4e51-a46a-910011b42ef0
+let
+	f(x) = () -> x
+
+	immutable_object_name = 1
+	
+	g = f(immutable_object_name)
+
+	@show g()
+
+	immutable_object_name = 2
+
+	@show g()
+
+	mutable_object_name = [1, 2, 3]
+
+	h = f(mutable_object_name)
+
+	@show h()
+
+	push!(mutable_object_name, 4)
+
+	@show h()
+end
+
+# ╔═╡ dcd3fa6d-b12c-4d13-a937-a2ac8de797c4
+let
+	function f(x)
+		() -> (x = x + 1; x)
+	end
+
+	var = 1
+	
+	g = f(var)
+
+	var, g(), g(), g(), var
+end
 
 # ╔═╡ be0cd0fb-aed9-42ce-bc01-12351022d79a
 typeof(Array{Int, 1})
@@ -287,6 +343,12 @@ bar(; kwargs...) = kwargs
 # ╔═╡ cf8cdafd-4814-4a18-8b96-29db5a86872f
 bar(x=1, y=2)
 
+# ╔═╡ f070f6c1-6a42-46e6-bb42-616204534074
+md"""
+!!! exercise
+	Define an higher-order function `nonmutating` that takes a function `f!` that mutates its first argument and returns a non-matating function `f` that takes the same arguments. The `nonmutating` function should have a keyword argument for choosing if to use `copy` or `deepcopy` in its implementation. Check your results.
+"""
+
 # ╔═╡ 84d5e04e-f828-42e6-a45e-cebdcd13cd1a
 md"""
 ## Is Julia an OOP language?
@@ -308,7 +370,10 @@ Let's check if Julia meets the requirements to be considered an OOP language one
 4. **Inheritance.** Julia does not have inheritance, only composition.
 5. **Open recursion.** Since methods are defined separately and are specialized on the actual type of objects, there is no need for `self` or `this`.
 
-Therefore, Julia shouldn't be considered an OOP language in the usual sense of the expression. 
+Therefore, Julia shouldn't be considered an OOP language in the usual sense of the expression.
+
+!!! note
+	In some programming languages subtyping and inheritance overlap, most notably in C++. However, the two concepts are orthogonal: the first model model behaviour the second allows code reuse. Consider the case of `stack`s and `queue`s. According to the Liskov substitution principle, a `queue` is a subtype of a `stack` (wherever there is a `stack` you can plug a `queue` and observe no effects). On the other hand, the most simple implementation of `stack` is by subclassing and inheriting from `queues` the methods `popfront` and `pushfront`.
 
 [^1]: Julia multiple dispatch is very similar to the one found in CLOS (_multi-methods_, as called by Pierce), another legacy of Lisp.
 """
@@ -484,6 +549,16 @@ Base.promote_rule(::Type{StrangeNum}, ::Type{Int}) = Complex{Float32}
 # ╔═╡ 6a808540-b9c9-43a8-9ed3-97bcf7a75b77
 promote_type(Float64, Int, StrangeNum)
 
+# ╔═╡ cb29c943-53f4-4ed4-a665-1373c542f047
+md"""
+!!! exercise
+	Define the commutator ``[M, N] = M N - N M``, for two square matrices ``M`` and ``N``. Check that the dimensions of the matrices match, otherwise throw a `DimensionMismatch` error. 
+
+	Then specialize the function defining a method for diagonal matrices, for which the commutator is zero (i.e. a diagonal matrix filled with zeros). Use `promote_type` to find the element type of the result. Then check that the right method is called using the `@which` macro.
+
+	Finally, override the addition `+` and subtraction `-` operators for strings, defined as the string of characters in the first string that respectively appears in the second string or not. Test the commutator function on random string matrices.
+"""
+
 # ╔═╡ e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 md"""
 ## Interfaces
@@ -556,6 +631,20 @@ Base.show(io, ::MIME"text/html", s::DignifiedString) = print(io, uppercase(s.con
 
 # ╔═╡ e1821814-5d9c-403b-a1ab-ce4ecb7641f3
 DignifiedString("Hello world", 10)
+
+# ╔═╡ 3efe7e06-fe1c-40e5-8613-e5647e4b4fe5
+md"""
+!!! exercise
+	The logistic map is defined as the sequence
+	```math
+	x_{n + 1} = r x_n (1 - x_n) \, ,
+	```
+	where ``x_n`` is a number in the interval ``[0, 1]`` and ``r`` is a positive number.
+	
+	Write an iterator that yield the values of the logistic map given `r` and `x_0`. 
+
+	Does your implementation works on matrices too?
+"""
 
 # ╔═╡ 151f2793-fd38-4590-bffb-9d55ccb5ffe5
 md"""
@@ -630,6 +719,7 @@ PlutoUI.TableOfContents()
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
@@ -643,7 +733,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "5a2fc977ecbb203ecc8b35ff1712d5dc36356018"
+project_hash = "a950cabad4c96531932983aa1a80d29f44957f95"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -920,6 +1010,8 @@ version = "17.4.0+2"
 # ╟─99b1c847-56ac-4f5b-81cd-9eeffdbc58db
 # ╠═00c7faf7-e6c7-475e-a8d8-55a775a8d2f2
 # ╟─3b22f6dd-ef9c-4702-8e60-61a022cbf913
+# ╠═07d0cf5d-66f9-4e51-a46a-910011b42ef0
+# ╠═dcd3fa6d-b12c-4d13-a937-a2ac8de797c4
 # ╠═be0cd0fb-aed9-42ce-bc01-12351022d79a
 # ╠═69e35605-5007-4e5b-8dc0-0a194619678b
 # ╠═e171312d-4e27-40b1-9c20-eb40e5ee4384
@@ -958,6 +1050,7 @@ version = "17.4.0+2"
 # ╠═bc41ad7b-883f-45de-bf5b-9759471fe380
 # ╠═1c7c4966-428f-483c-acea-25b4e7c677fb
 # ╠═cf8cdafd-4814-4a18-8b96-29db5a86872f
+# ╟─f070f6c1-6a42-46e6-bb42-616204534074
 # ╟─84d5e04e-f828-42e6-a45e-cebdcd13cd1a
 # ╟─80768236-9675-11ed-3cfb-c31606f7223e
 # ╠═ce919012-aa4a-4964-a5ab-a91ceb8b7328
@@ -991,6 +1084,8 @@ version = "17.4.0+2"
 # ╠═a4df77e5-20af-4f05-bdca-2dc130ea5dcc
 # ╠═97a2fff2-f476-4177-8051-f5a5693725a5
 # ╠═6a808540-b9c9-43a8-9ed3-97bcf7a75b77
+# ╟─cb29c943-53f4-4ed4-a665-1373c542f047
+# ╠═5fc42c82-937e-4848-89b1-5296444d3d08
 # ╟─e6751e0d-2e6f-4324-8d36-3755d50e5a4a
 # ╠═81dc5bbc-8d95-409a-a2b5-1c945feb0496
 # ╠═482a309b-2030-437e-85ca-55b5fccd7ba5
@@ -1001,6 +1096,7 @@ version = "17.4.0+2"
 # ╠═0b254224-7dae-43fa-86f3-fc5bf044358c
 # ╠═9983c5c9-f1da-4132-ac41-2e696f80be15
 # ╠═e1821814-5d9c-403b-a1ab-ce4ecb7641f3
+# ╟─3efe7e06-fe1c-40e5-8613-e5647e4b4fe5
 # ╟─151f2793-fd38-4590-bffb-9d55ccb5ffe5
 # ╠═96e142fa-2e5d-42a5-9e7d-b4fff4856243
 # ╟─f371891c-1411-45f9-ad91-e933fcc22a1d
