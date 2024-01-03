@@ -78,8 +78,8 @@ begin
 	1. [Two-dimensional Laplace equation]($(root * "examples/jacobi" * extension))
 	1. [One-dimensional advection equation]($(root * "examples/smolarkiewicz" * extension))
 	1. [Sudoku puzzles]($(root * "examples/sudoku" * extension))	
-	1. [Open a NetCDF and make a plot]($(root * "examples/netcdf" * extension))
-	1. [Work with tabular data]($(root * "examples/dataframes" * extension))
+	1. [Plotting a vector field in a NetCDF]($(root * "examples/netcdf" * extension))
+	1. [Working with tabular data]($(root * "examples/dataframes" * extension))
 		
 	Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 	""")

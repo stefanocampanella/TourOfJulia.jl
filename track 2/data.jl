@@ -93,13 +93,13 @@ mobj2.x = 4
 
 # ╔═╡ 3a738e75-ac2d-4949-9033-3e8dca70eeec
 md"""
-### Note on automatic memory management
+## Note on automatic memory management
 
 Like Python, although using a different strategy, Julia has automatic memory management, which means that allocations and deallocations of memory are not managed by the programmer. This makes possible to avoid several kinds of bugs (memory leaks, dangling pointers, etc.) while maintaining the "illusion of infinite memory", in the words of Abelson and Sussman.
 
 Allocations happens within the default constructor (or in the inner constructor methods), as we'll see. The deallocations is done by the garbage collector. Garbage collection is one of the techniques available for the purpose (another one is reference counting, used by Python), in particular Julia uses the mark and sweep algorithm.
 
-Garbage collection comes with some downsides (and it's the reason why, for example, C++ does not use it), but for normal usage 
+Automatic memory management, and garbage collection in particular, come with some downsides and, in some circumstances might harm the performance of your code (and it's the reason why, for example, C++ does not use it). Profiling and benchmarking tools in Julia usually give you informations about allocations and time spent by the garbage collector, pay attention to those numbers!
 """
 
 # ╔═╡ 96226625-bb1a-4c58-ba14-e27f27b9a78d
@@ -216,6 +216,12 @@ end
 
 # ╔═╡ 1b53989c-97be-419a-b08f-b11d143762f8
 EmbellishedInt_v2(13, "String representation of 14")
+
+# ╔═╡ aea8c362-7881-4089-9d76-b3c160a5a4d3
+md"""
+!!! exercise
+	Define a parametric struct `TreeNode{T}` representing the node in a tree, holding a value of type `T`. Define a constructor that takes an abstract vector of values and produce a balanced tree.
+"""
 
 # ╔═╡ 13b3e900-21ae-4b02-93cb-54f0c586b024
 md"""
@@ -747,6 +753,7 @@ version = "17.4.0+2"
 # ╠═08469e55-5462-4037-97b4-91e74751d64d
 # ╠═6cf5cd93-6772-49b5-a38f-52dd55f5660b
 # ╠═1b53989c-97be-419a-b08f-b11d143762f8
+# ╟─aea8c362-7881-4089-9d76-b3c160a5a4d3
 # ╟─13b3e900-21ae-4b02-93cb-54f0c586b024
 # ╠═4282a40a-e833-4eb3-b208-64fc99236060
 # ╠═5e15857a-9be7-46dc-a6da-dcb474b311d1
