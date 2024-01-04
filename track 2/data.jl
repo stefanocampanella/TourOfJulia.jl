@@ -220,7 +220,30 @@ EmbellishedInt_v2(13, "String representation of 14")
 # ╔═╡ aea8c362-7881-4089-9d76-b3c160a5a4d3
 md"""
 !!! exercise
-	Define a parametric struct `TreeNode{T}` representing the node in a tree, holding a value of type `T`. Define a constructor that takes an abstract vector of values and produce a balanced tree.
+	Define a parametric struct `Tree{T}` representing (a node in) a tree, holding a value of type `T`. Define a constructor that takes an abstract vector of values and produce a balanced tree.
+
+!!! hint
+	When working with trees, recursion is your friend.
+	```julia
+	struct Tree{T}
+		value :: T
+		left :: Union{Tree{T}, Nothing}
+		right :: Union{Tree{T}, Nothing}
+	
+		Tree(values::AbstractVector{T}) where T = Tree{T}(values)
+		
+		function Tree{T}(values::AbstractVector{T}) where T
+			if isempty(values)
+				nothing
+			else
+				values = sort(values)
+				a, b = firstindex(values), lastindex(values)
+				midpoint = a + div(b - a, 2)
+				new{T}(values[midpoint], Tree{T}(values[a:midpoint - 1]), Tree{T}(values[midpoint + 1:b]))
+			end
+		end
+	end
+	```
 """
 
 # ╔═╡ 13b3e900-21ae-4b02-93cb-54f0c586b024
@@ -395,13 +418,26 @@ md"""
 	```julia
 	a + x * (b + x * (c + x * d))
 	```
+
+!!! hint
+
+	Macros 
+	```julia
+	macro horner(x, ps...)
+		ex = last(ps)
+		for p in Base.tail(reverse(ps))
+			ex = :($p + $x * $ex)
+		end
+		ex
+	end
+	```
 """
 
 # ╔═╡ 4a68ec6c-5838-4bc4-b9e6-e0b047854c05
 md"""
 ### Generated functions
 
-_Metaprogramming and generated functions are a tough topic, I am late on the preparation of these notebooks and a bit tired. I'll quote verbatim the manual without all the bells and whistles._
+> _Metaprogramming and generated functions are a tough topic, I am late on the preparation of these notebooks and a bit tired. I'll quote verbatim the manual without all the bells and whistles._
 
 A very special macro is `@generated`, which allows you to define so-called generated functions. These have the capability to generate specialized code depending on the types of their arguments with more flexibility and/or less code than what can be achieved with multiple dispatch. While macros work with expressions at parse time and cannot access the types of their inputs, a generated function gets expanded at a time when the types of the arguments are known, but the function is not yet compiled.
 
