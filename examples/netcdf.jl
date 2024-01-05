@@ -4,6 +4,16 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 649f6596-6b29-4f80-8dea-036c9a4a651a
 using Dates
 
@@ -16,6 +26,19 @@ using GeoMakie, CairoMakie
 # ╔═╡ e0ea98a5-3c6a-4fe1-8fae-0d618b1427c5
 using LinearAlgebra
 
+# ╔═╡ 3488f5a7-2b2a-4bb1-bcc9-45731c97a749
+using PlutoUI
+
+# ╔═╡ d401302b-1569-49aa-beb3-2f65fce7580f
+md"""
+# Retrieving and plotting a NetCDF file
+
+This notebook shows how to query an OpenDAP server and open a NetCDF file, in this case containing the physical variables of a MITgcm forecast of the north-adriatic sea for the day of tomorrow, which, at moment of the execution of this notebook, is the $(today() + Day(1)). 
+
+More info at the homepage of [MedEAF (Mediterranean Ecosystem Analysis and Forecast)](https://medeaf.ogs.it)
+
+"""
+
 # ╔═╡ d193f148-53a4-11ee-2604-41b68e706cd1
 ncquery = "https://dsecho.ogs.it/thredds/dodsC/pilot8/model_OGS_v2/RFVL/$(Dates.format(today(), "yyyymmdd"))/$(Dates.format(today() + Day(1), "yyyymmdd"))_h-OGS--RFVL-MITgcmBFM-pilot8-b$(Dates.format(today(), "yyyymmdd"))_fc-v01.nc?time[0:1:23],depth[0:1:26],latitude[0:1:299],longitude[0:1:493],uo[0:1:23][0:1:26][0:1:299][0:1:493],vo[0:1:23][0:1:26][0:1:299][0:1:493]"
 
@@ -25,11 +48,22 @@ ds = NCDataset(ncquery, "r")
 # ╔═╡ 0bff38dd-23c3-4950-be97-f949e1396257
 lon, lat, u, v = map(var -> ds[var], ["longitude", "latitude", "uo", "vo"])
 
+# ╔═╡ 81efea2d-2b4e-428e-9854-368cf4ce315a
+md"""
+Subsampling (stride): $(@bind stride PlutoUI.Slider(1:12, default=8, show_value=true))
+
+Time: $(@bind time Select([n => s for (n, s) in pairs(IndexLinear(), ds["time"])], default=1))
+
+Depth (meters) $(@bind depth Select([n => s for (n, s) in pairs(IndexLinear(), ds["depth"])], default=1))
+
+Arrow rescaling factor: $(@bind factor Scrubbable(16:32, default=25))
+
+Land mask transparency: $(@bind alpha Scrubbable(0.:0.1:1., default=0.3))
+"""
+
 # ╔═╡ d849dab4-e880-433c-bae5-c7191f9a1803
 let 
-	stride = 12
-	time = 1
-	depth = 1
+	resolution = (1200, 800)
 	
 	londim = ds.dim["longitude"]
 	latdim = ds.dim["latitude"]
@@ -55,11 +89,14 @@ let
 			push!(vecs, Vec(a, b))
 		end
 	end
+	norms = norm.(vecs)
+	vecs = vecs ./ (factor * norms)
 	
-	fig = Figure(resolution=(1920, 1080))
-	ax = GeoAxis(fig[1,1], lonlims=extrema(lon), latlims=extrema(lat), dest="+proj=merc")
-	surface!(ax, lon, lat, land, alpha=0.25)
-	arrows!(ax, pts, vecs, arrowcolor=norm.(vecs))
+	fig = Figure(;resolution)
+	ax = GeoAxis(fig[1,1], title="North Adriatic flow velocity", lonlims=extrema(lon), latlims=extrema(lat), dest="+proj=merc")
+	srfplt = surface!(ax, lon, lat, land; colormap=cgrad([:white, :gray], categorical=true, alpha=alpha), shading=false)
+	arrplt = arrows!(ax, pts, vecs, arrowcolor=norms)
+	cb = Colorbar(fig[1, 2], arrplt, size=30, height=Relative(0.65), label="Flow speed [m / s]")
 	fig
 end
 
@@ -71,11 +108,13 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CairoMakie = "~0.10.12"
 GeoMakie = "~0.5.1"
 NCDatasets = "~0.14.0"
+PlutoUI = "~0.7.54"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -84,7 +123,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "62160e719c0c0fd6cf44142af449be7422c49fb4"
+project_hash = "4cb88de7d393651e9f2aed05bf94e3113b683f0a"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -101,6 +140,12 @@ weakdeps = ["ChainRulesCore", "Test"]
 git-tree-sha1 = "222ee9e50b98f51b5d78feb93dd928880df35f06"
 uuid = "398f06c4-4d28-53ec-89ca-5b2656b7603d"
 version = "0.3.0"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "793501dcd3fa7ce8d375a2c878dca2296232686e"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.2.2"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "faa260e4cb5aba097a73fab382dd4b5819d8ec8c"
@@ -658,6 +703,24 @@ git-tree-sha1 = "f218fe3736ddf977e0e772bc9a586b2383da2685"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.23"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "d75853a0bdbfb1ac815478bacd89cd27b550ace6"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.3"
+
 [[deps.ImageAxes]]
 deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
 git-tree-sha1 = "2e4520d67b0cef90865b3ef727594d2a58e0e1f8"
@@ -958,6 +1021,11 @@ version = "0.3.26"
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
+
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl"]
 git-tree-sha1 = "72dc3cf284559eb8f53aa593fe62cb33f83ed0c0"
@@ -1253,6 +1321,12 @@ deps = ["ColorSchemes", "Colors", "Dates", "PrecompileTools", "Printf", "Random"
 git-tree-sha1 = "862942baf5663da528f66d24996eb6da85218e76"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "1.4.0"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "bd7c69c7f7173097e7b5e1be07cee2b8b7447f51"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.54"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1637,6 +1711,11 @@ weakdeps = ["Random", "Test"]
     [deps.TranscodingStreams.extensions]
     TestExt = ["Test", "Random"]
 
+[[deps.Tricks]]
+git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.8"
+
 [[deps.TriplotBase]]
 git-tree-sha1 = "4d4ed7f294cda19382ff7de4c137d24d16adc89b"
 uuid = "981d1d27-644d-49a2-9326-4793e63143c3"
@@ -1646,6 +1725,11 @@ version = "0.1.0"
 git-tree-sha1 = "155515ed4c4236db30049ac1495e2969cc06be9d"
 uuid = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 version = "1.4.3"
+
+[[deps.URIs]]
+git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
+uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+version = "1.5.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -1837,13 +1921,16 @@ version = "3.5.0+0"
 """
 
 # ╔═╡ Cell order:
+# ╟─d401302b-1569-49aa-beb3-2f65fce7580f
 # ╠═649f6596-6b29-4f80-8dea-036c9a4a651a
-# ╠═d193f148-53a4-11ee-2604-41b68e706cd1
 # ╠═75879fd0-e569-4ae9-adb6-c6e0badb8f98
+# ╠═d193f148-53a4-11ee-2604-41b68e706cd1
 # ╠═b4358985-d572-4684-ad70-efdb07eaae96
 # ╠═0bff38dd-23c3-4950-be97-f949e1396257
 # ╠═e60dde7d-3cf4-462e-b7ba-ebb303ac0cce
 # ╠═e0ea98a5-3c6a-4fe1-8fae-0d618b1427c5
+# ╠═3488f5a7-2b2a-4bb1-bcc9-45731c97a749
+# ╟─81efea2d-2b4e-428e-9854-368cf4ce315a
 # ╠═d849dab4-e880-433c-bae5-c7191f9a1803
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
