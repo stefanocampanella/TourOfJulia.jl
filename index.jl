@@ -10,8 +10,11 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ efc045a0-41b1-471d-9c51-fa828eb411b0
+# ╠═╡ disabled = true
+#=╠═╡
 # Automatically create a local environment and install needed packages
 using PyCall, BenchmarkTools
+  ╠═╡ =#
 
 # ╔═╡ 8d964530-9e3d-11ed-301f-43882004bcd5
 md"""
@@ -70,14 +73,14 @@ begin
 	### Examples
 	
 	The examples have a varied degree of complexity and present the implementation of of both classical and numerical algorithms, how to tackle simple tasks relevant to statistics and Earth science, and showcase some popular libraries.
-	
-	1. [Huffman coding]($(root * "examples/huffman" * extension))
-	1. [Two-dimensional Laplace equation]($(root * "examples/jacobi" * extension))
-	1. [One-dimensional advection equation]($(root * "examples/smolarkiewicz" * extension))
-	1. [Sudoku puzzles]($(root * "examples/sudoku" * extension))	
+
 	1. [Working with NetCDF]($(root * "examples/netcdf" * extension))
 	1. [Working with tabular data]($(root * "examples/dataframes" * extension))
+	1. [Two-dimensional Laplace equation]($(root * "examples/jacobi" * extension))
+	1. [One-dimensional advection equation]($(root * "examples/smolarkiewicz" * extension))
 	1. [Learning XOR]($(root * "examples/xor" * extension))
+	1. [Huffman coding]($(root * "examples/huffman" * extension))
+	1. [Sudoku puzzles]($(root * "examples/sudoku" * extension))	
 		
 	Let's begin with a digression and answer the question _why should I learn programming in Julia?_
 	""")
@@ -135,25 +138,40 @@ Consider the following oversimplified illustration of the capabilities of Julia.
 """
 
 # ╔═╡ 28a20b93-b534-4c7d-a4aa-d105537c22f8
+# ╠═╡ disabled = true
+#=╠═╡
 # Import a Python library as Julia object
 np = pyimport("numpy")
+  ╠═╡ =#
 
 # ╔═╡ e02dba57-3e24-404e-84a9-5244793943cb
+# ╠═╡ disabled = true
+#=╠═╡
 # Create a random Julia array of ten thousands elements
 xs = rand(10_000_000)
+  ╠═╡ =#
 
 # ╔═╡ 8fbbf443-3220-4069-8fa4-b13936740c13
+# ╠═╡ disabled = true
+#=╠═╡
 # Pass a Julia array to the `numpy.sort` Python function, evaluate several times the function, print the minimum of the evaluation times to terminal, and convert the resulting `numpy.array` to a Julia array and assign it to a local variable.
 # ... In one line of code
 xs_sorted_numpy = @btime np.sort(xs)
+  ╠═╡ =#
 
 # ╔═╡ 05ff3195-a071-4d0b-80e5-82395652ceae
+# ╠═╡ disabled = true
+#=╠═╡
 # Perform the same operations in Julia (the Julia implementation is as fast as, if not faster than, the low-level language implementation used by NumPy).
 xs_sorted_julia = @btime sort(xs)
+  ╠═╡ =#
 
 # ╔═╡ 1e03fa5f-966a-443e-a488-987457887776
+# ╠═╡ disabled = true
+#=╠═╡
 # The compare the results
 xs_sorted_numpy == xs_sorted_julia
+  ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

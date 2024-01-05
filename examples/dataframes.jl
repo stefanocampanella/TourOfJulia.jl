@@ -7,12 +7,105 @@ using InteractiveUtils
 # ╔═╡ e332628d-d38a-49a7-84bc-7ace31ad0d4d
 using DataFrames
 
+# ╔═╡ 525b4126-e6fa-4616-9676-b8b6f31e403f
+using CSV
+
+# ╔═╡ 9e807a3f-d861-4b98-a119-54b8b69bae27
+using Statistics
+
+# ╔═╡ 884905d7-ef97-4b62-acc9-843ce2e79f79
+md"""
+# Julia DataFrames
+"""
+
+# ╔═╡ 10373ad9-66d6-4f2b-b715-8c04fbdb7d08
+md"""
+## Constructors and loading CSVs
+"""
+
+# ╔═╡ d6b94b10-ffe4-4368-85f0-03ddaede3f7f
+iris = mktempdir() do dir_path
+	zip_path = joinpath(dir_path, "iris.zip")
+	download("https://archive.ics.uci.edu/static/public/53/iris.zip", zip_path)
+	run(`tar -xzf $zip_path -C $dir_path`)
+	csv_path = joinpath(dir_path, "iris.data")
+	CSV.read(csv_path, DataFrame, header=[:sepal_length, :sepal_width, :petal_length, :petal_width, :class])
+end
+
+# ╔═╡ 5ca4d705-dd91-4fa8-a70c-598077769615
+md"""
+## Accessing columns and column names
+"""
+
+# ╔═╡ 8533ce8a-460e-4b62-97c4-119b9a6fc6f2
+iris.sepal_length === iris[:, :sepal_length]
+
+# ╔═╡ 32944ad3-641d-4da4-80aa-e3fa29ecbbe9
+names(iris), propertynames(iris)
+
+# ╔═╡ 77c66f83-b02c-4ebd-987b-45c3e8928a3b
+md"""
+## Describe a DataFrame and computing statistics
+"""
+
+# ╔═╡ d06db870-6995-4b32-a838-d0ce284bc6d6
+describe(iris)
+
+# ╔═╡ bdba45b6-6e2f-449b-a1a6-c44023b78b81
+std(iris.sepal_length)
+
+# ╔═╡ 3ed5a310-7853-437a-b01f-6ab6fa744472
+first(iris, 5)
+
+# ╔═╡ 8df9f8aa-3253-4f7e-a801-4cc64a38ed0c
+md"""
+## Indexing and views
+"""
+
+# ╔═╡ 020a6d64-1b6f-4485-8bce-0814277f1386
+iris[rand(Bool, nrow(iris)), [:sepal_length, :class]]
+
+# ╔═╡ 8b08efcb-5efd-440a-a980-97bb3e459aec
+iris[1:10, "class"]
+
+# ╔═╡ 94075008-cc6f-4bbe-a9bb-46d587349e39
+iris[1:10, 1:4]
+
+# ╔═╡ 58d46e1d-3b30-46f1-b142-a068c001a765
+(@view iris[1:end, [2, 3, 5]]) |> typeof
+
+# ╔═╡ e8cb2729-37ec-4f60-a529-d7b139ac5133
+iris[!, r"sepal_*"]
+
+# ╔═╡ 41446fa3-fd89-4ee8-a3bc-045d9003e92c
+md"""
+## Mutating DataFrames
+"""
+
+# ╔═╡ d8f04fc9-8ba6-48d5-8c64-2ef3103e5077
+md"""
+## Missing values
+"""
+
+# ╔═╡ d5350cc4-f91a-4208-9a97-8440b7e637d9
+md"""
+## Broadcasting
+"""
+
+# ╔═╡ f7567427-9c14-462c-b507-368e561ed540
+md"""
+## Selectors and Transformation functions
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+CSV = "~0.10.12"
 DataFrames = "~1.6.1"
 """
 
@@ -22,13 +115,25 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "0d558b817e86da3a3dc02af767ddbd421168693d"
+project_hash = "851423e89ab26b4ffbe11b2caf1f9c12c4416e1f"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.CSV]]
+deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "PrecompileTools", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
+git-tree-sha1 = "679e69c611fff422038e9e21e270c4197d49d918"
+uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+version = "0.10.12"
+
+[[deps.CodecZlib]]
+deps = ["TranscodingStreams", "Zlib_jll"]
+git-tree-sha1 = "cd67fc487743b2f0fd4380d4cbd3a24660d0eec8"
+uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
+version = "0.7.3"
 
 [[deps.Compat]]
 deps = ["UUIDs"]
@@ -76,6 +181,12 @@ version = "1.0.0"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
+[[deps.FilePathsBase]]
+deps = ["Compat", "Dates", "Mmap", "Printf", "Test", "UUIDs"]
+git-tree-sha1 = "9f00e42f8d99fdde64d40c8ea5d14269a2e2c1aa"
+uuid = "48062228-2e41-5def-b9a4-89aafe57970f"
+version = "0.9.21"
+
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
@@ -112,6 +223,9 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
+[[deps.Logging]]
+uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -121,6 +235,9 @@ deps = ["DataAPI"]
 git-tree-sha1 = "f66bdc5de519e8f8ae43bdc598782d35a25b1272"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
 version = "1.1.0"
+
+[[deps.Mmap]]
+uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -239,12 +356,41 @@ git-tree-sha1 = "cb76cf677714c095e535e3501ac7954732aeea2d"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 version = "1.11.1"
 
+[[deps.Test]]
+deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
+uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[[deps.TranscodingStreams]]
+git-tree-sha1 = "1fbeaaca45801b4ba17c251dd8603ef24801dd84"
+uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
+version = "0.10.2"
+weakdeps = ["Random", "Test"]
+
+    [deps.TranscodingStreams.extensions]
+    TestExt = ["Test", "Random"]
+
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[[deps.WeakRefStrings]]
+deps = ["DataAPI", "InlineStrings", "Parsers"]
+git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
+uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
+version = "1.4.2"
+
+[[deps.WorkerUtilities]]
+git-tree-sha1 = "cd1659ba0d57b71a464a29e64dbc67cfe83d54e7"
+uuid = "76eceee3-57b5-4d4a-8e66-0e911cebbf60"
+version = "1.6.1"
+
+[[deps.Zlib_jll]]
+deps = ["Libdl"]
+uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
+version = "1.2.13+1"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -253,6 +399,28 @@ version = "5.8.0+1"
 """
 
 # ╔═╡ Cell order:
+# ╟─884905d7-ef97-4b62-acc9-843ce2e79f79
 # ╠═e332628d-d38a-49a7-84bc-7ace31ad0d4d
+# ╠═525b4126-e6fa-4616-9676-b8b6f31e403f
+# ╟─10373ad9-66d6-4f2b-b715-8c04fbdb7d08
+# ╠═d6b94b10-ffe4-4368-85f0-03ddaede3f7f
+# ╟─5ca4d705-dd91-4fa8-a70c-598077769615
+# ╠═8533ce8a-460e-4b62-97c4-119b9a6fc6f2
+# ╠═32944ad3-641d-4da4-80aa-e3fa29ecbbe9
+# ╟─77c66f83-b02c-4ebd-987b-45c3e8928a3b
+# ╠═d06db870-6995-4b32-a838-d0ce284bc6d6
+# ╠═9e807a3f-d861-4b98-a119-54b8b69bae27
+# ╠═bdba45b6-6e2f-449b-a1a6-c44023b78b81
+# ╠═3ed5a310-7853-437a-b01f-6ab6fa744472
+# ╟─8df9f8aa-3253-4f7e-a801-4cc64a38ed0c
+# ╠═020a6d64-1b6f-4485-8bce-0814277f1386
+# ╠═8b08efcb-5efd-440a-a980-97bb3e459aec
+# ╠═94075008-cc6f-4bbe-a9bb-46d587349e39
+# ╠═58d46e1d-3b30-46f1-b142-a068c001a765
+# ╠═e8cb2729-37ec-4f60-a529-d7b139ac5133
+# ╟─41446fa3-fd89-4ee8-a3bc-045d9003e92c
+# ╟─d8f04fc9-8ba6-48d5-8c64-2ef3103e5077
+# ╟─d5350cc4-f91a-4208-9a97-8440b7e637d9
+# ╟─f7567427-9c14-462c-b507-368e561ed540
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
