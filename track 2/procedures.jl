@@ -343,17 +343,101 @@ bar(; kwargs...) = kwargs
 # ╔═╡ cf8cdafd-4814-4a18-8b96-29db5a86872f
 bar(x=1, y=2)
 
+# ╔═╡ ee5d1867-7ca3-4bc3-a916-b3567be207ae
+md"""
+## Is Julia a FP language?
+
+Some (if not most) concepts in computer science don't have rigorous definitions, as in math, at least when it comes to real systems. Functional Programming (FP) and Object-Oriented Programming (OOP) are examples of them.
+
+Functional programming is a paradigm that has its roots in lambda calculus, and express computations as function application and composition, where the arguments and the return values of functions might be other functions (functions are _first-class citizens_).
+
+In purely functional programming languages, programs are modeled as mathematical functions, that maps arguments to return values without changing the state of the world (side-effects). Evaluating the same function with the same arguments will return the same value every time, which means that functions could be substituted by a look-up tables, or _memoized_. This property provides certain guarantees about programs written in these languages, for example that they always terminate and that they can be executed concurrently without worrying about, for example, data races or deadlocks.
+
+However, in most of real applications, a programming language has to deal with the state of the system, by reading it or changing it. For example, Haskell leverage its type system to clearly separate pure functions from impure functions.
+
+Julia is heavily inspired by Lisp, and Scheme in particular. These are considered functional programming languages, and hence we might include Julia in this programming paradigm. As Lisp, Julia follows a more practical approach than Haskell, and allows to mix freely pure and impure functions.
+
+In particular, Julia has full support for higher-order functions, such as [closures](https://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03277.html).
+"""
+
+# ╔═╡ 49d5b966-8e00-4a56-b3b1-c3a9a6fbe6e9
+let
+	# You can return both functions defined locally and lambdas from functions
+
+	function greater_than(y) # equilvalent to `greater_than(y) = x -> x > y`
+		function greater_than_value(x)
+			x > y
+		end
+		return greater_than_value # pleonastic
+	end
+
+	f = greater_than(0.5)
+
+	f(rand())
+end
+
+# ╔═╡ c0693f3e-dadf-4755-9d49-468b2703ec09
+let
+	# Indeed, comparison operators applied to only one arguments are functions
+	f = >(0.5)
+	
+	f(rand())
+end
+
+# ╔═╡ 6c0579df-9fc3-4835-8623-54595e29bb6d
+# Hence they can be used in maps, as you would do with an anonymous function
+map(>(0.5), rand(10)) # == map(x -> x > 0.5, rand(10))
+
+# ╔═╡ 045f2618-63eb-4bdb-8f22-cae4a7b1e649
+md"""
+Furthermore, there is a special syntax for defining lambdas and passing them to functions that accept a function as their first argument.
+
+The following block of code
+```julia
+f(args...) do a, b, ...
+	# function body
+end
+```
+is equivalent to the following
+```julia
+f((a, b, ...) -> begin #= function body =# end, args...)
+```
+
+This makes working with files, reminiscent of what you would do in Python, using context managers:
+```julia
+open("outfile", "w") do io
+    write(io, data)
+end
+```
+where `open` is defined the following way
+```julia
+function open(f::Function, args...)
+    io = open(args...)
+    try
+        f(io)
+    finally
+        close(io)
+    end
+end
+```
+"""
+
+# ╔═╡ 349d01e3-1a55-4a9d-a80f-464830606ec6
+map(rand(10)) do x
+	x > 0.5
+end
+
 # ╔═╡ f070f6c1-6a42-46e6-bb42-616204534074
 md"""
 !!! exercise
-	Define an higher-order function `nonmutating` that takes a function `f!` that mutates its first argument and returns a non-matating function `f` that takes the same arguments. The `nonmutating` function should have a keyword argument for choosing if to use `copy` or `deepcopy` in its implementation. Check your results.
+	Define an higher-order function `nonmutating` that takes a function `f!` that mutates its first argument and returns a non-mutating function `f` that takes the same arguments. The `nonmutating` function should have a keyword argument for choosing if to use `copy` or `deepcopy` in its implementation. Check your results.
 """
 
 # ╔═╡ 84d5e04e-f828-42e6-a45e-cebdcd13cd1a
 md"""
 ## Is Julia an OOP language?
 
-Some (if not most) concepts in computer science don't have rigorous definitions, at least when it comes to real systems, and in contrast with mathematics or physics. Object-Oriented Programming (OOP) is one of them. I'll quote verbatim the first few paragraph of "What Is Object-Oriented Programming?" from the chapter 18 of Types and Programming Languages, by Benjamin Pierce.
+I'll quote verbatim the first few paragraph of "What Is Object-Oriented Programming?" from the chapter 18 of Types and Programming Languages, by Benjamin Pierce.
 
 > Most arguments about "What is the essence of...?" do more to reveal the prejudices of the partecipants than to uncover any objective truth about the topic of discussion. Attempts to define the term "object-oriented" precisely are no exception. Nonetheless, we can identify a few fundamental features that are found in most object-oriented languages and that, in concert, support a distinctive programming style with well-understood advantages and disadvantages.
 > 1. **Multiple representations.** Perhaps the most basic characteristic of the object-oriented style is that, when an operation is invoked on an object, the object itself determines what code gets executed. [...] These implementations are called the object's _methods_. Invoking an operation on a object--called _method invocation_ or, more colorfully, sending it a _message_--involves looking up the operation's name at run time in a method table associated with the object, a process called _dynamic dispatch_. [...]
@@ -1050,6 +1134,12 @@ version = "17.4.0+2"
 # ╠═bc41ad7b-883f-45de-bf5b-9759471fe380
 # ╠═1c7c4966-428f-483c-acea-25b4e7c677fb
 # ╠═cf8cdafd-4814-4a18-8b96-29db5a86872f
+# ╟─ee5d1867-7ca3-4bc3-a916-b3567be207ae
+# ╠═49d5b966-8e00-4a56-b3b1-c3a9a6fbe6e9
+# ╠═c0693f3e-dadf-4755-9d49-468b2703ec09
+# ╠═6c0579df-9fc3-4835-8623-54595e29bb6d
+# ╟─045f2618-63eb-4bdb-8f22-cae4a7b1e649
+# ╠═349d01e3-1a55-4a9d-a80f-464830606ec6
 # ╟─f070f6c1-6a42-46e6-bb42-616204534074
 # ╟─84d5e04e-f828-42e6-a45e-cebdcd13cd1a
 # ╟─80768236-9675-11ed-3cfb-c31606f7223e
