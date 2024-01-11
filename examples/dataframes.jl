@@ -38,7 +38,7 @@ md"""
 """
 
 # ╔═╡ 8533ce8a-460e-4b62-97c4-119b9a6fc6f2
-iris.sepal_length === iris[:, :sepal_length]
+iris.sepal_length #= iris[!, :sepal_length] =# === iris[:, :sepal_length] 
 
 # ╔═╡ 32944ad3-641d-4da4-80aa-e3fa29ecbbe9
 names(iris), propertynames(iris)
