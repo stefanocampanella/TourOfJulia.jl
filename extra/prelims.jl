@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.29
+# v0.19.36
 
 using Markdown
 using InteractiveUtils
@@ -9,24 +9,37 @@ using PlutoUI
 
 # ╔═╡ 62113025-371c-4dec-9501-709f9d29612a
 md"""
-# Prelims
+# Preliminary to the Julia workshop
 
-## Installation
+The purpose of this notebook is to guide you obtaining a functioning installation of Julia on your system, and to be able to run code snippets and scripts. 
 
-Julia focuses on interactivity and includes a Read-Eval-Print-Loop (REPL). Other ways of interacting with Julia are via advanced editors (es. VS Code), IDEs (es. Jetbrains IDEs, via plugin), or notebooks (es. Jupyter or Pluto, like the current one). Of course, it is also possible to execute Julia scripts non-interactively.
+Julia focuses on interactivity and includes a Read-Eval-Print-Loop (REPL). Other ways of interacting with Julia are via advanced editors (es. VS Code), IDEs (es. Jetbrains IDEs, via a plugin), or notebooks (es. Jupyter or Pluto, like the current one). Of course, it is also possible to execute Julia scripts non-interactively.
 
 I will use the VS Code, the REPL and Pluto notebooks. It is useful to get acquainted with the REPL. But first, let's install Julia.
 
-There are several ways of installing Julia, using your OS package manager, downloading a pre-built binary, or compiling yourself (Julia is an open-source project and a community effort). The [homepage of the Julia language](https://julialang.org/) has a download section, however I would recommend using `juliaup`. This is a tool inspired by `rustup` (the installer of the Rust toolchain), and is written in Rust indeed. On MacOS/GNU Linux, you can install `juliaup` with
+## Installation
+
+There are several ways of installing Julia, using your OS package manager, downloading a pre-built binary, or compiling yourself (Julia is an open-source project and a community effort). The [homepage of the Julia language](https://julialang.org/) has a download section, however I would recommend using `juliaup`. This is a tool inspired by `rustup` (the installer of the Rust toolchain), and is written in Rust indeed. 
+
+From the [GitHub page](https://github.com/JuliaLang/juliaup) of `juliaup`
+> One can use juliaup to install specific Julia versions, it alerts users when new Julia versions are released and provides a convenient Julia release channel abstraction.
+
+On MacOS/GNU Linux, you can install `juliaup` with
 ```bash
 curl -fsSL https://install.julialang.org | sh
 ```
-Microsoft Windows is also supported. But I'll focus on the other two.
+After this operation, you'll have to reload your shell or source your local configuratio file (e.g. `~/.bashrc`).
 
-From the GitHub page of `juliaup`
-> One can use juliaup to install specific Julia versions, it alerts users when new Julia versions are released and provides a convenient Julia release channel abstraction.
+Microsoft Windows is also supported, but I'll focus on the other two. However, on a recent version you should be able to install `juliaup` from the [Windows store](https://www.microsoft.com/store/apps/9NJNWW8PVKMN).
 
-VS Code support editing Julia code (syntax highlighting, autocompletion, inline results, plot pane, integrated REPL, variable view, code navigation, and more) is provided via a plugin, which can be installed using the VS Code plugin manager.
+By default, `juliaup` install the latest version of Julia, which at the time of writing is `1.10.0`. It is highly recommended to work with the latest version, since it includes many features and improvements. In particular, version `1.10.0` features a new parser [`JuliaSyntax`](https://github.com/JuliaLang/JuliaSyntax.jl), written in Julia itself, which, among the other things, is able to prints more informative error messages. Each version comes with a release note, you can find [here](https://github.com/JuliaLang/julia/blob/v1.10.0/NEWS.md) the one for version `1.10.0`. 
+
+When a new version is release, `juliaup` will warn you. You can update the new versions with `juliaup update`. Also, `juliaup` is able to update itself with `juliaup self update`. Finally, `juliaup` works also as a version multiplexer. You can install alternative versions with `juliaup add <version>` and launch that version with `julia +<version>`. As an example, you might want to try the latest long term release (`1.6.7` at the time of writing) with `juliaup add lts` and then `julia +lts`. You can check that the right version is executed with `julia +lts --version`. You can set the default julia with `juliaup default <version>`.
+
+
+VS Code support editing Julia code (syntax highlighting, autocompletion, inline results, plot pane, integrated REPL, variable view, code navigation, and more) is provided via a plugin, which can be installed using the VS Code plugin manager. The documentation is available [here](https://code.visualstudio.com/docs/languages/julia).
+
+From there, you can run entire files or lines of code, both in a different process or in the current integrated REPL. You'll be also able to run a debugger, more on that later.
 
 Pluto and IJulia (the Julia kernel for Jupyter) can be installed via the Julia package manager, which will be discussed in a later section.
 """
@@ -41,24 +54,35 @@ Notice that the Julia CLI has several options. The complete list is available fr
 |:---                                   |:---|
 |`--project[={<dir>\|@.}]`              |Set `<dir>` as the home project/environment. The default `@.` option will search through parent directories until a `Project.toml` or `JuliaProject.toml` file is found.|
 |`-e`, `--eval <expr>`                  |Evaluate `<expr>`|
-|`-L`, `--load <file>`                  |Load `<file>` immediately on all processors|
 |`-t`, `--threads {N\|auto`}            |Enable N threads; `auto` tries to infer a useful default number of threads to use but the exact behavior might change in the future.  Currently, `auto` uses the number of CPUs assigned to this julia process based on the OS-specific affinity assignment interface, if supported (Linux and Windows). If this is not supported (macOS) or process affinity is not configured, it uses the number of CPU threads.|
 |`--check-bounds={yes\|no\|auto*}`      |Emit bounds checks always, never, or respect `@inbounds` declarations ($)|
 |`--math-mode={ieee,fast}`              |Disallow or enable unsafe floating point optimizations (overrides `@fastmath` declaration)|
+
+Julia is multithreaded, and you can set the number of threads (the number of threads used by the garbage collector is set by a separate flag). You can also launch different processes (as in Python `multiprocessing`).
+
+You can run a script simply by `julia path_to_script.jl`
 """
 
 # ╔═╡ 59aae636-769a-42f4-9403-d0f0f784f503
 md"""
 ## The REPL
 
-Once `juliaup` is installed, you should have also a functioning version of Julia in your PATH (the latest stable release). You can type `julia` in a terminal, hit enter and (right below a nice banner) a `julia>` prompt should show, you are now in the REPL. From here, you can write an expression (like `1 + 1` or `sort(["banana", "coconut", "apple"])`), which will be evaluated upon hitting enter (when in the REPL, the value of the last evaluated expression will be bound to a variable named `ans`). You can execute the code in `path/to/file.jl` (`jl` is the conventional extension of Julia code) calling the function 
-```
-julia> include("path/to/file.jl")
-```
+Once `juliaup` is installed, you can just type `julia` in a terminal, hit enter and (right below a nice banner) a `julia>` prompt should show, you are now in the REPL.
+
+From here, you can write an expression (like `1 + 1` or `sort(["banana", "coconut", "apple"])`), which will be evaluated and printed upon hitting enter (when in the REPL, the value of the last evaluated expression will be bound to a variable named `ans`). To suppress the showing of the evalutated expression add a trailing semicolon.
 
 Finally, you can exit the loop with `CTRL-D` or calling the function `exit()`. This is just one of the modes of the REPL, other important ones are the `help?`, `pkg`, and `shell` modes. You can access these modes prepending respectively `?`, `]` or `;` to a command.
 
-The help mode can be used to acces the documentation (it prints the docstring of a function, variables, and modules). The `pkg` mode is used to install, update or remove packages and environments. The `shell` mode can execute shell commands. Notice that `shell` mode is not a shell session, you are still inside Julia and, for example, interpolation works. 
+### The Help mode
+
+In the `help?` mode, you can access the documentation and print the docstrings of functions, modules, variables, etc. Prepending another `?` in you query will show the extended documentation. Finally, when in help mode, you can search a string `"search query"` or even a regex `r"search query"` in all docstrings.
+
+
+### The Pkg mode
+The `pkg` mode is used to install, update or remove packages and environments. More on that in the package manager section. 
+
+### The Shell mode
+The `shell` mode can execute shell commands. Notice that `shell` mode is not a shell session, you are still inside Julia and, for example, interpolation works. 
 
 ```julia
 julia> filename = "My awesome text file.txt"
@@ -68,6 +92,20 @@ julia> ls
 should print the content of your directory, plus a file named "My awesome text file.txt".
 
 Julia focuses on interactivity and you are encouraged to play with the REPL. Unlike statically compiled languages, it is possible and often recommended to develop your code by experimenting on the REPL.
+"""
+
+# ╔═╡ a63fe8aa-19f4-48f1-990f-be41fc253e8f
+md"""
+## The Julia package manager
+
+Julia built-in package manager can deal with multiple _environments_, which are similar to Conda envs or Python virtualenv.
+
+You can _activate_ an environment with `Pkg.activate("path/to/dir")` or with `activate path/to/dir`, while in `pkg` mode. Once an environment has been activated you can add, update and remove packages.
+
+While in `pkg` mode, type "add Pluto" and hit enter. The Pluto.jl package will be installed in the current environment.
+
+!!! exercise
+	Install `Pluto` and `IJulia` (the Jupyter kernel for Julia) in your current environment. Be aware that might take some time!
 """
 
 # ╔═╡ 93fefea7-6b0f-4803-9d4e-702f9abf3017
@@ -135,15 +173,10 @@ area = π * radius^2
 # ╔═╡ 29736cc4-f8a3-4c85-9896-29a4e9a1b8e3
 md"""This mechanic allows for interactive visualizations and other forms of interactivity within Pluto. The documentation of Pluto and other useful links can be found at the [GitHub repository of the project](https://github.com/fonsp/Pluto.jl)"""
 
-# ╔═╡ a63fe8aa-19f4-48f1-990f-be41fc253e8f
+# ╔═╡ 923eb791-4dd3-4664-baad-388ac5673922
 md"""
-## The Julia package manager
-
-Julia built-in package manager can deal with multiple _environments_, which are similar to Conda envs or Python virtualenv.
-
-You can _activate_ an environment with `Pkg.activate("path/to/dir")` or with `activate path/to/dir`, while in `pkg`. Once an environment has been activated you can add, update and remove packages.
-
-While in `pkg` mode, type "add Pluto" and hit enter. The Pluto.jl package will be installed in the current environment.
+!!! exercise
+	Download and run this notebook by clicking the "Edit or run this notebook" button on the top right of the page and following the instructions.
 """
 
 # ╔═╡ 2d5c9202-fd66-4584-82ea-7c48e9efbe6d
@@ -172,7 +205,7 @@ More importantly, the time spent by the Julia runtime upon the first invocation 
 
 Julia includes a statistical profiler in the standard library but external tools can be used (as before, look at the documentation).
 
-Finally, a debugger is available as a separate package.
+Finally, a debugger is available as a [separate package](https://github.com/JuliaDebug/Debugger.jl).
 """
 
 # ╔═╡ 1ece9654-2e9e-4a77-be20-bf18bb754c64
@@ -217,22 +250,22 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-PlutoUI = "~0.7.49"
+PlutoUI = "~0.7.54"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.3"
+julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "08cc58b1fbde73292d848136b97991797e6c5429"
+project_hash = "3c61004d0ad425a97856dfe604920e9ff261614a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "8eaf9f1b4921132a4cff3f36a1d9ba923b14a481"
+git-tree-sha1 = "c278dfab760520b8bb7e9511b968bf4ba38b7acc"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.1.4"
+version = "1.2.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -253,7 +286,7 @@ version = "0.11.4"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.5+0"
+version = "1.0.5+1"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -281,15 +314,15 @@ version = "0.0.4"
 
 [[deps.HypertextLiteral]]
 deps = ["Tricks"]
-git-tree-sha1 = "c47c5fa4c5308f27ccaac35504858d8914e102f9"
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
 uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.IOCapture]]
 deps = ["Logging", "Random"]
-git-tree-sha1 = "f7be53659ab06ddc986428d3a9dcc95f6fa6705a"
+git-tree-sha1 = "d75853a0bdbfb1ac815478bacd89cd27b550ace6"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-version = "0.2.2"
+version = "0.2.3"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -297,28 +330,33 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
-git-tree-sha1 = "3c837543ddb02250ef42f4738347454f95079d4e"
+git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "0.21.3"
+version = "0.21.4"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
-version = "0.6.3"
+version = "0.6.4"
 
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "7.84.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
+deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+
+[[deps.LibGit2_jll]]
+deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
+uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
 uuid = "29816b5a-b9ab-546f-933c-edad1886dfa8"
-version = "1.10.2+0"
+version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -342,14 +380,14 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+0"
+version = "2.28.2+1"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2022.10.11"
+version = "2023.1.10"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -358,30 +396,36 @@ version = "1.2.0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.21+4"
+version = "0.3.23+2"
 
 [[deps.Parsers]]
-deps = ["Dates", "SnoopPrecompile"]
-git-tree-sha1 = "6466e524967496866901a78fca3f2e9ea445a559"
+deps = ["Dates", "PrecompileTools", "UUIDs"]
+git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.5.2"
+version = "2.8.1"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.2"
+version = "1.10.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "eadad7b14cf046de6eb41f13c9275e5aa2711ab6"
+git-tree-sha1 = "bd7c69c7f7173097e7b5e1be07cee2b8b7447f51"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.49"
+version = "0.7.54"
+
+[[deps.PrecompileTools]]
+deps = ["Preferences"]
+git-tree-sha1 = "03b4c25b43cb84cee5c90aa9b5ea0a78fd848d2f"
+uuid = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+version = "1.2.0"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "47e5f437cc0e7ef2ce8406ce1e7e24d44915f88d"
+git-tree-sha1 = "00805cd429dcb4870060ff49ef443486c262e38e"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.3.0"
+version = "1.4.1"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -392,7 +436,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[deps.Random]]
-deps = ["SHA", "Serialization"]
+deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.Reexport]]
@@ -407,28 +451,23 @@ version = "0.7.0"
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
-[[deps.SnoopPrecompile]]
-deps = ["Preferences"]
-git-tree-sha1 = "e760a70afdcd461cf01a575947738d359234665c"
-uuid = "66db9d55-30c0-4569-8b51-7e840670fc0c"
-version = "1.0.3"
-
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+version = "1.10.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.9.0"
+version = "1.10.0"
 
 [[deps.SuiteSparse_jll]]
-deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "5.10.1+6"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -445,14 +484,14 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6bac775f2d42a611cdfcd1fb217ee719630c4175"
+git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.6"
+version = "0.1.8"
 
 [[deps.URIs]]
-git-tree-sha1 = "ac00576f90d8a259f2c9d823e91d1de3fd44d348"
+git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.4.1"
+version = "1.5.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -464,28 +503,29 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.13+0"
+version = "1.2.13+1"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.8.0+0"
+version = "5.8.0+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.48.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
-version = "17.4.0+0"
+version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
 # ╟─62113025-371c-4dec-9501-709f9d29612a
 # ╟─f8f75354-d5e5-4f7a-ad90-f6d1c3c05fce
 # ╟─59aae636-769a-42f4-9403-d0f0f784f503
+# ╟─a63fe8aa-19f4-48f1-990f-be41fc253e8f
 # ╟─93fefea7-6b0f-4803-9d4e-702f9abf3017
 # ╠═bad1c982-9c46-41d2-aff9-6c4644a99c2e
 # ╠═5b79c7e6-41d2-40b2-9d15-37fef547f803
@@ -497,7 +537,7 @@ version = "17.4.0+0"
 # ╠═cc18596a-63c8-4228-a7f8-ee22b28fc496
 # ╠═44ed2314-3601-476c-b849-9190cf17f236
 # ╟─29736cc4-f8a3-4c85-9896-29a4e9a1b8e3
-# ╟─a63fe8aa-19f4-48f1-990f-be41fc253e8f
+# ╟─923eb791-4dd3-4664-baad-388ac5673922
 # ╟─2d5c9202-fd66-4584-82ea-7c48e9efbe6d
 # ╟─1ece9654-2e9e-4a77-be20-bf18bb754c64
 # ╟─005d8679-5e59-4259-8971-30e50a40c1d6
