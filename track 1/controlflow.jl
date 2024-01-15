@@ -131,11 +131,11 @@ iseven(1) || "Aloha!"
 
 # ╔═╡ 3a8926fd-8555-4370-b6cf-cc81632dafb5
 # Allowed
-isempty([71, 105, 110, 101, 118, 114, 97]) || isodd(1) && "Aloha!"
+isempty([71, 105, 110, 101, 118, 114, 97, 33]) || isodd(1) && "Aloha!"
 
 # ╔═╡ 3e21f5ac-bd24-4b0a-8998-3bc0499cc143
 # Not allowed
-isempty([71, 105, 110, 101, 118, 114, 97]) || sin(1) && "Aloha!"
+isempty([71, 105, 110, 101, 118, 114, 97, 33]) || sin(1) && "Aloha!"
 
 # ╔═╡ 20881b2d-afba-434b-a2ea-20cf2317051e
 md"""
