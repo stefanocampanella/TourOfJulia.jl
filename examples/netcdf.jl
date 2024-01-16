@@ -62,7 +62,7 @@ Land mask transparency: $(@bind alpha Scrubbable(0.:0.1:1., default=0.3))
 """
 
 # ╔═╡ d849dab4-e880-433c-bae5-c7191f9a1803
-let 
+figure = let 
 	resolution = (1200, 800)
 	
 	londim = ds.dim["longitude"]
@@ -99,6 +99,9 @@ let
 	cb = Colorbar(fig[1, 2], arrplt, size=30, height=Relative(0.65), label="Flow speed [m / s]")
 	fig
 end
+
+# ╔═╡ 7e760fd1-5d58-460f-8083-da9826765c1b
+PlutoUI.DownloadButton(figure, "flow.png")
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1931,6 +1934,7 @@ version = "3.5.0+0"
 # ╠═e0ea98a5-3c6a-4fe1-8fae-0d618b1427c5
 # ╠═3488f5a7-2b2a-4bb1-bcc9-45731c97a749
 # ╟─81efea2d-2b4e-428e-9854-368cf4ce315a
+# ╟─7e760fd1-5d58-460f-8083-da9826765c1b
 # ╠═d849dab4-e880-433c-bae5-c7191f9a1803
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
