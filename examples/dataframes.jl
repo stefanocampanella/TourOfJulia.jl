@@ -85,7 +85,7 @@ iris[!, Not(:class)]
 
 # ╔═╡ 9db64168-338c-4bf7-b430-98c2efd39db3
 md"""
-## Classifying with XGBoost
+## Classifying the Iris dataset with XGBoost
 """
 
 # ╔═╡ cbef1767-4c50-4f40-aa29-e9bddbaeb2a0
@@ -119,11 +119,8 @@ model = xgboost((train[:, Not(:class)], train_labels))
 # ╔═╡ e36eecca-feb6-4c76-9a14-0ffb675e904d
 predictions = predict(model, test[:, Not(:class)])
 
-# ╔═╡ d0000e98-e712-4769-94b5-dc918637d7d5
-rmse(xs, ys) = sqrt(mean((xs - ys) .^ 2))
-
 # ╔═╡ 7557839c-a580-44c3-a135-b9384cff89c3
-rmse(encode.(test.class), predictions)
+√mean(abs2, encode.(test.class) - predictions) # RMSE
 
 # ╔═╡ 73413e5f-5c7f-4955-9acb-f5c5c996a903
 count(encode.(test.class) .!= round.(predictions))
@@ -627,7 +624,6 @@ version = "17.4.0+2"
 # ╠═d96c37be-da2f-4c0a-93c4-9ebf7f060603
 # ╠═1a112052-f7e3-4bc8-bec6-70fcaa28eb1f
 # ╠═e36eecca-feb6-4c76-9a14-0ffb675e904d
-# ╠═d0000e98-e712-4769-94b5-dc918637d7d5
 # ╠═7557839c-a580-44c3-a135-b9384cff89c3
 # ╠═73413e5f-5c7f-4955-9acb-f5c5c996a903
 # ╠═697135f2-cf29-4769-bb75-0c615d30a2ab
