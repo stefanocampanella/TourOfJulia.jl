@@ -30,7 +30,7 @@ md"""
 iris = mktempdir() do dir_path
 	zip_path = joinpath(dir_path, "iris.zip")
 	download("https://archive.ics.uci.edu/static/public/53/iris.zip", zip_path)
-	run(`tar -xzf $zip_path -C $dir_path`)
+	run(`unzip $zip_path -d $dir_path`)
 	csv_path = joinpath(dir_path, "iris.data")
 	CSV.read(csv_path, DataFrame, header=[:sepal_length, :sepal_width, :petal_length, :petal_width, :class])
 end
@@ -128,8 +128,7 @@ count(encode.(test.class) .!= round.(predictions))
 # ╔═╡ 697135f2-cf29-4769-bb75-0c615d30a2ab
 let
 	df = copy(iris)
-	predictions = decode.(predict(model, df[:, Not(:class)]))
-	df.prediction = predictions
+	df.prediction = decode.(predict(model, df[:, Not(:class)]))
 	df[df.class .!= df.prediction, :]
 end
 
