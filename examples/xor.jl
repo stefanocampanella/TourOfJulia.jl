@@ -4,8 +4,21 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 00b9930c-f7fb-11ed-31ad-af4b96db0e1f
 using Flux, Statistics
+
+# ╔═╡ b0d6aa31-1481-4c3b-b0ad-486ea36a49b9
+using PlutoUI
 
 # ╔═╡ 7b7dfe35-3219-4098-a5e9-9d903415b035
 using Plots
@@ -16,13 +29,30 @@ noisy = rand(Float32, 2, 1000)
 # ╔═╡ ddff9196-b08b-42ff-be0d-3d94271a21ff
 truth = map(splat(xor), eachcol(noisy .> 0.5))
 
+# ╔═╡ 9df1908a-0023-4eac-85b1-040728fd3044
+md"""
+## Hidden layers parameters
+
+Depth: $(@bind depth Slider(2:8, default=2, show_value=true))
+
+Width: $(@bind width Slider(2:16, default=8, show_value=true))
+
+Activation function $(@bind activation Select([relu => "ReLU", sigmoid => "sigmoid", tanh => "tanh"], default=tanh))
+"""
+
+# ╔═╡ 76e6509f-6881-45f4-b67d-794312a025b6
+function hidden_layer(n)
+	if n == 1
+		Dense(2 => width, activation)
+	elseif n == depth
+		Dense(width => 2, activation)
+	else
+		Dense(width => width, activation)
+	end
+end
+
 # ╔═╡ 75527f61-4534-4481-a4bd-3a36702876df
-model = Chain(
-	Dense(2 => 3, tanh),
-	BatchNorm(3),
-	Dense(3 => 2),
-	softmax
-)
+model = Chain((hidden_layer(n) for n = 1:depth)..., softmax)
 
 # ╔═╡ a2b5cad3-d8b3-47a0-91ce-bc20ba922dae
 untrained_model = deepcopy(model)
@@ -89,11 +119,13 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 Flux = "~0.13.16"
 Plots = "~1.38.12"
+PlutoUI = "~0.7.55"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -102,7 +134,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "240511751c96b0755db4baa427236f2741ba810f"
+project_hash = "dd92596d9f67b87e319a59244a8c218c7b2ce081"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -113,6 +145,12 @@ weakdeps = ["ChainRulesCore"]
 
     [deps.AbstractFFTs.extensions]
     AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "c278dfab760520b8bb7e9511b968bf4ba38b7acc"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.2.3"
 
 [[deps.Accessors]]
 deps = ["Compat", "CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Requires", "Test"]
@@ -601,6 +639,24 @@ git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.4"
+
 [[deps.IRTools]]
 deps = ["InteractiveUtils", "MacroTools", "Test"]
 git-tree-sha1 = "eac00994ce3229a464c2847e956d77a2c64ad3a5"
@@ -825,6 +881,11 @@ git-tree-sha1 = "cedb76b37bc5a6c702ade66be44f831fa23c681e"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.0"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
+
 [[deps.MLStyle]]
 git-tree-sha1 = "bc38dff0548128765760c79eb7388a4b37fae2c8"
 uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
@@ -1030,6 +1091,12 @@ version = "1.38.12"
     IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "68723afdb616445c6caaef6255067a8339f91325"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.55"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1278,6 +1345,11 @@ deps = ["Adapt", "ArgCheck", "BangBang", "Baselet", "CompositionsBase", "DefineS
 git-tree-sha1 = "25358a5f2384c490e98abd565ed321ffae2cbb37"
 uuid = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 version = "0.4.76"
+
+[[deps.Tricks]]
+git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.8"
 
 [[deps.URIs]]
 git-tree-sha1 = "074f993b0ca030848b897beff716d93aca60f06a"
@@ -1574,8 +1646,11 @@ version = "1.4.1+0"
 
 # ╔═╡ Cell order:
 # ╠═00b9930c-f7fb-11ed-31ad-af4b96db0e1f
+# ╠═b0d6aa31-1481-4c3b-b0ad-486ea36a49b9
 # ╠═92473837-47f0-409f-a29e-325509bd75d9
 # ╠═ddff9196-b08b-42ff-be0d-3d94271a21ff
+# ╟─9df1908a-0023-4eac-85b1-040728fd3044
+# ╠═76e6509f-6881-45f4-b67d-794312a025b6
 # ╠═75527f61-4534-4481-a4bd-3a36702876df
 # ╠═a2b5cad3-d8b3-47a0-91ce-bc20ba922dae
 # ╠═fd5e210a-e45e-4a67-82d5-e9dc6f181cd1
