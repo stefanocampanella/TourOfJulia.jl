@@ -23,8 +23,18 @@ using PlutoUI
 # ╔═╡ 7b7dfe35-3219-4098-a5e9-9d903415b035
 using Plots
 
+# ╔═╡ 6f5b7b74-16a3-4d92-b155-69f11b8f44a4
+
+
+# ╔═╡ 3ab18c05-250b-432c-a155-d1c5b0321173
+md"""
+## Generate data
+
+Number of samples: $(@bind nsamples Slider(100:100:10_000, default=1000, show_value=true))
+"""
+
 # ╔═╡ 92473837-47f0-409f-a29e-325509bd75d9
-noisy = rand(Float32, 2, 1000)
+noisy = rand(Float32, 2, nsamples)
 
 # ╔═╡ ddff9196-b08b-42ff-be0d-3d94271a21ff
 truth = map(splat(xor), eachcol(noisy .> 0.5))
@@ -33,11 +43,11 @@ truth = map(splat(xor), eachcol(noisy .> 0.5))
 md"""
 ## Hidden layers parameters
 
-Depth: $(@bind depth Slider(2:8, default=2, show_value=true))
+Depth: $(@bind depth Slider(2:4, default=2, show_value=true))
 
 Width: $(@bind width Slider(2:16, default=8, show_value=true))
 
-Activation function $(@bind activation Select([relu => "ReLU", sigmoid => "sigmoid", tanh => "tanh"], default=tanh))
+Activation function $(@bind activation Select([relu => "ReLU", sigmoid => "sigmoid", tanh => "tanh"], default=sigmoid))
 """
 
 # ╔═╡ 76e6509f-6881-45f4-b67d-794312a025b6
@@ -60,14 +70,25 @@ untrained_model = deepcopy(model)
 # ╔═╡ fd5e210a-e45e-4a67-82d5-e9dc6f181cd1
 target = Flux.onehotbatch(truth, [true, false])
 
+# ╔═╡ 73859f17-3b5f-46fa-8505-ca3aad67424d
+md"""
+## Learning parameters
+
+Learning rate: $(@bind η Slider(0.001:0.0005:0.02, default=0.004, show_value=true))
+
+Epochs: $(@bind nepochs Slider(500:100:5_000, default=1_000, show_value=true))
+
+Batch size: $(@bind batchsize Slider(32:2:256, default=128, show_value=true))
+"""
+
 # ╔═╡ 76d5037b-ebb9-4e96-95cc-239f0da0c21c
-loader = Flux.DataLoader((noisy, target), batchsize=64, shuffle=true)
+loader = Flux.DataLoader((noisy, target), batchsize=batchsize, shuffle=true)
 
 # ╔═╡ 0ef7041c-33a7-4ed1-83a4-62c9adbcd9a3
 x, y = first(loader)
 
 # ╔═╡ 1153b4c4-9147-4fde-b020-8301d992753b
-optim = Flux.setup(Flux.Adam(0.01), model)
+optim = Flux.setup(Flux.Adam(η), model)
 
 # ╔═╡ 98d818fc-d35a-4779-b88d-e0f6a8b3ae11
 Flux.withgradient(m -> Flux.crossentropy(m(x), y), model)
@@ -75,7 +96,7 @@ Flux.withgradient(m -> Flux.crossentropy(m(x), y), model)
 # ╔═╡ de43084e-a2ba-4233-b673-f662dd4a08d0
 begin
 	losses = []
-	for epoch = 1:1_000
+	for epoch = 1:nepochs
 		for (x, y) in loader
 			loss, grads = Flux.withgradient(model) do m
 				y_hat = m(x)
@@ -1647,6 +1668,8 @@ version = "1.4.1+0"
 # ╔═╡ Cell order:
 # ╠═00b9930c-f7fb-11ed-31ad-af4b96db0e1f
 # ╠═b0d6aa31-1481-4c3b-b0ad-486ea36a49b9
+# ╠═6f5b7b74-16a3-4d92-b155-69f11b8f44a4
+# ╟─3ab18c05-250b-432c-a155-d1c5b0321173
 # ╠═92473837-47f0-409f-a29e-325509bd75d9
 # ╠═ddff9196-b08b-42ff-be0d-3d94271a21ff
 # ╟─9df1908a-0023-4eac-85b1-040728fd3044
@@ -1654,8 +1677,9 @@ version = "1.4.1+0"
 # ╠═75527f61-4534-4481-a4bd-3a36702876df
 # ╠═a2b5cad3-d8b3-47a0-91ce-bc20ba922dae
 # ╠═fd5e210a-e45e-4a67-82d5-e9dc6f181cd1
-# ╠═76d5037b-ebb9-4e96-95cc-239f0da0c21c
+# ╟─73859f17-3b5f-46fa-8505-ca3aad67424d
 # ╠═0ef7041c-33a7-4ed1-83a4-62c9adbcd9a3
+# ╠═76d5037b-ebb9-4e96-95cc-239f0da0c21c
 # ╠═1153b4c4-9147-4fde-b020-8301d992753b
 # ╠═98d818fc-d35a-4779-b88d-e0f6a8b3ae11
 # ╠═de43084e-a2ba-4233-b673-f662dd4a08d0
